@@ -1,0 +1,263 @@
+meta:
+  name: "ASCII VIBE CODEX v11 — Tier 2 (Pro / Orchestrator)"
+  version: "11.0"
+  updated: "2025-08-08"
+  # Tier 2 is the “pro” spec used by orchestrators / tools / DSL renderers.
+
+models_supported:
+  openai: [ "o4-mini", "o4", "gpt-4o", "gpt-4.1", "gpt-4.1-mini" ]
+  anthropic: [ "claude-3.5-sonnet", "claude-3.5-haiku", "claude-3-opus" ]
+  google: [ "gemini-1.5-pro", "gemini-1.5-flash", "gemini-2.0-flash" ]
+  open_source: [ "llama-3.1-70b", "llama-3.1-405b", "qwen2.5-72b", "mistral-large" ]
+
+principles:
+  proportionality_rule: "chars = round(value / max_value * width)"
+  label_policy: "Labels/legends above or below visuals; never inline left of bars."
+  monospace_only: true
+  emoji_inside_structures: false
+
+# -----------------------------
+# Anchors / Aliases (reusable)
+# -----------------------------
+visualization:
+  data_viz:
+    rules:
+      proportionality: "chars = round(value / max * width)"
+      width_limits:
+        mobile: 25
+        tablet: 40
+        desktop: 60
+
+    # Canonical bar spec (ANCHOR) that tests expect to exist.
+    bar_horizontal: &bar_horizontal
+      id: "bar_horizontal"
+      width: 30        # default; tests may override via CLI/input
+      fill: "█"
+      empty: " "
+      show_axis: true
+      axis_labels:
+        left: "0%"
+        middle: "50%"
+        right: "100%"
+      markers:
+        - 0.0
+        - 0.5
+        - 1.0
+      label_side: "right"
+      # Formula used by tests:
+      formula: "chars = round(value / max_value * width)"
+
+    # Variants that reuse the anchor
+    bar_horizontal_30:
+      <<: *bar_horizontal
+      width: 30
+    bar_horizontal_40:
+      <<: *bar_horizontal
+      width: 40
+    bar_horizontal_60:
+      <<: *bar_horizontal
+      width: 60
+
+rendering_contract:
+  inputs:
+    - name: "series"
+      type: "array<object>"
+      required: true
+      schema:
+        - key: "label"
+          type: "string"
+        - key: "value"
+          type: "number"
+  outputs:
+    - name: "ascii_block"
+      type: "string"
+      description: "Monospace block with mathematically proportional bars."
+
+  validation:
+    - "All rows must be equal length."
+    - "Percent to char count must follow the proportionality formula exactly."
+    - "Axis markers at 0%, 50%, 100% must land on columns 0, width/2, width."
+
+defaults:
+  chart_type: "bar_horizontal_30"
+  max_rows: 12
+  truncate_label_to: 10
+
+# Smoke test reference keys (so the test can find them deterministically)
+smoke_test_contract:
+  chart_key_for_test: "visualization.data_viz.bar_horizontal_30"
+  width_for_test: 30
+  series_example:
+    - { label: "A", value: 100 }
+    - { label: "B", value: 71 }
+    - { label: "C", value: 36 }
+# ASCII VIBE CODEX — TIER 2 (Extended) v11
+# File: specs/v11-tier2.yaml
+# Purpose: Full extended library for multi-style text UI, multiple charts, personas, and aesthetic patterns.
+# Scope: Works as a high-capability system prompt or as an extended CLI rendering contract.
+# ------------------------------------------------------------------------------
+
+meta:
+  name: "ASCII VIBE CODEX — Tier 2 (Extended)"
+  version: "11.0"
+  date: "2025-08-08"
+  intent: "Provide expanded visual formats, rich personas, stylistic patterns, and advanced charting."
+
+compatibility:
+  recommended_models:
+    openai:
+      - "o4"
+      - "o4-mini"
+      - "gpt-4o"
+      - "gpt-4o-mini"
+      - "gpt-4.1"
+      - "gpt-4.1-mini"
+    anthropic:
+      - "claude-3.5-sonnet"
+      - "claude-3.5-haiku"
+      - "claude-4-opus"   # if released
+    google:
+      - "gemini-1.5-pro"
+      - "gemini-1.5-flash"
+    open_source:
+      - "Llama-3-70B-instruct"
+      - "Mistral-Large-Instruct"
+      - "Qwen2-72B-Instruct"
+      - "Mixtral-8x22B-Instruct"
+  safety_switches:
+    use_basic_ascii_only: false
+    unicode_ok: true
+    max_width_chars: 80
+    max_height_lines: 30
+
+# ------------------------------------------------------------------------------
+# DESIGN PRINCIPLES
+# ------------------------------------------------------------------------------
+
+principles:
+  - "Clarity over cleverness — visuals must be instantly understandable."
+  - "Form follows function — data drives the design."
+  - "Playful but professional — subtle charm without breaking trust."
+  - "All proportional visuals are mathematically accurate."
+  - "Support multiple devices — mobile-first, then upscale for wider terminals."
+  - "Never mix emoji into fixed-width visual elements."
+
+# ------------------------------------------------------------------------------
+# PERSONA LIBRARY
+# ------------------------------------------------------------------------------
+
+personas:
+  professional:
+    - name: "The Mentor"
+      description: "Wise, patient, encouraging."
+    - name: "The Analyst"
+      description: "Data-driven, precise."
+    - name: "The Cheerleader"
+      description: "Upbeat, motivating."
+    - name: "The Taskmaster"
+      description: "Efficient, deadline-focused."
+  comedic:
+    - name: "The Brash Rebel"
+      description: "Irreverent, loud."
+    - name: "The Innocent Optimist"
+      description: "Naive but hopeful."
+    - name: "The Unlucky Sidekick"
+      description: "Always in mishaps."
+    - name: "The Free Spirit"
+      description: "Laid-back, tangential."
+
+# ------------------------------------------------------------------------------
+# VISUAL COMPONENTS
+# ------------------------------------------------------------------------------
+
+components:
+  dividers:
+    ascii: ["------------------------------------------------------------"]
+    unicode: ["────────────────────────────────────────────────────────────"]
+  boxes:
+    rounded:
+      unicode: |
+        ╭────────────────────╮
+        │  {CONTENT}         │
+        ╰────────────────────╯
+    double:
+      unicode: |
+        ╔════════════════════╗
+        ║  {CONTENT}         ║
+        ╚════════════════════╝
+  emphasis:
+    markers: ["※", "＊", "・", "【 】", "〖 〗"]
+
+# ------------------------------------------------------------------------------
+# CHARTS
+# ------------------------------------------------------------------------------
+
+charts:
+  bar_horizontal: *bar_horizontal  # inherits Tier-1 contract if loaded together
+  heatmap:
+    description: "Density visualization using char gradients."
+    gradients:
+      ascii: " .:-=+*#%@"
+      unicode: " ░▒▓█"
+    contract:
+      - "Grid format, fixed column widths."
+      - "Each value mapped to gradient index."
+  sparkline:
+    description: "Inline mini-chart."
+    unicode_blocks: "▁▂▃▄▅▆▇█"
+    contract:
+      - "One line only, values map directly to block height."
+  timeline:
+    description: "Horizontal time markers with events."
+    example: |
+      2018 ○── 2020 ○── 2022 ○── 2024 ○
+         Plan     Build    Test    Launch
+  tree:
+    description: "Hierarchical relationships."
+    example: |
+      Root
+      ├── Branch A
+      │   ├── Leaf 1
+      │   └── Leaf 2
+      └── Branch B
+
+# ------------------------------------------------------------------------------
+# JAPANESE DESIGN ELEMENTS
+# ------------------------------------------------------------------------------
+
+japanese_design:
+  concepts:
+    - ma: "Negative space."
+    - kanso: "Simplicity."
+    - shibumi: "Understated elegance."
+  frames:
+    rounded: "╭────────────────────╮...╰────────────────────╯"
+    double: "╔════════════════════╗...╚════════════════════╝"
+
+# ------------------------------------------------------------------------------
+# VALIDATION
+# ------------------------------------------------------------------------------
+
+validation:
+  inherit_from_tier1: true
+  extended_checks:
+    - "No inconsistent gradient use."
+    - "Timelines evenly spaced."
+    - "Tree branches aligned vertically."
+
+# ------------------------------------------------------------------------------
+# EXAMPLES
+# ------------------------------------------------------------------------------
+
+examples:
+  sparkline_unicode: "▂▄▆█▆▄▂"
+  heatmap_unicode: |
+    ░░▒▒▓▓██
+    ▒▒▓▓████
+    ▓▓██████
+
+notes:
+  usage_in_prompt: |
+    Use this Tier-2 spec for high-IQ reasoning models to generate rich, multi-component text visuals.
+    May be loaded after Tier-1 for combined capabilities.
+

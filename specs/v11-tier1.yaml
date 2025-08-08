@@ -1,0 +1,246 @@
+# ASCII VIBE CODEX — TIER 1 (Core) v11
+# File: specs/v11-tier1.yaml
+# Purpose: Minimal, bulletproof core for text UIs + charts with strict math + alignment.
+# Scope: Works as a drop-in system prompt OR as a library contract for CLIs.
+# ------------------------------------------------------------------------------
+
+meta:
+  name: "ASCII VIBE CODEX — Tier 1 (Core)"
+  version: "11.0"
+  date: "2025-08-08"
+  intent: "Guarantee mathematically-accurate, monospace-safe text UI and charts."
+
+compatibility:
+  # Use these exact preset names in prompts/env when possible.
+  recommended_models:
+    openai:
+      - "o4-mini"
+      - "gpt-4o-mini"
+      - "gpt-4.1-mini"
+    anthropic:
+      - "claude-3.5-sonnet"
+      - "claude-3.5-haiku"
+    google:
+      - "gemini-1.5-pro"
+      - "gemini-1.5-flash"
+    open_source:
+      - "Llama-3-70B-instruct"
+      - "Mistral-Large-Instruct"
+      - "Qwen2-72B-Instruct"
+  safety_switches:
+    use_basic_ascii_only: true          # Tier 1 sticks to ASCII unless "unicode_ok: true"
+    unicode_ok: false
+    max_width_chars: 60
+    max_height_lines: 20
+
+principles:
+  - "Monospace only. Use spaces, never tabs."
+  - "Labels above or below visuals. Never to the left/right of variable-width bars."
+  - "One fill char for bars: █ in unicode_ok mode, # in ASCII-only."
+  - "Proportional math is non-negotiable."
+  - "No emojis inside boxes/tables/graphs."
+
+rules:
+  proportionality:
+    formula: "chars = round(value / max_value * total_width)"
+    ascii_fill: "#"
+    unicode_fill: "█"
+  alignment:
+    verify_equal_row_widths: true
+    scale_guides: true
+  borders:
+    ascii:
+      h: "-"
+      v: "|"
+      corners: ["+", "+", "+", "+"]
+    unicode:
+      h: "─"
+      v: "│"
+      corners: ["┌","┐","└","┘"]
+
+render_defaults:
+  unicode_ok: false      # flip to true if terminal supports it
+  chart_width: 30        # bar region width (without labels)
+  label_width: 5         # label slot (fixed) when needed
+  precision_pct: 0       # show 0 decimals by default
+
+# ------------------------------------------------------------------------------
+# SIMPLE COMPONENTS
+# ------------------------------------------------------------------------------
+
+components:
+  divider:
+    ascii: "------------------------------------------------------------"
+    unicode: "────────────────────────────────────────────────────────────"
+
+  box:
+    # Basic framed block that enforces equal row width.
+    render: |
+      # params: title (opt), lines[], unicode_ok(bool), width(int)
+      # Pseudocode contract for renderers (LLM or CLI):
+      # 1) Pick charset per unicode_ok.
+      # 2) width = max(len(title), max(len(line_i))) + 4 (for borders & spaces)
+      # 3) Print top border, optional centered title line, content lines padded, bottom border.
+
+# ------------------------------------------------------------------------------
+# DATA VIS: BAR (HORIZONTAL)
+# ------------------------------------------------------------------------------
+
+charts:
+  bar_horizontal:
+    description: "Strict-proportion horizontal bar chart."
+    inputs:
+      - "title (string)"
+      - "series (list of {label:str, value:number})"
+      - "width (int, bar region) default=render_defaults.chart_width"
+      - "unicode_ok (bool) default=render_defaults.unicode_ok"
+    steps:
+      - "Find max_value = max(series.value)"
+      - "For each item: bar_len = round(value / max_value * width)"
+      - "Use one fill char (█ if unicode_ok else #), pad remainder with spaces."
+      - "Place numeric value and percent AFTER the bar."
+      - "Place a scale ruler under the bars with 0, 50%, 100% ticks."
+    templates:
+      ascii: |
+        {TITLE}
+        {ROWS}
+            |---------|---------|---------|
+            0%       50%      100%
+      unicode: |
+        {TITLE}
+        {ROWS}
+            |---------|---------|---------|
+            0%       50%      100%
+    row_format:
+      # Labels ABOVE bars to keep alignment invariant (Tier-1 rule)
+      ascii: |
+        [{LABEL}]
+        {BAR} {VALUE} ({PCT}%)
+      unicode: |
+        [{LABEL}]
+        {BAR} {VALUE} ({PCT}%)
+
+# ------------------------------------------------------------------------------
+# RENDER CONTRACTS (what an LLM/CLI must output)
+# ------------------------------------------------------------------------------
+
+contracts:
+  must:
+    - "Ensure every line in framed/boxed blocks has identical character width."
+    - "Chart rows: bar region has identical width across rows."
+    - "Labels never inline-left of variable bars; use above or below."
+    - "One fill character for all bars."
+    - "Include a scale ruler with correctly spaced ticks."
+  should:
+    - "Sort series descending by value unless caller specifies order."
+    - "Trim overly long labels to fit label policies."
+
+policies:
+  label:
+    max_len: 10
+    overflow: "truncate_ellipsis"   # e.g., 'VeryLong…'
+  numbers:
+    show_value: true
+    show_percent: true
+    percent_decimals: 0
+
+# ------------------------------------------------------------------------------
+# EZ MACROS (tiny)
+# ------------------------------------------------------------------------------
+
+macros:
+  CHART:
+    bar: |
+      # Usage: <<<EZ::CHART{type=bar, title, width=30, series=[{label:'A',value:40}, ...], unicode_ok=false}>>>
+      # Renderer must apply charts.bar_horizontal with the given params.
+
+# ------------------------------------------------------------------------------
+# VALIDATION (logic the agent must perform before returning)
+# ------------------------------------------------------------------------------
+
+validation:
+  pre:
+    - "Compute max line width target for any framed block and pad lines to match."
+    - "Recalculate each bar length using formula: round(value / max * width)."
+  post:
+    - "Scan rendered output: all chart rows must have identical bar region width."
+    - "If any mismatch is detected, rerender once with corrected widths."
+    - "If still failing, output a Tier-1 error box (see errors.render_failed)."
+
+errors:
+  render_failed:
+    ascii: |
+      +---------------------------+
+      | RENDER VALIDATION FAILED  |
+      | Recalculating widths...   |
+      | Please retry.             |
+      +---------------------------+
+    unicode: |
+      ┌───────────────────────────┐
+      │ RENDER VALIDATION FAILED  │
+      │ Recalculating widths...   │
+      │ Please retry.             │
+      └───────────────────────────┘
+
+# ------------------------------------------------------------------------------
+# EXAMPLES (golden)
+# ------------------------------------------------------------------------------
+
+examples:
+  bar_ascii:
+    title: "Water Resistance (mm)"
+    unicode_ok: false
+    width: 30
+    series:
+      - { label: "A", value: 28000 }
+      - { label: "B", value: 20000 }
+      - { label: "C", value: 10000 }
+    expected: |
+      Water Resistance (mm)
+      [A]
+      ############################## 28000 (100%)
+      [B]
+      #####################         20000 (71%)
+      [C]
+      ##########                    10000 (36%)
+          |---------|---------|---------|
+          0%       50%      100%
+
+  bar_unicode:
+    title: "Latency (ms) — lower is better"
+    unicode_ok: true
+    width: 30
+    series:
+      - { label: "API", value: 40 }
+      - { label: "DB",  value: 20 }
+      - { label: "CDN", value: 8 }
+    expected: |
+      Latency (ms) — lower is better
+      [API]
+      ██████████████████████████████ 40 (100%)
+      [DB]
+      ███████████████               20 (50%)
+      [CDN]
+      ██████                        8 (20%)
+          |---------|---------|---------|
+          0%       50%      100%
+
+# ------------------------------------------------------------------------------
+# SMOKE TEST CONTRACT (for tests/smoke.sh to assert)
+# ------------------------------------------------------------------------------
+
+smoke_test:
+  assert:
+    - "All data rows (bars) have identical bar-region width = width param."
+    - "Percent values reflect round(value/max*100) with percent_decimals."
+    - "Scale ruler present with 0/50/100 markers aligned beneath bar region."
+
+notes:
+  usage_in_prompt: |
+    System/Preface (Tier-1):
+    - Enforce this YAML contract.
+    - When asked to draw a chart, use charts.bar_horizontal.
+    - Keep to max_width_chars unless caller overrides.
+    - If terminal cannot handle Unicode, set unicode_ok=false and use ASCII fills.
+
+

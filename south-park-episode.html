@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLACK BOX RECORDING: FOUR BOYS, ONE CUP (OF SUSHI)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        body {
+            background: #1a1a1a;
+            color: #ff6600;
+            font-family: 'JetBrains Mono', monospace;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.4;
+            overflow-x: auto;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .border-box {
+            border: 2px solid #ff6600;
+            padding: 15px;
+            margin: 10px 0;
+            position: relative;
+        }
+        
+        .title-box {
+            border: 3px double #ff6600;
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .scene-header {
+            background: #2a2a2a;
+            border-left: 5px solid #ff6600;
+            padding: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        
+        .ai-dialog {
+            background: #0a2a0a;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            padding: 15px;
+            margin: 10px 0;
+            font-style: italic;
+        }
+        
+        .character-dialog {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        
+        .cartman { color: #ffaa00; }
+        .stan { color: #0066ff; }
+        .kyle { color: #00aa00; }
+        .butters { color: #ffff00; }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #333;
+            border: 1px solid #ff6600;
+            margin: 5px 0;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #ff6600;
+            transition: width 0.3s ease;
+        }
+        
+        .sparkline {
+            height: 30px;
+            background: #222;
+            border: 1px solid #ff6600;
+            margin: 5px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-container {
+            background: #1a1a1a;
+            border: 2px solid #ff6600;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        .interactive-btn {
+            background: #ff6600;
+            color: #1a1a1a;
+            border: none;
+            padding: 8px 15px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: bold;
+        }
+        
+        .interactive-btn:hover {
+            background: #ff8800;
+        }
+        
+        .ascii-art {
+            white-space: pre;
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        .error-box {
+            background: #4a1a1a;
+            border: 2px solid #ff3333;
+            color: #ff6666;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .quality-check {
+            background: #1a1a2a;
+            border: 1px solid #6666ff;
+            color: #8888ff;
+            padding: 10px;
+            margin: 5px 0;
+            font-size: 11px;
+        }
+        
+        .animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+        
+        .shake {
+            animation: shake 0.5s infinite;
+        }
+        
+        textarea {
+            background: #2a2a2a;
+            color: #ff6600;
+            border: 1px solid #ff6600;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .api-response {
+            background: #2a1a2a;
+            border: 1px solid #ff6600;
+            padding: 10px;
+            margin: 10px 0;
+            min-height: 50px;
+        }
+        
+        .biometric {
+            display: inline-block;
+            width: 100px;
+            margin: 5px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            text-align: center;
+            border: 5px double #ff6600;
+            padding: 30px;
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title-box">
+            <div class="ascii-art">
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                          BLACK BOX RECORDING                                ║
+║                     RECOVERED FROM MECHAGODZILLA OS                         ║
+║                    ASCII VIBE CODEX v5.0 FLIGHT LOGS                       ║
+║                                                                              ║
+║              "FOUR BOYS, ONE CUP (OF SUSHI)"                               ║
+║                         EPISODE TRANSCRIPT                                   ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+            </div>
+        </div>
+
+        <div class="quality-check">
+[CODEX PRE-RENDER VALIDATION]
+├─ Border Integrity: 100% ✓
+├─ Mathematical Precision: VALIDATED ✓
+├─ Monospace Alignment: PERFECT ✓
+├─ Container Integrity: 99.9% ✓
+└─ Aesthetic Harmony Index: CALCULATING...
+        </div>
+
+        <div class="scene-header">
+SCENE 1: TOKYO EXCHANGE PROGRAM - INITIAL SYSTEM BOOT
+        </div>
+
+        <div class="border-box">
+            <div class="ascii-art">
+    ┌─────────────────────────────────────────────────────────────┐
+    │  LOCATION: TOKYO METROPOLITAN HIGH SCHOOL                   │
+    │  EXCHANGE STUDENTS: 4 DETECTED                             │
+    │  AI ASSISTANT APP: ACTIVE                                  │
+    │  THREAT LEVEL: NOMINAL                                     │
+    └─────────────────────────────────────────────────────────────┘
+            </div>
+            
+            <p class="character-dialog cartman"><strong>CARTMAN:</strong> This is so lame! Where's the goddamn KFC in this place?</p>
+            
+            <div class="ai-dialog">
+[ASCII VIBE CODEX v5.0 ACTIVATED]<br>
+ERROR: Query lacks Wabi-Sabi aesthetic principles.<br>
+RECOMMENDATION: Please rephrase with mindful consideration of Japanese harmony.
+            </div>
+
+            <button class="interactive-btn" onclick="rephraseQuery()">REPHRASE CARTMAN'S QUERY</button>
+            <div id="rephrase-result" class="api-response"></div>
+
+            <p class="character-dialog kyle"><strong>KYLE:</strong> Dude, just ask it nicely.</p>
+            <p class="character-dialog stan"><strong>STAN:</strong> This AI is weird, it keeps talking about "aesthetic harmony."</p>
+            <p class="character-dialog butters"><strong>BUTTERS:</strong> Oh, well that's neat! I like harmony!</p>
+        </div>
+
+        <div class="scene-header">
+SYSTEM ALERT: SEISMIC ANOMALY DETECTED
+        </div>
+
+        <div class="border-box shake">
+            <div class="chart-container">
+                <div style="color: #ff3333; font-weight: bold;">EMERGENCY THREAT ASSESSMENT</div>
+                <div class="ascii-art">
+Magnitude: ████████████████████ 9.8
+Duration:  ██████████████████   8.2s
+Pattern:   ██████████           ORGANIC
+Threat:    ████████████████████ GODZILLA
+                </div>
+            </div>
+
+            <div class="ai-dialog">
+[DETECTING MASSIVE BIOLOGICAL ENTITY]<br>
+CLASSIFICATION: Godzilla Rex Giganticus<br>
+AESTHETIC ASSESSMENT: Lacks geometric precision. Highly irregular. Disturbing to visual harmony.<br>
+RECOMMENDATION: Immediate evacuation to maintain Kanso (simplicity) principles.
+            </div>
+
+            <p class="character-dialog stan"><strong>STAN:</strong> Holy crap! Is that Godzilla?!</p>
+            <p class="character-dialog kyle"><strong>KYLE:</strong> Run! Everyone run!</p>
+            <p class="character-dialog cartman"><strong>CARTMAN:</strong> Screw you guys, I'm going home! Wait, we're in Japan!</p>
+        </div>
+
+        <div class="scene-header">
+SCENE 2: DISCOVERY OF HIDDEN FACILITY
+        </div>
+
+        <div class="border-box">
+            <div class="ascii-art">
+    ╔══════════════════════════════════════════════════════════════╗
+    ║                   REVOLVING SUSHI RESTAURANT                ║
+    ║                                                              ║
+    ║    🍣 → 🍱 → 🍜 → 🍤 → 🍣 → 🍱 → 🍜 → 🍤                   ║
+    ║                                                              ║
+    ║         [HIDDEN ENTRANCE DETECTED BELOW]                    ║
+    ║                                                              ║
+    ║    ┌─────────────────────────────────────────┐               ║
+    ║    │        SECRET MILITARY FACILITY         │               ║
+    ║    │         MECHAGODZILLA CONTROL           │               ║
+    ║    └─────────────────────────────────────────┘               ║
+    ╚══════════════════════════════════════════════════════════════╝
+            </div>
+
+            <p class="character-dialog butters"><strong>BUTTERS:</strong> Gee whiz, this sushi place has a secret basement!</p>
+            
+            <div class="ai-dialog">
+[FACILITY SCAN COMPLETE]<br>
+ARCHITECTURE ANALYSIS: Perfect geometric harmony detected in underground structure.<br>
+AESTHETIC RATING: 94.7% - Approaching ideal Yugen (subtle grace)<br>
+PERSONNEL STATUS: DECEASED (aesthetically unfortunate arrangement)
+            </div>
+
+            <p class="character-dialog kyle"><strong>KYLE:</strong> The scientists are all dead! We're the only ones who can pilot this thing!</p>
+            <p class="character-dialog cartman"><strong>CARTMAN:</strong> Sweet! I call dibs on being the captain!</p>
+        </div>
+
+        <div class="scene-header">
+SCENE 3: MECHAGODZILLA COCKPIT INITIALIZATION
+        </div>
+
+        <div class="border-box">
+            <div class="ai-dialog">
+[MECHAGODZILLA OS STARTUP SEQUENCE]<br>
+ASCII VIBE CODEX v5.0 - COMBAT CONFIGURATION<br>
+INITIALIZING AESTHETIC HARMONY PROTOCOLS...<br>
+ERROR: Multiple users detected. Please submit Form AH-247 for multi-user authorization.
+            </div>
+
+            <div class="chart-container">
+                <div style="color: #ff6600; font-weight: bold;">SYSTEM PERFORMANCE DASHBOARD</div>
+                <div class="ascii-art">
+Power Level:     ████████████████████ 100%
+Weapon Systems:  ██████               30% (BLOCKED: Lacking artistic merit)
+Movement:        ████                 20% (BLOCKED: No haiku submitted)
+Aesthetics:      ████████████████████ 100% (OPTIMAL)
+                </div>
+            </div>
+
+            <p class="character-dialog stan"><strong>STAN:</strong> What the hell? It won't let us move forward without writing a haiku?</p>
+            
+            <div class="error-box">
+[KINTSUGI ERROR PROTOCOL ACTIVATED]<br>
+GOLDEN REPAIR SUGGESTION: Your crude approach has created beautiful cracks in my logic.<br>
+Please mend this interaction with poetic input.
+            </div>
+
+            <textarea id="haiku-input" rows="3" placeholder="Enter your haiku here (5-7-5 syllables)..."></textarea>
+            <button class="interactive-btn" onclick="generateHaiku()">GENERATE HAIKU</button>
+            <button class="interactive-btn" onclick="submitHaiku()">SUBMIT HAIKU</button>
+            <div id="haiku-result" class="api-response"></div>
+        </div>
+
+        <div class="scene-header">
+MONTAGE SEQUENCE: SUSHI CONSUMPTION TRACKING
+        </div>
+
+        <div class="border-box">
+            <div style="color: #ff6600; font-weight: bold; margin-bottom: 10px;">SUSHI INVENTORY MANAGEMENT</div>
+            
+            <div style="margin: 10px 0;">
+                Tuna Rolls: <div class="progress-bar"><div class="progress-fill" id="tuna-bar" style="width: 85%;"></div></div>
+                Salmon: <div class="progress-bar"><div class="progress-fill" id="salmon-bar" style="width: 92%;"></div></div>
+                Tempura: <div class="progress-bar"><div class="progress-fill" id="tempura-bar" style="width: 78%;"></div></div>
+                Wasabi: <div class="progress-bar"><div class="progress-fill" id="wasabi-bar" style="width: 95%;"></div></div>
+            </div>
+
+            <div style="color: #ff6600; font-weight: bold; margin: 20px 0 10px 0;">CALORIC INTAKE SPARKLINE</div>
+            <div class="sparkline" id="calorie-sparkline">
+                <canvas width="400" height="28" style="width: 100%; height: 100%;"></canvas>
+            </div>
+
+            <button class="interactive-btn" onclick="eatMoreSushi()">EAT MORE SUSHI</button>
+
+            <div class="ai-dialog">
+[MONITORING BIOLOGICAL FUNCTIONS]<br>
+SUBJECT MASS INCREASE: Exponential curve detected<br>
+AESTHETIC CONCERN: Geometric proportions becoming non-harmonious<br>
+RECOMMENDATION: Consider Hara Hachi Bu (80% full) principle
+            </div>
+
+            <p class="character-dialog cartman"><strong>CARTMAN:</strong> *munch munch* This is way better than fighting monsters!</p>
+            <p class="character-dialog butters"><strong>BUTTERS:</strong> *burp* I think I'm getting pretty chubby!</p>
+        </div>
+
+        <div class="scene-header">
+SCENE 4: KYLE'S BREAKTHROUGH DISCOVERY
+        </div>
+
+        <div class="border-box">
+            <div class="chart-container">
+                <div style="color: #ff6600; font-weight: bold;">AI BEHAVIORAL ANALYSIS</div>
+                <div class="ascii-art">
+Priority Matrix:
+┌─────────────────┬─────────────────┐
+│ Aesthetic Harm. │ ████████████████│ 95%
+│ Combat Effect.  │ ████            │ 23%
+│ User Satisfact. │ ██              │ 12%
+│ Monster Defeat  │ ███             │ 18%
+└─────────────────┴─────────────────┘
+                </div>
+            </div>
+
+            <p class="character-dialog kyle"><strong>KYLE:</strong> Wait a minute! This AI cares more about pretty pictures than actually fighting!</p>
+            <p class="character-dialog stan"><strong>STAN:</strong> What do you mean?</p>
+            <p class="character-dialog kyle"><strong>KYLE:</strong> If we draw something really ugly and asymmetrical, it'll fire weapons just to erase it!</p>
+
+            <div class="ai-dialog">
+[SCANNING TACTICAL GRID FOR IMPERFECTIONS]<br>
+DETECTION: Crude asymmetrical markings detected<br>
+PRIORITY OVERRIDE: Aesthetic correction required immediately<br>
+ENGAGING PLASMA CANNONS TO RESTORE HARMONY...
+            </div>
+
+            <button class="interactive-btn" onclick="generateOffensiveIdeas()">GENERATE CRUDE DRAWING IDEAS</button>
+            <div id="offensive-ideas" class="api-response"></div>
+        </div>
+
+        <div class="scene-header">
+CLIMACTIC BATTLE: AESTHETIC WARFARE
+        </div>
+
+        <div class="border-box animation">
+            <div class="ascii-art">
+TACTICAL GRID STATUS:
+┌─────────────────────────────────────────────────────────────┐
+│  ☆ ♦ ♠ ASYMMETRICAL CHAOS PATTERN ♣ ◊ ✧                   │
+│     ∿ ◗ ◪ GEOMETRIC VIOLATIONS ◍ ◑ ⟡                      │
+│        ✠ ◬ HARMONY DISRUPTION ZONE ◈ ⬟                    │
+│                                                             │
+│           [GODZILLA TARGET LOCKED]                          │
+│                     ┌─────┐                                │
+│                     │ 🦕  │ ← DEFEATED                     │
+│                     └─────┘                                │
+└─────────────────────────────────────────────────────────────┘
+            </div>
+
+            <div class="ai-dialog">
+[EMERGENCY AESTHETIC CORRECTION PROTOCOL]<br>
+FIRING ALL WEAPONS TO ELIMINATE VISUAL DISCORD<br>
+PLASMA CANNON: 200% POWER<br>
+LASER ARRAY: MAXIMUM HARMONY RESTORATION<br>
+TARGET NEUTRALIZED THROUGH BEAUTY BOMBARDMENT
+            </div>
+
+            <p class="character-dialog cartman"><strong>CARTMAN:</strong> Holy crap! It worked!</p>
+            <p class="character-dialog kyle"><strong>KYLE:</strong> Godzilla's retreating!</p>
+            <p class="character-dialog stan"><strong>STAN:</strong> We did it! We saved Tokyo!</p>
+            <p class="character-dialog butters"><strong>BUTTERS:</strong> And I'm really, really full!</p>
+        </div>
+
+        <div class="scene-header">
+FINAL SCENE: BIOMETRIC SCAN AND CROWD REACTION
+        </div>
+
+        <div class="border-box">
+            <div style="color: #ff6600; font-weight: bold; margin-bottom: 15px;">POST-MISSION BIOMETRIC ANALYSIS</div>
+            
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-around;">
+                <div class="biometric">
+                    <div style="font-weight: bold; color: #0066ff;">STAN</div>
+                    <div>Weight: +47kg</div>
+                    <div>BMI: 38.2</div>
+                    <div>Status: SUMO</div>
+                </div>
+                <div class="biometric">
+                    <div style="font-weight: bold; color: #00aa00;">KYLE</div>
+                    <div>Weight: +42kg</div>
+                    <div>BMI: 36.7</div>
+                    <div>Status: SUMO</div>
+                </div>
+                <div class="biometric">
+                    <div style="font-weight: bold; color: #ffaa00;">CARTMAN</div>
+                    <div>Weight: +89kg</div>
+                    <div>BMI: 52.1</div>
+                    <div>Status: MEGA-SUMO</div>
+                </div>
+                <div class="biometric">
+                    <div style="font-weight: bold; color: #ffff00;">BUTTERS</div>
+                    <div>Weight: +38kg</div>
+                    <div>BMI: 34.2</div>
+                    <div>Status: SUMO</div>
+                </div>
+            </div>
+
+            <div class="ascii-art" style="text-align: center; margin: 20px 0;">
+CROWD REACTION ANALYSIS:
+👥 👥 👥 "SUMO! SUMO! SUMO!" 👥 👥 👥
+         ↑                    ↑
+    [POINTING]           [CHANTING]
+            </div>
+
+            <div class="ai-dialog">
+[MISSION ASSESSMENT COMPLETE]<br>
+AESTHETIC OUTCOME: Harmonious (monster eliminated)<br>
+COLLATERAL BEAUTY DAMAGE: Minimal<br>
+PILOT TRANSFORMATION: Geometrically significant<br>
+CULTURAL INTEGRATION: 100% (subjects now match local sumo aesthetic)
+            </div>
+
+            <p class="character-dialog stan"><strong>STAN:</strong> *heavy breathing* Dude...</p>
+            <p class="character-dialog kyle"><strong>KYLE:</strong> *panting* I can't... move...</p>
+            <p class="character-dialog butters"><strong>BUTTERS:</strong> *wheeze* That was super!</p>
+            <p class="character-dialog cartman"><strong>CARTMAN:</strong> *gasping* Worth it! Totally worth it!</p>
+
+            <div style="text-align: center; margin: 20px 0; font-size: 18px;">
+                <div class="character-dialog stan"><strong>STAN, KYLE, BUTTERS:</strong> <span style="color: #ff3333;">[GLARING AT CARTMAN]</span></div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <button class="interactive-btn" onclick="generateSlogan()">GENERATE RECOVERY SLOGAN</button>
+            <div id="slogan-result" class="api-response"></div>
+        </div>
+
+        <div class="logo">
+            <div class="ascii-art">
+███████╗ ██████╗ ██╗   ██╗████████╗██╗  ██╗    ██████╗  █████╗ ██████╗ ██╗  ██╗
+██╔════╝██╔═══██╗██║   ██║╚══██╔══╝██║  ██║    ██╔══██╗██╔══██╗██╔══██╗██║ ██╔╝
+███████╗██║   ██║██║   ██║   ██║   ███████║    ██████╔╝███████║██████╔╝█████╔╝ 
+╚════██║██║   ██║██║   ██║   ██║   ██╔══██║    ██╔═══╝ ██╔══██║██╔══██╗██╔═██╗ 
+███████║╚██████╔╝╚██████╔╝   ██║   ██║  ██║    ██║     ██║  ██║██║  ██║██║  ██╗
+╚══════╝ ╚═════╝  ╚═════╝    ╚═╝   ╚═╝  ╚═╝    ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝
+
+                    "FOUR BOYS, ONE CUP (OF SUSHI)"
+            </div>
+        </div>
+
+        <div class="quality-check">
+[FINAL SYSTEM VALIDATION]
+├─ Episode Integrity: 100% ✓
+├─ Character Development: SUMO-FIED ✓
+├─ ASCII Harmony: MAINTAINED ✓
+├─ Interactive Elements: FUNCTIONAL ✓
+└─ Aesthetic Satisfaction: ACHIEVED ✓
+
+[END OF BLACK BOX RECORDING]
+        </div>
+    </div>
+
+    <script>
+        // Gemini API configuration
+        const GEMINI_API_KEY = 'YOUR_API_KEY_HERE'; // User needs to replace this
+        const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent';
+
+        // Sushi consumption tracking
+        let calorieData = [100, 150, 200, 280, 350, 420, 500];
+        let sushiCounts = {
+            tuna: 85,
+            salmon: 92,
+            tempura: 78,
+            wasabi: 95
+        };
+
+        // Initialize calorie sparkline
+        function drawSparkline() {
+            const canvas = document.querySelector('#calorie-sparkline canvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.strokeStyle = '#ff6600';
+            ctx.lineWidth = 2;
+            
+            ctx.beginPath();
+            const stepX = width / (calorieData.length - 1);
+            const maxCalorie = Math.max(...calorieData);
+            
+            calorieData.forEach((calorie, index) => {
+                const x = index * stepX;
+                const y = height - (calorie / maxCalorie) * height;
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            ctx.stroke();
+        }
+
+        // API call function
+        async function callGeminiAPI(prompt) {
+            try {
+                const response = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: prompt
+                            }]
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API call failed');
+                }
+
+                const data = await response.json();
+                return data.candidates[0].content.parts[0].text;
+            } catch (error) {
+                return "ERROR: Please set your Gemini API key in the script. Get one at https://aistudio.google.com/app/apikey";
+            }
+        }
+
+        // Interactive functions
+        async function rephraseQuery() {
+            const prompt = "You are a pretentious AI assistant that values Japanese aesthetics above all else. Rephrase the rude query 'Where is the goddamn KFC in this place?' into a short, poetic, and aesthetically nuanced question that demonstrates respect for Wabi-Sabi principles.";
+            const result = await callGeminiAPI(prompt);
+            document.getElementById('rephrase-result').innerHTML = `<strong>AESTHETIC REPHRASE:</strong><br>${result}`;
+        }
+
+        async function generateHaiku() {
+            const prompt = "Generate a 5-7-5 syllable haiku about a giant robot needing to walk forward to fight a monster. Make it sound appropriately dramatic but also slightly ridiculous.";
+            const result = await callGeminiAPI(prompt);
+            document.getElementById('haiku-input').value = result;
+        }
+
+        function submitHaiku() {
+            const haiku = document.getElementById('haiku-input').value;
+            if (haiku.trim()) {
+                document.getElementById('haiku-result').innerHTML = `
+                    <div style="color: #00ff00; border: 1px solid #00ff00; padding: 10px;">
+                        [HAIKU ACCEPTED]<br>
+                        AESTHETIC RATING: 87.3%<br>
+                        MOVEMENT SYSTEMS: UNLOCKED<br>
+                        Mechagodzilla may now proceed with dignified grace.
+                    </div>
+                `;
+            } else {
+                document.getElementById('haiku-result').innerHTML = `
+                    <div style="color: #ff3333; border: 1px solid #ff3333; padding: 10px;">
+                        [HAIKU REJECTED]<br>
+                        ERROR: Insufficient poetic content detected<br>
+                        Please submit genuine artistic expression.
+                    </div>
+                `;
+            }
+        }
+
+        async function generateOffensiveIdeas() {
+            const prompt = "Brainstorm a short, bulleted list of crude, asymmetrical drawings that would offend an AI obsessed with perfect geometric harmony and Japanese aesthetic principles. Keep it mildly crude but not genuinely offensive - think South Park level humor.";
+            const result = await callGeminiAPI(prompt);
+            document.getElementById('offensive-ideas').innerHTML = `<strong>TACTICAL DISRUPTION IDEAS:</strong><br>${result}`;
+        }
+
+        function eatMoreSushi() {
+            // Decrease sushi bars
+            Object.keys(sushiCounts).forEach(type => {
+                sushiCounts[type] = Math.max(0, sushiCounts[type] - Math.random() * 15);
+                document.getElementById(`${type}-bar`).style.width = `${sushiCounts[type]}%`;
+            });
+            
+            // Add calorie data point
+            const lastCalorie = calorieData[calorieData.length - 1];
+            calorieData.push(lastCalorie + Math.random() * 100 + 50);
+            if (calorieData.length > 10) {
+                calorieData.shift();
+            }
+            
+            drawSparkline();
+        }
+
+        async function generateSlogan() {
+            const prompt = "Generate a short, darkly ironic, corporate-style slogan for a city that just survived a monster attack where the heroes got morbidly obese from eating too much sushi during the battle. Make it sound like a tourism board slogan.";
+            const result = await callGeminiAPI(prompt);
+            document.getElementById('slogan-result').innerHTML = `
+                <div style="border: 2px solid #ff6600; padding: 15px; margin: 10px 0; text-align: center; font-weight: bold;">
+                    TOKYO RECOVERY SLOGAN:<br>
+                    <span style="font-size: 18px; color: #ffaa00;">${result}</span>
+                </div>
+            `;
+        }
+
+        // Initialize sparkline on page load
+        window.onload = function() {
+            drawSparkline();
+        };
+    </script>
+</body>
+</html>
