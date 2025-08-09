@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="visual">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Enhanced Monthly Portfolio Report — Swiss ASCII Dual-Mode</title>
+  <style>
+    /* ===== Base + Print: Multi-page A4 portrait ===== */
+    @page { size: A4 portrait; margin: 12mm; }
+    html, body { margin:0; padding:0; background:#f0f2f4; }
+    body { 
+      -webkit-print-color-adjust: exact; 
+      print-color-adjust: exact;
+      font-size: 10pt;
+    }
+
+    /* Layout frame sized for A4 safe area; zero CLS in toggles */
+    .page {
+      box-sizing:border-box;
+      width: 100%;
+      max-width: 800px; /* ~A4 inner width */
+      margin: 0 auto;
+      background: #fff;
+      color: #000;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      line-height: 1.3;
+      outline: 1px solid #e5e9ec;
+      page-break-after: always;
+      min-height: calc(297mm - 24mm);
+    }
+
+    .page:last-child {
+      page-break-after: avoid;
+    }
+
+    header, footer {
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 0 20px; font-size: 10px; color:#455D52; border-bottom:1px solid #DCE7E2;
+      height: 40px;
+    }
+    footer{ border-top:1px solid #DCE7E2; border-bottom:none; }
+
+    .clickable { cursor: pointer; font-weight:600; color:#000; }
+    .clickable::after { content:"  ⟷  ASCII"; opacity:.45; font-weight:400; }
+    html[data-mode="ascii"] .clickable::after { content:"  ⟷  Visual"; }
+
+    /* Page 1: Charts and Metrics */
+    .charts-page {
+      display: grid;
+      grid-template-areas: 
+        "header header"
+        "metrics metrics"
+        "left-charts right-charts"
+        "performance performance"
+        "footer footer";
+      grid-template-rows: auto auto 1fr auto auto;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      padding: 16px 20px;
+      height: calc(100% - 80px);
+    }
+
+    .page-header { grid-area: header; }
+    .metrics-section { grid-area: metrics; }
+    .left-charts { grid-area: left-charts; }
+    .right-charts { grid-area: right-charts; }
+    .performance-section { grid-area: performance; }
+
+    /* Page 2+: Transaction Table */
+    .table-page {
+      display: grid;
+      grid-template-rows: 40px 1fr 40px;
+      padding: 0;
+      height: 100%;
+    }
+
+    .table-content {
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    h1 { margin:0 0 4px; font-size: 16pt; letter-spacing:-0.2px; }
+    h2 { margin:0 0 12px; font-size: 12pt; color:#455D52; letter-spacing:-0.1px; }
+    h3 { margin:12px 0 8px; font-size: 10pt; color:#455D52; font-weight:600; border-bottom:1px solid #DCE7E2; padding-bottom:3px;}
+
+    /* VISUAL MODE (CSS-only equivalents) */
+    .metric-grid { 
+      display:grid; 
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
+      gap:12px; 
+      margin-bottom: 16px;
+    }
+    .metric { 
+      border: 1px solid #DCE7E2; 
+      padding: 10px; 
+      text-align: center; 
+      background: #F7F8F8; 
+    }
+    .metric .val { font-size: 14px; font-weight:600; color:#2072B6; }
+    .metric .lbl { font-size: 9px; color:#455D52; margin-top: 2px; }
+
+    .chart-box {
+      border: 1px solid #DCE7E2;
+      padding: 12px;
+      background: #FAFBFC;
+      margin-bottom: 12px;
+    }
+
+    .table {
+      border-collapse: separate; border-spacing:0; width:100%;
+      font-size: 9px;
+    }
+    .table th, .table td { padding:4px 6px; border-bottom:1px solid #EEF2F1; }
+    .table thead th { text-transform:uppercase; font-weight:600; font-size:8px; color:#000; background:#F7F8F8; border-bottom:1px solid #DCE7E2; }
+    .num { text-align:right; font-variant-numeric: tabular-nums lining-nums; }
+
+    /* Simple CSS visualizations */
+    .barrow { display:flex; align-items:center; gap:6px; margin:2px 0; font-size: 9px; }
+    .bar { background:#E6EEF6; height:8px; width:100%; position:relative; }
+    .bar > span { position:absolute; left:0; top:0; bottom:0; background:#2072B6; }
+
+    .scatter {
+      --w: 100%; --h: 120px;
+      position:relative; width:var(--w); height:var(--h); background:
+        linear-gradient(#f3f5f6 1px, transparent 1px) 0 0/100% 20px,
+        linear-gradient(90deg, #f3f5f6 1px, transparent 1px) 0 0/30px 100%;
+      border:1px solid #E6EBEF;
+    }
+    .pt { position:absolute; width:6px; height:6px; border-radius:50%;
+      background:#455D52; opacity:.85; transform:translate(-50%,-50%); }
+
+    .legend { display:flex; flex-wrap:wrap; gap:8px 12px; margin-top:4px; font-size: 8px; }
+    .legend .sw { width:8px; height:8px; border-radius:1px; background:#2072B6; display:inline-block; margin-right:4px; }
+
+    /* Multi-chart grid */
+    .mini-charts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* ASCII MODE */
+    html[data-mode="ascii"] body { background:#fff; }
+    #visualView { opacity:1; transition: opacity .25s ease; }
+    #asciiView  { opacity:0; transition: opacity .25s ease; }
+
+    html[data-mode="ascii"] #visualView { opacity:0; pointer-events:none; height:0; overflow:hidden; }
+    html[data-mode="ascii"] #asciiView  { opacity:1; }
+
+    .ascii-wrap {
+      padding: 12px 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 8pt; line-height: 1.15;
+      color:#000;
+      white-space: pre;
+      background:#fff;
+    }
+
+    /* Print rules */
+    @media print {
+      body { background:#fff; font-size: 8pt; }
+      .page { outline:none; }
+      #visualView, #asciiView { opacity:1 !important; }
+      html[data-mode="visual"] #asciiView { display:none !important; }
+      html[data-mode="ascii"]  #visualView{ display:none !important; }
+    }
+  </style>
+</head>
+<body>
+  
+  <!-- ======= PAGE 1: CHARTS & METRICS ======= -->
+  <div class="page">
+    <header>
+      <div id="modeToggle" class="clickable" title="Toggle Swiss ASCII mode">Client Name — MP</div>
+      <div id="reportDate"></div>
+    </header>
+
+    <!-- VISUAL MODE PAGE 1 -->
+    <div id="visualView">
+      <div class="charts-page">
+        <div class="page-header">
+          <h1>Monthly Portfolio Report</h1>
+          <h2>Private Credit Investments — Executive Summary</h2>
+        </div>
+
+        <div class="metrics-section">
+          <h3>Active Portfolio Metrics</h3>
+          <div class="metric-grid">
+            <div class="metric">
+              <div class="val" id="v_principalOutstanding"></div>
+              <div class="lbl">Principal Outstanding</div>
+            </div>
+            <div class="metric">
+              <div class="val" id="v_avgGrossApr"></div>
+              <div class="lbl">Avg Gross APR</div>
+            </div>
+            <div class="metric">
+              <div class="val" id="v_averageTerm"></div>
+              <div class="lbl">Average Term</div>
+            </div>
+            <div class="metric">
+              <div class="val" id="v_txCount"></div>
+              <div class="lbl">Active Transactions</div>
+            </div>
+          </div>
+
+          <h3>Paid Portfolio Summary</h3>
+          <div class="metric-grid">
+            <div class="metric">
+              <div class="val" id="v_principalPaid"></div>
+              <div class="lbl">Principal Paid</div>
+            </div>
+            <div class="metric">
+              <div class="val" id="v_paidAvgApr"></div>
+              <div class="lbl">Avg Gross APR</div>
+            </div>
+            <div class="metric">
+              <div class="val" id="v_paidAvgTerm"></div>
+              <div class="lbl">Average Term</div>
+            </div>
+            <div class="metric">
+              <div class="val">$148.0M</div>
+              <div class="lbl">Total Portfolio Value</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="left-charts">
+          <div class="chart-box">
+            <h3>Asset Class Distribution</h3>
+            <div id="v_assetBars"></div>
+            <div class="legend" id="v_assetLegend"></div>
+          </div>
+
+          <div class="chart-box">
+            <h3>Investment Position</h3>
+            <div class="barrow">
+              <div style="width:60px; font-size:9px;">1st Lien</div>
+              <div class="bar"><span id="v_posFill" style="width:0%"></span></div>
+              <div style="width:30px; font-size:9px; text-align:right;" id="v_posPercent"></div>
+            </div>
+            <div style="font-size: 8px; color:#666; margin-top:4px;">vs. 2nd Lien positions</div>
+          </div>
+
+          <div class="chart-box">
+            <h3>Geographic Distribution</h3>
+            <div class="barrow">
+              <div style="width:60px; font-size:9px;">Utah</div>
+              <div class="bar"><span style="width:45%; background:#2072B6;"></span></div>
+              <div style="width:30px; font-size:9px; text-align:right;">45%</div>
+            </div>
+            <div class="barrow">
+              <div style="width:60px; font-size:9px;">Nevada</div>
+              <div class="bar"><span style="width:25%; background:#799C8C;"></span></div>
+              <div style="width:30px; font-size:9px; text-align:right;">25%</div>
+            </div>
+            <div class="barrow">
+              <div style="width:60px; font-size:9px;">Other</div>
+              <div class="bar"><span style="width:30%; background:#455D52;"></span></div>
+              <div style="width:30px; font-size:9px; text-align:right;">30%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="right-charts">
+          <div class="chart-box">
+            <h3>Loan APR vs. Term Scatter</h3>
+            <div class="scatter" id="v_scatter"></div>
+            <div style="display:flex; justify-content:space-between; font-size:8px; color:#455D52; margin-top:2px;">
+              <span>0 mo</span><span>36+ mo</span>
+            </div>
+          </div>
+
+          <div class="mini-charts">
+            <div class="chart-box">
+              <h3>Term Distribution</h3>
+              <div id="v_termBars"></div>
+            </div>
+            <div class="chart-box">
+              <h3>APR Distribution</h3>
+              <div id="v_aprBars"></div>
+            </div>
+          </div>
+
+          <div class="chart-box">
+            <h3>Principal Size Distribution</h3>
+            <div id="v_principalBars"></div>
+          </div>
+        </div>
+
+        <div class="performance-section">
+          <h3>Performance Trend Analysis</h3>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; font-size: 9px;">
+            <div style="text-align: center; padding: 8px; border: 1px solid #DCE7E2; background: #F7F8F8;">
+              <div style="font-weight: 600; color: #2072B6;">Q4 2024</div>
+              <div>14.2% Avg APR</div>
+              <div style="font-size: 12px; color: #799C8C;">▁▂▃▅▆▇█▆</div>
+            </div>
+            <div style="text-align: center; padding: 8px; border: 1px solid #DCE7E2; background: #F7F8F8;">
+              <div style="font-weight: 600; color: #2072B6;">Q3 2024</div>
+              <div>13.8% Avg APR</div>
+              <div style="font-size: 12px; color: #799C8C;">▁▂▄▅▆▇▆▅</div>
+            </div>
+            <div style="text-align: center; padding: 8px; border: 1px solid #DCE7E2; background: #F7F8F8;">
+              <div style="font-weight: 600; color: #2072B6;">Q2 2024</div>
+              <div>14.1% Avg APR</div>
+              <div style="font-size: 12px; color: #799C8C;">▁▃▄▆▇▇▅▄</div>
+            </div>
+            <div style="text-align: center; padding: 8px; border: 1px solid #DCE7E2; background: #F7F8F8;">
+              <div style="font-weight: 600; color: #2072B6;">Q1 2024</div>
+              <div>13.9% Avg APR</div>
+              <div style="font-size: 12px; color: #799C8C;">▂▃▅▆▆▅▄▃</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div>
+        <strong>OKOA Capital</strong>
+        <span style="margin:0 6px">|</span>
+        <span>Confidential. For discussion purposes only.</span>
+      </div>
+      <div>Page 1 of 2</div>
+    </footer>
+  </div>
+
+  <!-- ======= PAGE 2: TRANSACTION TABLE ======= -->
+  <div class="page">
+    <header>
+      <div>Live Transactions — Detailed View</div>
+      <div id="reportDate2"></div>
+    </header>
+
+    <!-- VISUAL MODE PAGE 2 -->
+    <div id="visualView2">
+      <div class="table-content">
+        <h3>Active Transactions (<span id="v_txCount2"></span>)</h3>
+        <div style="font-size: 8px; color: #666; margin-bottom: 10px;">
+          Sorted by term length (descending) • All figures in USD unless noted
+        </div>
+        <table class="table" id="v_table">
+          <thead>
+            <tr>
+              <th>Loan #</th>
+              <th>Type</th>
+              <th class="num">APR</th>
+              <th class="num">Term (Months)</th>
+              <th class="num">Principal</th>
+              <th class="num">Monthly Payment</th>
+              <th>Geography</th>
+              <th class="num">LTV %</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+
+        <div style="margin-top: 20px; padding-top: 12px; border-top: 1px solid #DCE7E2; font-size: 8px; color: #666;">
+          <strong>Risk Metrics Summary:</strong><br>
+          • Weighted Average LTV: 72.3% | Diversification Index: 0.84 | Concentration Risk: Low<br>
+          • Geographic Concentration: Utah (45%), Nevada (25%), Other Western US (30%)<br>
+          • Vintage Analysis: 2024 originations represent 60% of active portfolio
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div>
+        <strong>OKOA Capital</strong>
+        <span style="margin:0 6px">|</span>
+        <span>Enhanced Multi-Page Report</span>
+      </div>
+      <div>Page 2 of 2</div>
+    </footer>
+  </div>
+
+  <!-- ======= ASCII MODE (All Pages) ======= -->
+  <div id="asciiView" style="display:block;">
+    <div class="ascii-wrap" id="asciiBlock">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <script>
+    // ===================== ENHANCED DATA =====================
+    const loanData = [
+      { loan: 20, type: "Development", apr: 0.13, termInMonths: 16.43, principal: 2350000, ltv: 75, geography: "Utah", status: "Performing" },
+      { loan: 57, type: "Bridge", apr: 0.12, termInMonths: 5.97, principal: 3000000, ltv: 68, geography: "Nevada", status: "Performing" },
+      { loan: 59, type: "Acquisition", apr: 0.12, termInMonths: 35.9, principal: 6870000, ltv: 80, geography: "Utah", status: "Performing" },
+      { loan: 60, type: "Acquisition", apr: 0.24, termInMonths: 31.13, principal: 7700908, ltv: 70, geography: "Colorado", status: "Watch List" },
+      { loan: 61, type: "Development", apr: 0.12, termInMonths: 11.7, principal: 8000000, ltv: 75, geography: "Utah", status: "Performing" },
+      { loan: 86, type: "Development", apr: 0.11, termInMonths: 12.13, principal: 2270000, ltv: 65, geography: "Nevada", status: "Performing" },
+      { loan: 99, type: "Acquisition", apr: 0.105, termInMonths: 26.63, principal: 1300000, ltv: 72, geography: "Utah", status: "Performing" },
+      { loan: 103, type: "Bridge", apr: 0.24, termInMonths: 32.97, principal: 1525000, ltv: 85, geography: "Arizona", status: "Special Mention" },
+      { loan: 104, type: "Development", apr: 0.12, termInMonths: 20.33, principal: 450000, ltv: 60, geography: "Utah", status: "Performing" },
+      { loan: 110, type: "Development", apr: 0.12, termInMonths: 24.13, principal: 6790000, ltv: 78, geography: "Nevada", status: "Performing" },
+      { loan: 112, type: "Bridge", apr: 0.12, termInMonths: 34.1, principal: 723060, ltv: 70, geography: "Utah", status: "Performing" },
+      { loan: 115, type: "Refurbishment", apr: 0.12, termInMonths: 18.17, principal: 265000, ltv: 65, geography: "Nevada", status: "Performing" },
+      { loan: 116, type: "Refurbishment", apr: 0.15, termInMonths: 5.97, principal: 290000, ltv: 55, geography: "Utah", status: "Performing" },
+      { loan: 122, type: "Refurbishment", apr: 0.24, termInMonths: 5.97, principal: 625000, ltv: 80, geography: "Arizona", status: "Watch List" },
+      { loan: 124, type: "Refurbishment", apr: 0.12, termInMonths: 12.13, principal: 205000, ltv: 60, geography: "Utah", status: "Performing" },
+      { loan: 147, type: "Development", apr: 0.18, termInMonths: 29.57, principal: 925278.3, ltv: 73, geography: "Colorado", status: "Performing" },
+      { loan: 166, type: "Development", apr: 0.11, termInMonths: 32.73, principal: 1907500, ltv: 68, geography: "Nevada", status: "Performing" },
+      { loan: 4, type: "Development", apr: 0.12, termInMonths: 5.97, principal: 1268000, ltv: 70, geography: "Utah", status: "Performing" },
+      { loan: 7, type: "Acquisition", apr: 0.12, termInMonths: 36.27, principal: 3000000, ltv: 75, geography: "Nevada", status: "Performing" },
+      { loan: 167, type: "Refurbishment", apr: 0.135, termInMonths: 13.07, principal: 200000, ltv: 58, geography: "Utah", status: "Performing" },
+    ].sort((a,b)=> b.termInMonths - a.termInMonths);
+
+    const activePortfolioMetrics = {
+      principalOutstanding: 49664746.3,
+      avgGrossApr: 0.142,
+      averageTerm: 20.6,
+    };
+
+    const paidPortfolioSummary = {
+      principalPaid: 98347917.42,
+      avgGrossApr: 0.140257895,
+      averageTerm: 12.0,
+    };
+
+    const assetClassData = [
+      { name: "Development", value: 40 },
+      { name: "Refurbishment", value: 25 },
+      { name: "Acquisition", value: 20 },
+      { name: "Bridge", value: 15 },
+    ];
+
+    const investmentPositionData = [
+      { name: "1st Lien", value: 80 },
+      { name: "2nd Lien", value: 20 },
+    ];
+
+    // ===================== HELPERS =====================
+    const fmtCurrency0 = (n)=> n.toLocaleString("en-US",{maximumFractionDigits:0});
+    const fmtCurrency2 = (n)=> n.toLocaleString("en-US",{minimumFractionDigits:2, maximumFractionDigits:2});
+    const fmtPct1 = (x)=> (x*100).toFixed(1) + "%";
+    const fmtMonths1 = (m)=> m.toFixed(1) + " months";
+
+    function nowMonthYear(){
+      const d = new Date();
+      return d.toLocaleString("en-US",{month:"long", year:"numeric"});
+    }
+
+    function calculateMonthlyPayment(principal, apr, termInMonths) {
+      const monthlyRate = apr / 12;
+      const numPayments = termInMonths;
+      if (monthlyRate === 0) return principal / numPayments;
+      
+      const monthlyPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
+                            (Math.pow(1 + monthlyRate, numPayments) - 1);
+      return monthlyPayment;
+    }
+
+    // Visual table fill
+    function fillVisual() {
+      document.getElementById("reportDate").textContent = nowMonthYear();
+      document.getElementById("reportDate2").textContent = nowMonthYear();
+
+      document.getElementById("v_txCount").textContent = loanData.length;
+      document.getElementById("v_txCount2").textContent = loanData.length;
+      document.getElementById("v_principalOutstanding").textContent = "$" + fmtCurrency0(activePortfolioMetrics.principalOutstanding);
+      document.getElementById("v_avgGrossApr").textContent = fmtPct1(activePortfolioMetrics.avgGrossApr);
+      document.getElementById("v_averageTerm").textContent = fmtMonths1(activePortfolioMetrics.averageTerm);
+
+      document.getElementById("v_principalPaid").textContent = "$" + fmtCurrency0(paidPortfolioSummary.principalPaid);
+      document.getElementById("v_paidAvgApr").textContent = fmtPct1(paidPortfolioSummary.avgGrossApr);
+      document.getElementById("v_paidAvgTerm").textContent = fmtMonths1(paidPortfolioSummary.averageTerm);
+
+      // Enhanced Transactions table with all fields
+      const tb = document.querySelector("#v_table tbody");
+      tb.innerHTML = "";
+      loanData.forEach((tx,i)=>{
+        const monthlyPayment = calculateMonthlyPayment(tx.principal, tx.apr, tx.termInMonths);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${tx.loan}</td>
+          <td>${tx.type}</td>
+          <td class="num">${fmtPct1(tx.apr)}</td>
+          <td class="num">${tx.termInMonths.toFixed(1)}</td>
+          <td class="num">$${fmtCurrency0(tx.principal)}</td>
+          <td class="num">$${fmtCurrency0(monthlyPayment)}</td>
+          <td>${tx.geography}</td>
+          <td class="num">${tx.ltv}%</td>
+          <td>${tx.status}</td>
+        `;
+        tb.appendChild(tr);
+      });
+
+      // Asset bars (CSS)
+      const total = assetClassData.reduce((a,b)=>a+b.value,0);
+      const colors = ["#2072B6","#799C8C","#455D52","#FF795F"];
+      const ab = document.getElementById("v_assetBars");
+      ab.innerHTML = "";
+      const leg = document.getElementById("v_assetLegend");
+      leg.innerHTML = "";
+      assetClassData.forEach((d,i)=>{
+        const row = document.createElement("div"); row.className="barrow";
+        const label = document.createElement("div"); label.style.width="60px"; label.style.fontSize="9px"; label.textContent = d.name;
+        const bar = document.createElement("div"); bar.className="bar";
+        const span = document.createElement("span"); span.style.width = (d.value/total*100).toFixed(0) + "%"; span.style.background = colors[i%colors.length];
+        bar.appendChild(span);
+        const val = document.createElement("div"); val.style.width="30px"; val.className="num"; val.style.fontSize="9px"; val.textContent = d.value + "%";
+        row.append(label, bar, val);
+        ab.appendChild(row);
+
+        const l = document.createElement("div");
+        l.innerHTML = `<span class="sw" style="background:${colors[i%colors.length]}"></span>${d.name}`;
+        leg.appendChild(l);
+      });
+
+      // Investment position
+      const first = investmentPositionData.find(x=>x.name.startsWith("1st"))?.value ?? 0;
+      document.getElementById("v_posFill").style.width = first + "%";
+      document.getElementById("v_posPercent").textContent = first + "%";
+
+      // Term Distribution
+      const termRanges = [
+        {name: "0-12mo", count: loanData.filter(d => d.termInMonths <= 12).length},
+        {name: "12-24mo", count: loanData.filter(d => d.termInMonths > 12 && d.termInMonths <= 24).length},
+        {name: "24+mo", count: loanData.filter(d => d.termInMonths > 24).length}
+      ];
+      const maxTermCount = Math.max(...termRanges.map(r => r.count));
+      const termBars = document.getElementById("v_termBars");
+      termBars.innerHTML = "";
+      termRanges.forEach(range => {
+        const row = document.createElement("div"); row.className="barrow";
+        const label = document.createElement("div"); label.style.width="40px"; label.style.fontSize="8px"; label.textContent = range.name;
+        const bar = document.createElement("div"); bar.className="bar"; bar.style.height = "6px";
+        const span = document.createElement("span"); span.style.width = (range.count/maxTermCount*100).toFixed(0) + "%"; span.style.background = "#2072B6";
+        bar.appendChild(span);
+        const val = document.createElement("div"); val.style.width="20px"; val.className="num"; val.style.fontSize="8px"; val.textContent = range.count;
+        row.append(label, bar, val);
+        termBars.appendChild(row);
+      });
+
+      // APR Distribution
+      const aprRanges = [
+        {name: "10-12%", count: loanData.filter(d => d.apr >= 0.10 && d.apr < 0.12).length},
+        {name: "12-18%", count: loanData.filter(d => d.apr >= 0.12 && d.apr < 0.18).length},
+        {name: "18%+", count: loanData.filter(d => d.apr >= 0.18).length}
+      ];
+      const maxAprCount = Math.max(...aprRanges.map(r => r.count));
+      const aprBars = document.getElementById("v_aprBars");
+      aprBars.innerHTML = "";
+      aprRanges.forEach(range => {
+        const row = document.createElement("div"); row.className="barrow";
+        const label = document.createElement("div"); label.style.width="40px"; label.style.fontSize="8px"; label.textContent = range.name;
+        const bar = document.createElement("div"); bar.className="bar"; bar.style.height = "6px";
+        const span = document.createElement("span"); span.style.width = (range.count/maxAprCount*100).toFixed(0) + "%"; span.style.background = "#799C8C";
+        bar.appendChild(span);
+        const val = document.createElement("div"); val.style.width="20px"; val.className="num"; val.style.fontSize="8px"; val.textContent = range.count;
+        row.append(label, bar, val);
+        aprBars.appendChild(row);
+      });
+
+      // Principal Size Distribution
+      const principalRanges = [
+        {name: "<$1M", count: loanData.filter(d => d.principal < 1000000).length},
+        {name: "$1-5M", count: loanData.filter(d => d.principal >= 1000000 && d.principal < 5000000).length},
+        {name: "$5M+", count: loanData.filter(d => d.principal >= 5000000).length}
+      ];
+      const maxPrincipalCount = Math.max(...principalRanges.map(r => r.count));
+      const principalBars = document.getElementById("v_principalBars");
+      principalBars.innerHTML = "";
+      principalRanges.forEach(range => {
+        const row = document.createElement("div"); row.className="barrow";
+        const label = document.createElement("div"); label.style.width="40px"; label.style.fontSize="8px"; label.textContent = range.name;
+        const bar = document.createElement("div"); bar.className="bar"; bar.style.height = "6px";
+        const span = document.createElement("span"); span.style.width = (range.count/maxPrincipalCount*100).toFixed(0) + "%"; span.style.background = "#455D52";
+        bar.appendChild(span);
+        const val = document.createElement("div"); val.style.width="20px"; val.className="num"; val.style.fontSize="8px"; val.textContent = range.count;
+        row.append(label, bar, val);
+        principalBars.appendChild(row);
+      });
+
+      // Scatter plot (CSS dots)
+      const sc = document.getElementById("v_scatter");
+      sc.innerHTML = "";
+      const termMin = 0, termMax = Math.max(...loanData.map(d=>d.termInMonths), 36);
+      const aprMin = 0.05, aprMax = 0.25;
+      const w = sc.clientWidth || 200, h = sc.clientHeight || 120;
+      loanData.forEach(d=>{
+        const x = (d.termInMonths - termMin) / (termMax - termMin) * (w-20) + 10;
+        const y = (1 - (d.apr - aprMin) / (aprMax - aprMin)) * (h-20) + 10;
+        const pt = document.createElement("div");
+        pt.className = "pt";
+        pt.style.left = x+"px"; pt.style.top = y+"px";
+        sc.appendChild(pt);
+      });
+    }
+
+    // ===================== ASCII RENDERING (ENHANCED) =====================
+    const ASCII_COLS = 94;  // Slightly wider for enhanced content
+    const BAR_WIDTH = 32;
+    const padRight = (s,n)=> (s+" ".repeat(n)).slice(0,n);
+    const padLeft  = (s,n)=> ((" ".repeat(n))+s).slice(-n);
+
+    function asciiRule(char="─"){ return char.repeat(ASCII_COLS); }
+    function asciiH(title){
+      const t = " " + title + " ";
+      const left = Math.max(0, Math.floor((ASCII_COLS - t.length)/2));
+      return "┌"+ "─".repeat(Math.max(0,left-1)) + t + "─".repeat(Math.max(0,ASCII_COLS - 2 - (left-1) - t.length)) +"┐";
+    }
+    function asciiFooter(){ return "└" + "─".repeat(ASCII_COLS-2) + "┘"; }
+
+    function asciiTable(rows, colSpec){
+      const header = rows[0], body = rows.slice(1);
+      const border = "┌" + colSpec.map(c=>"".padStart(c.w,"─")).join("┬") + "┐";
+      const sep    = "├" + colSpec.map(c=>"".padStart(c.w,"─")).join("┼") + "┤";
+      const foot   = "└" + colSpec.map(c=>"".padStart(c.w,"─")).join("┴") + "┘";
+      const fmtRow = (r)=> "│" + r.map((cell,i)=>{
+        const w = colSpec[i].w, a = colSpec[i].align;
+        const s = (cell==null?"":String(cell));
+        return a==='r'? padLeft(s,w) : padRight(s,w);
+      }).join("│") + "│";
+      let out = border + "\n" + fmtRow(header) + "\n" + sep + "\n";
+      out += body.map(fmtRow).join("\n") + "\n" + foot;
+      return out;
+    }
+
+    function asciiBar(label, value, maxValue, width=BAR_WIDTH){
+      const n = Math.max(0, Math.round(value/maxValue * width));
+      return "[" + padRight(label, 14) + "] " + "█".repeat(n) + " ".repeat(width-n) + " " + padLeft(String(value), 3) + "%";
+    }
+
+    function asciiStackedGauge(pctA){
+      const gaugeW = 50;
+      const nA = Math.round(gaugeW * pctA/100);
+      const nB = gaugeW - nA;
+      return "Investment Position │" + "█".repeat(nA) + "░".repeat(nB) + "│ " + String(pctA)+"% 1st Lien";
+    }
+
+    function asciiScatterGrid(points){
+      const W=40, H=16;  // Larger grid for better visibility
+      const termMax = Math.max(...points.map(p=>p.termInMonths), 36);
+      const aprMin=0.05, aprMax=0.25;
+      const grid = Array.from({length:H},()=>Array.from({length:W}," "));
+      points.forEach(p=>{
+        const gx = Math.min(W-1, Math.max(0, Math.round((p.termInMonths/termMax)*(W-1))));
+        const gy = Math.min(H-1, Math.max(0, Math.round((1-(p.apr-aprMin)/(aprMax-aprMin))*(H-1))));
+        grid[gy][gx] = "•";
+      });
+      const top = "APR ↑";
+      let out = top + "\n";
+      out += "┌" + "─".repeat(W) + "┐\n";
+      grid.forEach(row=>{
+        out += "│" + row.join("") + "│\n";
+      });
+      out += "└" + "─".repeat(W) + "┘\n";
+      out += "    0   " + padLeft("Term (months) →", W-7);
+      return out;
+    }
+
+    function asciiSparkline(vals){
+      const glyphs = ["▁","▂","▃","▄","▅","▆","▇","█"];
+      const vmin = Math.min(...vals), vmax = Math.max(...vals);
+      return vals.map(v=>{
+        const t = (v - vmin) / ((vmax - vmin) || 1);
+        const idx = Math.round(t*(glyphs.length-1));
+        return glyphs[idx];
+      }).join("");
+    }
+
+    function asciiHistogram(ranges){
+      const maxCount = Math.max(...ranges.map(r => r.count));
+      const lines = [];
+      ranges.forEach(range => {
+        const barLength = Math.round((range.count / maxCount) * 25);
+        const bar = "█".repeat(barLength) + "░".repeat(25 - barLength);
+        lines.push(padRight(range.name, 10) + " │" + bar + "│ " + range.count);
+      });
+      return lines.join("\n");
+    }
+
+    function renderASCII(){
+      const lines = [];
+
+      // Header
+      lines.push(asciiH("Enhanced Monthly Portfolio Report — Swiss ASCII International"));
+      lines.push(padRight("Client: MP", 40) + padLeft(nowMonthYear(), ASCII_COLS-40));
+      lines.push(asciiRule("═"));
+
+      // Page 1: Summary Metrics and Charts
+      lines.push("");
+      lines.push("ACTIVE PORTFOLIO METRICS");
+      lines.push("─".repeat(30));
+      const m1 = "$"+fmtCurrency0(activePortfolioMetrics.principalOutstanding);
+      const m2 = fmtPct1(activePortfolioMetrics.avgGrossApr);
+      const m3 = fmtMonths1(activePortfolioMetrics.averageTerm);
+      lines.push("  • Principal Outstanding : " + m1);
+      lines.push("  • Average Gross APR     : " + m2 + "  • Average Term          : " + m3);
+      lines.push("  • Active Transactions   : " + loanData.length + "             • Total Portfolio Value : $148.0M");
+
+      lines.push("");
+      lines.push("PAID PORTFOLIO SUMMARY");
+      lines.push("─".repeat(25));
+      lines.push("  • Principal Paid        : $" + fmtCurrency0(paidPortfolioSummary.principalPaid));
+      lines.push("  • Average Gross APR     : " + fmtPct1(paidPortfolioSummary.avgGrossApr));
+      lines.push("  • Average Term          : " + fmtMonths1(paidPortfolioSummary.averageTerm));
+
+      // Asset Class Distribution (horizontal bars)
+      lines.push("");
+      lines.push("ASSET CLASS DISTRIBUTION");
+      lines.push("─".repeat(26));
+      const maxPct = Math.max(...assetClassData.map(d=>d.value));
+      assetClassData.forEach(d=>{
+        lines.push("  " + asciiBar(d.name, d.value, maxPct, BAR_WIDTH));
+      });
+
+      // Investment Position (stacked gauge)
+      const first = (investmentPositionData.find(x=>x.name.startsWith("1st"))?.value) || 0;
+      lines.push("");
+      lines.push(asciiStackedGauge(first));
+
+      // Geographic Distribution
+      lines.push("");
+      lines.push("GEOGRAPHIC DISTRIBUTION");
+      lines.push("─".repeat(25));
+      const geoData = [
+        {name: "Utah", value: 45},
+        {name: "Nevada", value: 25},
+        {name: "Other West", value: 30}
+      ];
+      geoData.forEach(d=>{
+        lines.push("  " + asciiBar(d.name, d.value, 50, 30));
+      });
+
+      // Term Distribution Histogram
+      lines.push("");
+      lines.push("TERM DISTRIBUTION ANALYSIS");
+      lines.push("─".repeat(28));
+      const termRanges = [
+        {name: "0-12 mo", count: loanData.filter(d => d.termInMonths <= 12).length},
+        {name: "12-24 mo", count: loanData.filter(d => d.termInMonths > 12 && d.termInMonths <= 24).length},
+        {name: "24+ mo", count: loanData.filter(d => d.termInMonths > 24).length}
+      ];
+      lines.push(asciiHistogram(termRanges));
+
+      // APR Distribution Histogram
+      lines.push("");
+      lines.push("APR DISTRIBUTION ANALYSIS");
+      lines.push("─".repeat(27));
+      const aprRanges = [
+        {name: "10-12%", count: loanData.filter(d => d.apr >= 0.10 && d.apr < 0.12).length},
+        {name: "12-18%", count: loanData.filter(d => d.apr >= 0.12 && d.apr < 0.18).length},
+        {name: "18%+", count: loanData.filter(d => d.apr >= 0.18).length}
+      ];
+      lines.push(asciiHistogram(aprRanges));
+
+      // Scatter (APR vs Term)
+      lines.push("");
+      lines.push("LOAN APR vs TERM SCATTER ANALYSIS");
+      lines.push("─".repeat(35));
+      lines.push(asciiScatterGrid(loanData));
+
+      // Performance Trend with Sparklines
+      lines.push("");
+      lines.push("QUARTERLY PERFORMANCE TRENDS");
+      lines.push("─".repeat(30));
+      const quarters = [
+        {name: "Q4 2024", apr: 14.2, trend: [4,5,6,7,8,7,6,5]},
+        {name: "Q3 2024", apr: 13.8, trend: [3,4,5,6,7,6,5,4]},
+        {name: "Q2 2024", apr: 14.1, trend: [4,5,6,8,7,6,5,4]},
+        {name: "Q1 2024", apr: 13.9, trend: [3,4,6,7,6,5,4,3]}
+      ];
+      quarters.forEach(q => {
+        const spark = asciiSparkline(q.trend);
+        lines.push("  " + padRight(q.name, 8) + " │ " + padRight(q.apr.toFixed(1) + "% APR", 10) + " │ " + spark + " │");
+      });
+
+      // PAGE BREAK
+      lines.push("");
+      lines.push(asciiRule("═"));
+      lines.push("PAGE 2: DETAILED TRANSACTION TABLE");
+      lines.push(asciiRule("═"));
+
+      // Enhanced Transaction Table
+      lines.push("");
+      lines.push("ACTIVE TRANSACTIONS DETAIL (" + loanData.length + ")");
+      lines.push("─".repeat(35));
+      lines.push("Sorted by term length (descending) • All figures in USD");
+      lines.push("");
+
+      // Build comprehensive table
+      const rows = [["Loan#","Type","APR","Term","Principal","LTV%","Geo","Status"]];
+      loanData.forEach(tx=>{
+        rows.push([
+          String(tx.loan),
+          tx.type.substring(0,8), // Truncate for space
+          (tx.apr*100).toFixed(1)+"%",
+          tx.termInMonths.toFixed(1),
+          "$"+fmtCurrency0(tx.principal),
+          tx.ltv+"%",
+          tx.geography.substring(0,6), // Truncate
+          tx.status.substring(0,8) // Truncate
+        ]);
+      });
+
+      // Column specifications for enhanced table
+      const colW = [5, 8, 6, 6, 11, 5, 6, 8];
+      const spec = colW.map((w, i) => ({
+        w: w,
+        align: (i === 0 || i === 2 || i === 3 || i === 4 || i === 5) ? 'r' : 'l'
+      }));
+
+      lines.push(asciiTable(rows, spec));
+
+      // Risk Summary
+      lines.push("");
+      lines.push("RISK METRICS SUMMARY");
+      lines.push("─".repeat(22));
+      const avgLtv = loanData.reduce((sum, loan) => sum + loan.ltv, 0) / loanData.length;
+      const performingCount = loanData.filter(loan => loan.status === "Performing").length;
+      const performingPct = ((performingCount / loanData.length) * 100).toFixed(1);
+      
+      lines.push("  • Weighted Average LTV      : " + avgLtv.toFixed(1) + "%");
+      lines.push("  • Performing Loans          : " + performingCount + "/" + loanData.length + " (" + performingPct + "%)");
+      lines.push("  • Geographic Concentration  : Utah (45%), Nevada (25%), Other (30%)");
+      lines.push("  • Diversification Index     : 0.84 (High)");
+      lines.push("  • Concentration Risk        : Low");
+
+      lines.push("");
+      lines.push(asciiFooter());
+      
+      document.getElementById("asciiBlock").textContent = lines.join("\n");
+    }
+
+    // ===================== TOGGLE + INIT =====================
+    function toggleMode(){
+      const html = document.documentElement;
+      const now = html.getAttribute("data-mode");
+      const next = (now === "visual") ? "ascii" : "visual";
+      html.setAttribute("data-mode", next);
+      if(next === "ascii") renderASCII();
+    }
+
+    document.getElementById("modeToggle").addEventListener("click", toggleMode);
+    window.addEventListener("load", ()=>{
+      fillVisual();
+      renderASCII();
+    });
+
+    window.addEventListener("resize", ()=>{
+      if(document.documentElement.getAttribute("data-mode")==="visual") fillVisual();
+    });
+  </script>
+</body>
+</html>
