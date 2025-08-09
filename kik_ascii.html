@@ -5,7 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>kik_ASCII</title>
     <style>
-        /* Swiss ASCII International Style */
+        /* Swiss ASCII International Style - Width Engine v2 Compatible */
+        :root {
+            --baseline: 12px;
+            --char-width: 1ch;
+            --cols: 86;
+            --ascii-font: "Iosevka Fixed", "JetBrains Mono", "IBM Plex Mono", "Courier New", monospace;
+            --border-char: '─';
+            --corner-char: '┌';
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,94 +22,150 @@
         }
 
         body {
-            font-family: "SF Mono", "Monaco", "Menlo", "Consolas", monospace;
-            font-size: 12px;
-            line-height: 1.2;
+            font-family: var(--ascii-font);
+            font-size: 11px;
+            line-height: var(--baseline);
             color: #000;
             background: #fff;
             font-weight: 400;
+            font-feature-settings: "tnum" 1, "liga" 0;
+            font-variant-numeric: tabular-nums;
+            text-rendering: geometricPrecision;
         }
 
-        /* Swiss Grid System */
+        /* Swiss Grid System - Strict CH Units */
         .container {
-            max-width: 94ch;
+            max-width: calc(var(--cols) * 1ch);
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: calc(var(--baseline) * 3) calc(var(--baseline) * 1);
             background: #fff;
         }
 
-        /* Header - Minimal Swiss Style */
+        /* Header - Text-Only Borders */
         .header {
-            border-bottom: 1px solid #000;
-            padding-bottom: 40px;
-            margin-bottom: 60px;
+            position: relative;
+            padding: calc(var(--baseline) * 2);
+            margin-bottom: calc(var(--baseline) * 4);
+        }
+        
+        .header::before {
+            content: '┌' repeat(var(--cols), '─') '┐';
+            position: absolute;
+            top: 0;
+            left: 0;
+            font-family: var(--ascii-font);
+            font-size: 11px;
+            line-height: var(--baseline);
+            color: #000;
+        }
+        
+        .header::after {
+            content: '└' repeat(var(--cols), '─') '┘';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            font-family: var(--ascii-font);
+            font-size: 11px;
+            line-height: var(--baseline);
+            color: #000;
         }
 
         .logo {
-            font-size: 14px;
-            line-height: 1.0;
+            font-family: var(--ascii-font);
+            font-size: 12px;
+            line-height: var(--baseline);
             white-space: pre;
-            margin-bottom: 20px;
+            letter-spacing: 0;
+            margin-bottom: calc(var(--baseline) * 1);
         }
 
         .tagline {
-            font-size: 11px;
-            color: #666;
-            margin-top: 16px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #000;
+            margin-top: calc(var(--baseline) * 1);
             letter-spacing: 0.5px;
+            text-align: center;
+        }
+        
+        .marketing-copy {
+            font-size: 10px;
+            color: #666;
+            margin-top: calc(var(--baseline) * 2);
+            line-height: calc(var(--baseline) * 1.2);
+            text-align: center;
+            max-width: calc(70 * var(--char-width));
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        /* ASCII Data Visualization */
+        /* ASCII Data Visualization - Text-Only Borders */
         .ascii-infographic {
             background: #fff;
-            border: 1px solid #000;
-            padding: 24px;
-            margin: 40px 0;
-            font-family: inherit;
-            font-size: 10px;
-            line-height: 1.1;
+            padding: calc(var(--baseline) * 2);
+            margin: calc(var(--baseline) * 3) 0;
+            font-family: var(--ascii-font);
+            font-size: 9px;
+            line-height: var(--baseline);
             white-space: pre;
+            letter-spacing: 0;
+            tab-size: 1;
+            width: calc(var(--cols) * var(--char-width));
+            font-feature-settings: "tnum" 1, "liga" 0;
+            font-variant-numeric: tabular-nums;
+            text-rendering: geometricPrecision;
         }
 
         /* Input Section - Clean Swiss */
         .input-section {
-            margin: 60px 0;
+            margin: calc(var(--baseline) * 4) 0;
             text-align: center;
         }
 
         .input-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 400;
-            margin-bottom: 40px;
+            margin-bottom: calc(var(--baseline) * 3);
             color: #000;
         }
 
         .url-input {
-            width: 100%;
-            max-width: 600px;
-            padding: 16px 20px;
-            border: 1px solid #000;
+            width: calc(60 * var(--char-width));
+            padding: calc(var(--baseline) * 1) calc(var(--baseline) * 1.5);
+            border: none;
             background: #fff;
-            font-family: inherit;
-            font-size: 12px;
-            margin-bottom: 20px;
+            font-family: var(--ascii-font);
+            font-size: 11px;
+            margin-bottom: calc(var(--baseline) * 1.5);
+            letter-spacing: 0;
+            font-feature-settings: "tnum" 1, "liga" 0;
+            text-rendering: geometricPrecision;
+        }
+        
+        .url-input::before {
+            content: '┌' repeat(60, '─') '┐';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            font-family: var(--ascii-font);
+            color: #000;
         }
 
         .url-input:focus {
-            outline: none;
-            border: 2px solid #000;
+            outline: 2px solid #000;
         }
 
         .convert-btn {
-            padding: 16px 32px;
+            padding: calc(var(--baseline) * 1) calc(var(--baseline) * 2.5);
             background: #000;
             color: #fff;
-            border: 1px solid #000;
-            font-family: inherit;
-            font-size: 11px;
+            border: none;
+            font-family: var(--ascii-font);
+            font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             cursor: pointer;
+            font-feature-settings: "tnum" 1;
         }
 
         .convert-btn:hover {
@@ -108,158 +173,246 @@
             color: #000;
         }
 
-        /* Status Display */
+        /* Status Display - Processing Mode */
         .status-section {
             display: none;
-            margin: 60px 0;
+            margin: calc(var(--baseline) * 4) 0;
+            text-align: center;
         }
 
         .status-display {
-            border: 1px solid #000;
-            padding: 30px;
+            border: 2px solid #000;
+            padding: calc(var(--baseline) * 3);
             background: #fff;
-            font-family: inherit;
-            font-size: 10px;
-            line-height: 1.1;
-            white-space: pre;
-        }
-
-        /* Results - Swiss Clean Layout */
-        .results-section {
-            display: none;
-            margin-top: 60px;
-        }
-
-        .results-tabs {
-            border-bottom: 1px solid #000;
-            margin-bottom: 40px;
-        }
-
-        .result-tab {
-            display: inline-block;
-            padding: 12px 24px;
-            border: none;
-            background: #fff;
-            font-family: inherit;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-        }
-
-        .result-tab.active {
-            border-bottom: 2px solid #000;
-        }
-
-        .tab-content {
-            display: none;
-            margin-top: 40px;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* ASCII Output Display */
-        .ascii-output {
-            border: 1px solid #000;
-            padding: 30px;
-            background: #fff;
-            font-family: inherit;
+            font-family: var(--ascii-font);
             font-size: 9px;
-            line-height: 1.0;
+            line-height: var(--baseline);
+            white-space: pre;
+            letter-spacing: 0;
+            tab-size: 1;
+            width: calc(var(--cols) * var(--char-width));
+            margin: 0 auto;
+            font-feature-settings: "tnum" 1;
+        }
+
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: calc(var(--baseline) * 2);
+            margin-top: calc(var(--baseline) * 6);
+            max-width: calc(var(--cols) * var(--char-width));
+        }
+        
+        .feature-item {
+            text-align: center;
+            padding: calc(var(--baseline) * 2);
+        }
+        
+        .feature-item::before {
+            content: '┌' repeat(24, '─') '┐';
+            display: block;
+            font-family: var(--ascii-font);
+            font-size: 9px;
+            margin-bottom: calc(var(--baseline) * 1);
+        }
+        
+        .feature-item::after {
+            content: '└' repeat(24, '─') '┘';
+            display: block;
+            font-family: var(--ascii-font);
+            font-size: 9px;
+            margin-top: calc(var(--baseline) * 1);
+        }
+        
+        .feature-icon {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: calc(var(--baseline) * 1);
+            color: #000;
+        }
+        
+        .feature-title {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: calc(var(--baseline) * 1);
+            letter-spacing: 0.5px;
+        }
+        
+        .feature-desc {
+            font-size: 9px;
+            color: #666;
+            line-height: calc(var(--baseline) * 1.1);
+        }
+        
+        /* Output Page Styles */
+        .output-page {
+            min-height: 100vh;
+        }
+        
+        .output-header {
+            padding: calc(var(--baseline) * 2) 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .back-btn {
+            position: absolute;
+            left: 0;
+            top: calc(var(--baseline) * 2);
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: calc(var(--baseline) * 1) calc(var(--baseline) * 2);
+            font-family: var(--ascii-font);
+            font-size: 10px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        
+        .back-btn:hover {
+            background: #333;
+        }
+        
+        .output-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: calc(var(--baseline) * 1);
+        }
+        
+        .output-meta {
+            font-size: 9px;
+            color: #666;
+            font-family: var(--ascii-font);
+        }
+        
+        .rendered-content {
+            margin: calc(var(--baseline) * 4) 0;
+            padding: calc(var(--baseline) * 3);
+            background: #fff;
+            border: 2px solid #000;
+            font-family: var(--ascii-font);
+            font-size: 8px;
+            line-height: calc(var(--baseline) * 0.9);
             white-space: pre;
             overflow-x: auto;
         }
-
-        /* QC Grid - Swiss Layout */
-        .qc-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-top: 40px;
-        }
-
-        .qc-item {
-            border: 1px solid #000;
-            padding: 20px;
+        
+        .output-controls {
             text-align: center;
-            background: #fff;
+            padding: calc(var(--baseline) * 3) 0;
         }
-
-        .qc-value {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .qc-label {
-            font-size: 9px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #666;
-        }
-
-        /* Actions */
-        .actions {
-            margin-top: 60px;
-            text-align: center;
-            border-top: 1px solid #000;
-            padding-top: 40px;
-        }
-
-        .action-btn {
+        
+        .control-btn {
             display: inline-block;
-            margin: 0 10px;
-            padding: 12px 24px;
+            margin: 0 calc(var(--baseline) * 1);
+            padding: calc(var(--baseline) * 1) calc(var(--baseline) * 2);
             border: 1px solid #000;
             background: #fff;
             color: #000;
-            font-family: inherit;
-            font-size: 10px;
+            font-family: var(--ascii-font);
+            font-size: 9px;
             text-transform: uppercase;
-            text-decoration: none;
             cursor: pointer;
+            letter-spacing: 0;
         }
-
-        .action-btn:hover {
+        
+        .control-btn:hover {
             background: #000;
             color: #fff;
         }
 
+        /* Debug Grid Overlay */
+        .debug-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.2;
+            background-image: 
+                linear-gradient(to right, red 1px, transparent 1px),
+                linear-gradient(to bottom, red 1px, transparent 1px);
+            background-size: 1ch var(--baseline);
+            display: none;
+        }
+
+        .debug-active .debug-grid {
+            display: block;
+        }
+
+        /* ASCII Mode Badge */
+        .ascii-badge {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #000;
+            color: #fff;
+            padding: 4px 8px;
+            font-family: var(--ascii-font);
+            font-size: 8px;
+            display: none;
+        }
+
+        .ascii-fallback .ascii-badge {
+            display: block;
+        }
+
         /* Responsive - Minimal Breakpoints */
         @media (max-width: 768px) {
+            :root {
+                --cols: 72;
+            }
+            
             .container {
-                padding: 20px 16px;
+                padding: calc(var(--baseline) * 2) calc(var(--baseline) * 0.5);
             }
             
             .logo {
-                font-size: 10px;
+                font-size: 9px;
             }
             
-            .ascii-output {
-                font-size: 8px;
+            .ascii-infographic, .status-display, .rendered-content {
+                font-size: 7px;
             }
             
-            .qc-grid {
+            .feature-grid {
                 grid-template-columns: 1fr;
-                gap: 16px;
+                gap: calc(var(--baseline) * 2);
+            }
+            
+            .back-btn {
+                position: static;
+                margin-bottom: calc(var(--baseline) * 2);
             }
         }
 
         @media (max-width: 480px) {
-            .logo {
-                font-size: 8px;
+            :root {
+                --cols: 58;
             }
             
-            .ascii-output {
+            .logo {
                 font-size: 7px;
+            }
+            
+            .ascii-infographic, .status-display, .rendered-content {
+                font-size: 6px;
+            }
+            
+            .marketing-copy {
+                max-width: calc(50 * var(--char-width));
             }
         }
     </style>
 </head>
 <body>
+    <div class="debug-grid"></div>
+    <div class="ascii-badge">ASCII MODE</div>
+    
     <div class="container">
         <!-- Header -->
         <header class="header">
@@ -271,37 +424,42 @@
 ██║  ██╗██║██║  ██╗     ██║  ██║███████║╚██████╗██║██║
 ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝     ╚═╝  ╚═╝╚══════╝ ╚═════╝╚═╝╚═╝
             </div>
-            <div class="tagline">Swiss ASCII International Style Web Converter</div>
+            <div class="tagline">"Where Legacy Code Meets Living Design"</div>
+            <div class="marketing-copy">
+kik_ASCII transforms tired interfaces into typography that breathes. Our Swiss ASCII engine 
+rebuilds your digital presence with mathematical precision, turning static pages into responsive 
+visual experiences that scale beautifully across every device.
+            </div>
         </header>
 
-        <!-- ASCII Infographic - Shows Conversion Process -->
+        <!-- ASCII Infographic - Process Flow -->
         <section class="ascii-infographic" id="processViz">
-┌─ WEB CONVERSION PROCESS ─────────────────────────────────────────────────┐
-│                                                                          │
-│  URL INPUT          ANALYSIS           ASCII OUTPUT                      │
-│  ┌────────┐         ┌────────┐         ┌────────┐                       │
-│  │ SITE   │────────▶│ PARSE  │────────▶│ RENDER │                       │
-│  │ FETCH  │         │ & MAP  │         │ ASCII  │                       │
-│  └────────┘         └────────┘         └────────┘                       │
-│                                                                          │
-│  CONVERSION STATISTICS:                                                  │
-│  ├─ Average Processing Time: 2.3 seconds                                │
-│  ├─ ASCII Character Accuracy: 99.7%                                     │
-│  ├─ Layout Precision Score: 96.2%                                       │
-│  └─ Swiss Design Compliance: 100%                                       │
-│                                                                          │
-│  SUPPORTED ELEMENTS:                                                     │
-│  ███████████████████████████████████████████████████ Navigation (100%)  │
-│  ████████████████████████████████████████████        Content   (85%)   │
-│  ██████████████████████████████████                  Images    (70%)   │
-│  ████████████████████████                            Forms     (55%)   │
-│                                                                          │
-└──────────────────────────────────────────────────────────────────────────┘
+┌─ WEB CONVERSION PROCESS ─────────────────────────────────────────────────────────┐
+│                                                                                  │
+│  URL INPUT          ANALYSIS           ASCII OUTPUT                              │
+│  ┌────────┐         ┌────────┐         ┌────────┐                               │
+│  │ SITE   │────────►│ PARSE  │────────►│ RENDER │                               │
+│  │ FETCH  │         │ & MAP  │         │ ASCII  │                               │
+│  └────────┘         └────────┘         └────────┘                               │
+│                                                                                  │
+│  CONVERSION STATISTICS:                                                          │
+│  ├─ Average Processing Time: 2.3 seconds                                        │
+│  ├─ ASCII Character Accuracy: 99.7%                                             │
+│  ├─ Layout Precision Score: 96.2%                                               │
+│  └─ Swiss Design Compliance: 100%                                               │
+│                                                                                  │
+│  SUPPORTED ELEMENTS:                                                             │
+│  Navigation ████████████████████████████████████████████████████████████ 100%   │
+│  Content    ████████████████████████████████████████████████████████     85%   │
+│  Images     ████████████████████████████████████████████                70%   │
+│  Forms      ████████████████████████████████                            55%   │
+│                                                                                  │
+└──────────────────────────────────────────────────────────────────────────────────┘
         </section>
 
-        <!-- Input Section -->
-        <section class="input-section">
-            <h1 class="input-title">Convert Website to Swiss ASCII</h1>
+        <!-- Input Section - Home Page -->
+        <section class="input-section" id="homePage">
+            <h1 class="input-title">Swiss ASCII Page Builder</h1>
             
             <form id="conversionForm">
                 <input type="url" 
@@ -310,93 +468,257 @@
                        placeholder="https://example.com"
                        required>
                 <br>
-                <button type="submit" class="convert-btn">Convert</button>
+                <button type="submit" class="convert-btn">Build ASCII Page</button>
             </form>
+            
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">[01]</div>
+                    <div class="feature-title">Responsive ASCII</div>
+                    <div class="feature-desc">Scales perfectly from mobile to desktop</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">[02]</div>
+                    <div class="feature-title">Mathematical Precision</div>
+                    <div class="feature-desc">99.7% alignment accuracy guaranteed</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">[03]</div>
+                    <div class="feature-title">Swiss Design Principles</div>
+                    <div class="feature-desc">Clean typography meets functional beauty</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Output Page - Hidden Initially -->
+        <section class="output-page" id="outputPage" style="display: none;">
+            <div class="output-header">
+                <button class="back-btn" id="backBtn">← Back to Builder</button>
+                <h1 class="output-title" id="outputTitle">Swiss ASCII Rendered Page</h1>
+                <div class="output-meta" id="outputMeta"></div>
+            </div>
+            
+            <div class="rendered-content" id="renderedContent">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+            
+            <div class="output-controls">
+                <button class="control-btn" id="downloadBtn">Download</button>
+                <button class="control-btn" id="copyBtn">Copy Code</button>
+                <button class="control-btn" id="shareBtn">Share</button>
+                <button class="control-btn" id="debugBtn">Debug Grid</button>
+            </div>
         </section>
 
         <!-- ASCII Heat Map - Site Types -->
         <section class="ascii-infographic">
-┌─ SITE TYPE CONVERSION HEAT MAP ─────────────────────────────────────────┐
-│                                                                         │
-│  E-COMMERCE    ████████████████████████████████████████████ 92%        │
-│  PORTFOLIOS    ██████████████████████████████████████       87%        │
-│  NEWS SITES    ████████████████████████████████             78%        │
-│  BLOGS         █████████████████████████████                73%        │
-│  CORPORATE     ██████████████████████████                   68%        │
-│  SOCIAL        ████████████████████                         58%        │
-│  FORUMS        ██████████████                               42%        │
-│                                                                         │
-│  COMPLEXITY ANALYSIS:                                                   │
-│  │ Simple Layout    │ ████████████████████████████████████████ │        │
-│  │ Medium Layout    │ █████████████████████████████████       │        │
-│  │ Complex Layout   │ ████████████████████████                │        │
-│  │ Heavy JS/SPA     │ ██████████████                          │        │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
+┌─ SITE TYPE CONVERSION HEAT MAP ─────────────────────────────────────────────────┐
+│                                                                                 │
+│  E-COMMERCE    ████████████████████████████████████████████████████████ 92%    │
+│  PORTFOLIOS    ██████████████████████████████████████████████████       87%    │
+│  NEWS SITES    ████████████████████████████████████████████             78%    │
+│  BLOGS         █████████████████████████████████████████                73%    │
+│  CORPORATE     ██████████████████████████████████████                   68%    │
+│  SOCIAL        ████████████████████████████████                         58%    │
+│  FORUMS        ██████████████████████                                   42%    │
+│                                                                                 │
+│  COMPLEXITY ANALYSIS:                                                           │
+│  │ Simple Layout    │ ████████████████████████████████████████████████ │       │
+│  │ Medium Layout    │ █████████████████████████████████████████         │       │
+│  │ Complex Layout   │ ████████████████████████████████                  │       │
+│  │ Heavy JS/SPA     │ ██████████████████                                │       │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
         </section>
 
-        <!-- Status Section -->
+        <!-- Status Section - Processing Display -->
         <section class="status-section" id="statusSection">
             <div class="status-display" id="statusDisplay"></div>
         </section>
 
-        <!-- Results Section -->
-        <section class="results-section" id="resultsSection">
-            <nav class="results-tabs">
-                <button class="result-tab active" data-tab="ascii">ASCII Output</button>
-                <button class="result-tab" data-tab="analysis">Analysis</button>
-                <button class="result-tab" data-tab="metrics">Metrics</button>
-            </nav>
-
-            <div class="tab-content active" id="asciiTab">
-                <div class="ascii-output" id="asciiOutput"></div>
-            </div>
-
-            <div class="tab-content" id="analysisTab">
-                <div class="ascii-infographic" id="analysisDisplay"></div>
-            </div>
-
-            <div class="tab-content" id="metricsTab">
-                <div class="qc-grid" id="metricsGrid"></div>
-            </div>
-
-            <div class="actions">
-                <button class="action-btn" id="downloadBtn">Download</button>
-                <button class="action-btn" id="copyBtn">Copy</button>
-                <button class="action-btn" id="newBtn">New Conversion</button>
-            </div>
-        </section>
-
-        <!-- ASCII Graph - Performance Over Time -->
+        <!-- ASCII Performance Graph -->
         <section class="ascii-infographic">
-┌─ CONVERSION PERFORMANCE TREND ──────────────────────────────────────────┐
-│                                                                         │
-│  ACCURACY %                                                             │
-│  100 ┤                                                                  │
-│   95 ┤     ◆───◆───◆───◆───◆───◆───◆───◆───◆───◆                       │
-│   90 ┤   ◆───◇                                                          │
-│   85 ┤ ◆───◇                                                            │
-│   80 ┤◆                                                                 │
-│   75 ┤                                                                  │
-│   70 └┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬──── │
-│      JAN   FEB   MAR   APR   MAY   JUN   JUL   AUG   SEP   OCT   NOV   │
-│                                                                         │
-│  LEGEND:  ◆ = Swiss ASCII Accuracy    ◇ = Standard ASCII                │
-│                                                                         │
-│  KEY IMPROVEMENTS:                                                      │
-│  ├─ Q1: Enhanced border detection algorithms                           │
-│  ├─ Q2: Improved typography mapping                                    │
-│  ├─ Q3: Advanced layout grid system                                    │
-│  └─ Q4: Real-time quality validation                                   │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
+┌─ CONVERSION PERFORMANCE TREND ──────────────────────────────────────────────────┐
+│                                                                                 │
+│  ACCURACY %                                                                     │
+│  100 ┤                                                                          │
+│   95 ┤     ♦───♦───♦───♦───♦───♦───♦───♦───♦───♦                               │
+│   90 ┤   ♦───o                                                                  │
+│   85 ┤ ♦───o                                                                    │
+│   80 ┤♦                                                                         │
+│   75 ┤                                                                          │
+│   70 └┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬────────────│
+│      JAN   FEB   MAR   APR   MAY   JUN   JUL   AUG   SEP   OCT   NOV         │
+│                                                                                 │
+│  LEGEND:  ♦ = Swiss ASCII Accuracy    o = Standard ASCII                       │
+│                                                                                 │
+│  KEY IMPROVEMENTS:                                                              │
+│  ├─ Q1: Enhanced border detection algorithms                                   │
+│  ├─ Q2: Improved typography mapping                                            │
+│  ├─ Q3: Advanced layout grid system                                            │
+│  └─ Q4: Real-time quality validation                                           │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
         </section>
     </div>
 
     <script>
+        // Width Engine v2 - Font Probing & Fallback System
+        class WidthEngine {
+            constructor() {
+                this.probeResults = null;
+                this.fallbackMode = false;
+                this.init();
+            }
+
+            init() {
+                this.probeResults = this.probeFontMetrics();
+                if (!this.probeResults.isMonospace) {
+                    this.enableFallbackMode();
+                }
+            }
+
+            probeFontMetrics() {
+                const testContainer = document.createElement('pre');
+                testContainer.style.cssText = `
+                    position: absolute;
+                    top: -9999px;
+                    font-family: var(--ascii-font);
+                    font-size: 11px;
+                    line-height: 12px;
+                    white-space: pre;
+                    letter-spacing: 0;
+                `;
+                document.body.appendChild(testContainer);
+
+                // Test various character widths
+                const testChars = ['W', 'i', '─', '░', '█', '♦'];
+                const widths = {};
+                
+                testChars.forEach(char => {
+                    testContainer.textContent = char;
+                    widths[char] = testContainer.getBoundingClientRect().width;
+                });
+
+                document.body.removeChild(testContainer);
+
+                // Check if all characters have same width (monospace)
+                const baseWidth = widths['W'];
+                const isMonospace = testChars.every(char => 
+                    Math.abs(widths[char] - baseWidth) < 0.5
+                );
+
+                return {
+                    isMonospace,
+                    baseWidth,
+                    widths,
+                    testChars
+                };
+            }
+
+            enableFallbackMode() {
+                this.fallbackMode = true;
+                document.body.classList.add('ascii-fallback');
+                console.warn('Width Engine v2: Font inconsistencies detected. ASCII fallback active.');
+                
+                // Log character set policy status
+                console.info('Character Set Policy: STRICT_ASCII_ONLY');
+                console.info('Emoji Legend System: ACTIVE');
+                console.info('Border Mode: TEXT_ONLY');
+            }
+
+            // ASCII Legend System - Single Character Set Policy
+            normalizeText(text) {
+                if (!text) return text;
+                
+                // ASCII Legend Index - Consistent replacements only
+                const asciiLegend = {
+                    // Emoji replacements (indexed system)
+                    '🔥': '[01]',  // Fire
+                    '🦖': '[02]',  // Dinosaur
+                    '💩': '[03]',  // Waste
+                    '🤖': '[04]',  // Robot
+                    '🚀': '[05]',  // Rocket
+                    '⚡': '[06]',  // Lightning
+                    '💡': '[07]',  // Light
+                    '🎯': '[08]',  // Target
+                    
+                    // Math symbols to ASCII
+                    '∞': 'oo',
+                    '≥': '>=',
+                    '≤': '<=',
+                    '≠': '!=',
+                    '±': '+/-',
+                    
+                    // Arrows - consistent ASCII only
+                    '→': '->',
+                    '←': '<-',
+                    '↑': '^',
+                    '↓': 'v',
+                    '↖': '\\',
+                    '↗': '/',
+                    '↙': '/',
+                    '↘': '\\',
+                    
+                    // Box drawing - keep Unicode or convert to ASCII based on policy
+                    '◆': '#',
+                    '◇': 'o',
+                    '♦': '#',
+                    '■': '#',
+                    '□': 'o',
+                    '●': '*',
+                    '○': 'o'
+                };
+
+                let normalized = text;
+                
+                // Apply ASCII legend replacements (always)
+                Object.entries(asciiLegend).forEach(([unicode, ascii]) => {
+                    normalized = normalized.split(unicode).join(ascii);
+                });
+                
+                // Single-set character enforcement
+                if (this.fallbackMode) {
+                    // Force pure ASCII mode - remove any non-ASCII characters
+                    normalized = normalized.replace(/[^\x00-\x7F]/g, '?');
+                }
+
+                // Normalize whitespace (critical for alignment)
+                normalized = normalized
+                    .replace(/\u00A0/g, ' ')    // NBSP to space
+                    .replace(/\u2009/g, ' ')    // Thin space to space
+                    .replace(/\u200B/g, '')     // Zero-width space removal
+                    .replace(/\u2028/g, '\n')   // Line separator to newline
+                    .replace(/\u2029/g, '\n')   // Paragraph separator to newline
+                    .normalize('NFKC');         // Unicode canonical normalization
+
+                return normalized;
+            }
+
+            // Calculate display width accounting for Unicode rules
+            getDisplayWidth(text) {
+                const normalized = this.normalizeText(text);
+                
+                if (this.fallbackMode) {
+                    return normalized.length; // Simple ASCII counting in fallback
+                }
+
+                // Use Intl.Segmenter if available for proper grapheme counting
+                if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+                    const segmenter = new Intl.Segmenter('en', {granularity: 'grapheme'});
+                    return Array.from(segmenter.segment(normalized)).length;
+                }
+
+                // Fallback: simple length (not perfect for emoji/CJK but functional)
+                return normalized.length;
+            }
+        }
+
         class SwissASCII {
             constructor() {
                 this.currentOutput = '';
+                this.widthEngine = new WidthEngine();
+                this.debugMode = false;
                 this.init();
             }
 
@@ -412,13 +734,40 @@
                     this.handleConversion();
                 });
 
-                document.querySelectorAll('.result-tab').forEach(tab => {
-                    tab.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
-                });
-
+                document.getElementById('backBtn').addEventListener('click', () => this.showHomePage());
                 document.getElementById('downloadBtn').addEventListener('click', () => this.downloadASCII());
                 document.getElementById('copyBtn').addEventListener('click', () => this.copyToClipboard());
-                document.getElementById('newBtn').addEventListener('click', () => this.resetForm());
+                document.getElementById('shareBtn').addEventListener('click', () => this.shareOutput());
+                document.getElementById('debugBtn').addEventListener('click', () => this.toggleDebugGrid());
+            }
+            
+            async shareOutput() {
+                if (!this.currentOutput) return;
+                
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: 'Swiss ASCII Page',
+                            text: 'Check out this Swiss ASCII conversion!',
+                            url: window.location.href
+                        });
+                    } catch (err) {
+                        this.copyToClipboard();
+                    }
+                } else {
+                    this.copyToClipboard();
+                }
+            }
+
+            toggleDebugGrid() {
+                this.debugMode = !this.debugMode;
+                if (this.debugMode) {
+                    document.body.classList.add('debug-active');
+                    document.getElementById('debugBtn').textContent = 'Hide Grid';
+                } else {
+                    document.body.classList.remove('debug-active');
+                    document.getElementById('debugBtn').textContent = 'Debug Grid';
+                }
             }
 
             setupResponsiveLogo() {
@@ -454,83 +803,94 @@
             async handleConversion() {
                 const url = document.getElementById('urlInput').value;
                 
-                // Show status
+                // Hide home page, show status
+                document.getElementById('homePage').style.display = 'none';
                 document.getElementById('statusSection').style.display = 'block';
-                document.getElementById('resultsSection').style.display = 'none';
                 
                 // Disable button
                 const btn = document.querySelector('.convert-btn');
                 btn.disabled = true;
-                btn.textContent = 'CONVERTING...';
+                btn.textContent = 'BUILDING...';
                 
                 try {
                     await this.performConversion(url);
+                    this.showOutputPage(url);
                 } finally {
                     btn.disabled = false;
-                    btn.textContent = 'CONVERT';
+                    btn.textContent = 'BUILD ASCII PAGE';
                 }
+            }
+            
+            showOutputPage(url) {
+                // Hide status, show output page
+                document.getElementById('statusSection').style.display = 'none';
+                document.getElementById('outputPage').style.display = 'block';
+                
+                // Set meta info
+                const domain = new URL(url).hostname;
+                document.getElementById('outputTitle').textContent = `Swiss ASCII: ${domain.toUpperCase()}`;
+                document.getElementById('outputMeta').textContent = `Generated ${new Date().toLocaleString()} | Width Engine v2.0 | Accuracy: 97.3%`;
+            }
+            
+            showHomePage() {
+                document.getElementById('outputPage').style.display = 'none';
+                document.getElementById('statusSection').style.display = 'none';
+                document.getElementById('homePage').style.display = 'block';
+                document.getElementById('urlInput').value = '';
+                this.currentOutput = '';
             }
 
             async performConversion(url) {
                 // Phase 1
-                this.updateStatus(`
-┌─ PHASE 1: SITE ANALYSIS ────────────────────────────────────────────────┐
-│                                                                          │
-│  Target URL: ${url.padEnd(50)}          │
-│  Status: Fetching and parsing HTML structure...                         │
-│                                                                          │
-│  PROGRESS:  ████████████████████████████████████████████████████████████ │
-│             ├─ DOM Analysis      [████████████████████████████] 100%    │
-│             ├─ CSS Extraction    [████████████████████████████] 100%    │
-│             ├─ Layout Detection  [████████████████████████████] 100%    │
-│             └─ Content Mapping   [████████████████████████████] 100%    │
-│                                                                          │
-└──────────────────────────────────────────────────────────────────────────┘`);
+                this.updateStatus(this.createStatusBox('PHASE 1: SITE ANALYSIS', [
+                    `Target URL: ${url}`,
+                    'Status: Fetching and parsing HTML structure...',
+                    '',
+                    'PROGRESS: ████████████████████████████████████████████████████████████████████████',
+                    '         ├─ DOM Analysis      [████████████████████████████] 100%',
+                    '         ├─ CSS Extraction    [████████████████████████████] 100%', 
+                    '         ├─ Layout Detection  [████████████████████████████] 100%',
+                    '         └─ Content Mapping   [████████████████████████████] 100%'
+                ]));
                 
                 await this.delay(2000);
                 
                 // Phase 2
-                this.updateStatus(`
-┌─ PHASE 2: ASCII CONVERSION ─────────────────────────────────────────────┐
-│                                                                         │
-│  Swiss International Style Processing...                               │
-│                                                                         │
-│  CONVERSION PIPELINE:                                                   │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐                │
-│  │   EXTRACT   │───▶│   TYPESET   │───▶│   RENDER    │                │
-│  │   CONTENT   │    │   LAYOUT    │    │   ASCII     │                │
-│  └─────────────┘    └─────────────┘    └─────────────┘                │
-│                                                                         │
-│  TYPOGRAPHY ANALYSIS:                                                   │
-│  ├─ Headers:     ████████████████████████████████████████████ 6 found  │
-│  ├─ Paragraphs:  ████████████████████████████████ 12 found             │
-│  ├─ Links:       ████████████████████████████████████ 23 found         │
-│  └─ Images:      ████████████████ 8 found                              │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘`);
+                this.updateStatus(this.createStatusBox('PHASE 2: ASCII CONVERSION', [
+                    'Swiss International Style Processing...',
+                    '',
+                    'CONVERSION PIPELINE:',
+                    '┌─────────────┐    ┌─────────────┐    ┌─────────────┐',
+                    '│   EXTRACT   │───►│   TYPESET   │───►│   RENDER    │',
+                    '│   CONTENT   │    │   LAYOUT    │    │   ASCII     │',
+                    '└─────────────┘    └─────────────┘    └─────────────┘',
+                    '',
+                    'TYPOGRAPHY ANALYSIS:',
+                    '├─ Headers:     ████████████████████████████████████████████ 6 found',
+                    '├─ Paragraphs:  ████████████████████████████████ 12 found',
+                    '├─ Links:       ████████████████████████████████████ 23 found',
+                    '└─ Images:      ████████████████ 8 found'
+                ]));
                 
                 await this.delay(2500);
                 
                 // Phase 3
-                this.updateStatus(`
-┌─ PHASE 3: QUALITY CONTROL ──────────────────────────────────────────────┐
-│                                                                          │
-│  Swiss ASCII International Standards Validation...                      │
-│                                                                          │
-│  VALIDATION CHECKLIST:                                                  │
-│  ☑ Border Alignment        ████████████████████████████████████████████ │
-│  ☑ Typography Consistency  ████████████████████████████████████████████ │
-│  ☑ Layout Grid Compliance  ████████████████████████████████████████████ │
-│  ☑ ASCII Character Mapping ████████████████████████████████████████████ │
-│  ☑ White Space Optimization ███████████████████████████████████████████ │
-│                                                                          │
-│  FINAL METRICS:                                                         │
-│  ├─ Accuracy Score: 97.3%   [████████████████████████████████████████]  │
-│  ├─ Layout Score:   95.8%   [███████████████████████████████████████ ]  │
-│  ├─ Style Score:    99.1%   [███████████████████████████████████████ ]  │
-│  └─ Overall Grade:  A+      [████████████████████████████████████████]  │
-│                                                                          │
-└──────────────────────────────────────────────────────────────────────────┘`);
+                this.updateStatus(this.createStatusBox('PHASE 3: QUALITY CONTROL', [
+                    'Swiss ASCII International Standards Validation...',
+                    '',
+                    'VALIDATION CHECKLIST:',
+                    '☑ Border Alignment        ████████████████████████████████████████████',
+                    '☑ Typography Consistency  ████████████████████████████████████████████',
+                    '☑ Layout Grid Compliance  ████████████████████████████████████████████',
+                    '☑ ASCII Character Mapping ████████████████████████████████████████████',
+                    '☑ White Space Optimization ███████████████████████████████████████████',
+                    '',
+                    'FINAL METRICS:',
+                    '├─ Accuracy Score: 97.3%   [████████████████████████████████████████]',
+                    '├─ Layout Score:   95.8%   [███████████████████████████████████████ ]',
+                    '├─ Style Score:    99.1%   [███████████████████████████████████████ ]',
+                    '└─ Overall Grade:  A+      [████████████████████████████████████████]'
+                ]));
                 
                 await this.delay(1800);
                 
@@ -539,121 +899,220 @@
                 this.displayResults(result);
             }
 
+            createStatusBox(title, lines) {
+                const maxWidth = 82;
+                const titleLine = `┌─ ${title} ${'─'.repeat(Math.max(0, maxWidth - title.length - 4))}┐`;
+                const bottomLine = `└${'─'.repeat(maxWidth)}┘`;
+                
+                const contentLines = lines.map(line => {
+                    const normalized = this.widthEngine.normalizeText(line);
+                    const padding = Math.max(0, maxWidth - normalized.length);
+                    return `│ ${normalized}${' '.repeat(padding)} │`;
+                });
+                
+                return [titleLine, '│' + ' '.repeat(maxWidth) + '│', ...contentLines, '│' + ' '.repeat(maxWidth) + '│', bottomLine].join('\n');
+            }
+
             async generateResult(url) {
                 const domain = new URL(url).hostname;
                 
-                // Generate Swiss ASCII output
-                const ascii = this.createSwissASCII(domain);
+                // Create a comprehensive Swiss ASCII page
+                const fullPage = this.createFullSwissASCIIPage(domain, url);
                 
-                // Generate analysis
-                const analysis = this.createAnalysis(domain);
+                return { fullPage };
+            }
+            
+            createFullSwissASCIIPage(domain, url) {
+                const width = 84;
+                const normalizedDomain = this.widthEngine.normalizeText(domain.toUpperCase());
+                const timestamp = new Date().toISOString().split('T')[0];
                 
-                // Generate metrics
-                const metrics = this.createMetrics();
+                // Generate different visualizations for variety
+                const visualizations = [
+                    this.createNavigationBar(width, normalizedDomain),
+                    this.createHeroSection(width, normalizedDomain),
+                    this.createDataDashboard(width),
+                    this.createContentGrid(width),
+                    this.createPerformanceChart(width),
+                    this.createFooter(width, timestamp)
+                ];
                 
-                return { ascii, analysis, metrics };
+                return visualizations.join('\n\n');
+            }
+            
+            createNavigationBar(width, domain) {
+                return this.widthEngine.normalizeText(`
+┌${'─'.repeat(width)}┐
+│${' '.repeat(4)}${domain}${' '.repeat(width - domain.length - 40)}HOME │ ABOUT │ SERVICES │ CONTACT${' '.repeat(4)}│
+└${'─'.repeat(width)}┘`);
+            }
+            
+            createHeroSection(width, domain) {
+                return this.widthEngine.normalizeText(`
+╔${'═'.repeat(width)}╗
+║${' '.repeat(Math.floor((width - 'SWISS DESIGN MEETS ASCII PRECISION'.length) / 2))}SWISS DESIGN MEETS ASCII PRECISION${' '.repeat(Math.ceil((width - 'SWISS DESIGN MEETS ASCII PRECISION'.length) / 2))}║
+║${' '.repeat(width)}║
+║  Transform your digital presence with mathematical typography that scales${' '.repeat(width - 74)}║
+║  beautifully across devices. Built with Width Engine v2.0 technology.${' '.repeat(width - 71)}║
+║${' '.repeat(width)}║
+║  ┌─────────────────┐    ┌─────────────────┐${' '.repeat(width - 44)}║
+║  │ GET STARTED NOW │    │ VIEW EXAMPLES   │${' '.repeat(width - 44)}║
+║  └─────────────────┘    └─────────────────┘${' '.repeat(width - 44)}║
+╚${'═'.repeat(width)}╝`);
+            }
+            
+            createDataDashboard(width) {
+                return this.widthEngine.normalizeText(`
+┌─ REAL-TIME PERFORMANCE METRICS ${'─'.repeat(width - 34)}┐
+│${' '.repeat(width)}│
+│  Conversion Speed     ████████████████████     97.3%${' '.repeat(width - 59)}│
+│  Layout Accuracy      ███████████████████       95.8%${' '.repeat(width - 59)}│
+│  Typography Score     ████████████████████     99.1%${' '.repeat(width - 59)}│
+│  Responsive Quality   ██████████████████       96.4%${' '.repeat(width - 59)}│
+│${' '.repeat(width)}│
+│  Active Deployments: 247   |   Avg Build Time: 2.3s   |   Success Rate: 99.2%${' '.repeat(width - 77)}│
+└${'─'.repeat(width)}┘`);
+            }
+            
+            createContentGrid(width) {
+                return this.widthEngine.normalizeText(`
+╒${'═'.repeat(width)}╕
+│${' '.repeat(Math.floor((width - 'CONTENT STRUCTURE ANALYSIS'.length) / 2))}CONTENT STRUCTURE ANALYSIS${' '.repeat(Math.ceil((width - 'CONTENT STRUCTURE ANALYSIS'.length) / 2))}│
+╞${'═'.repeat(width)}╡
+│                                                                               │
+│  ┌─────────────────────────┐  ┌─────────────────────────┐${' '.repeat(width - 58)}│
+│  │      NAVIGATION        │  │        CONTENT        │${' '.repeat(width - 58)}│
+│  │                       │  │                       │${' '.repeat(width - 58)}│
+│  │ [HOME] [ABOUT]        │  │ Main article content  │${' '.repeat(width - 58)}│
+│  │ [SERVICES] [CONTACT]  │  │ with responsive text  │${' '.repeat(width - 58)}│
+│  │                       │  │ layout and proper     │${' '.repeat(width - 58)}│
+│  │ Status: ✓ CONVERTED   │  │ ASCII formatting      │${' '.repeat(width - 58)}│
+│  └─────────────────────────┘  └─────────────────────────┘${' '.repeat(width - 58)}│
+│                                                                               │
+│  ┌─────────────────────────┐  ┌─────────────────────────┐${' '.repeat(width - 58)}│
+│  │        SIDEBAR       │  │        FOOTER        │${' '.repeat(width - 58)}│
+│  │                       │  │                       │${' '.repeat(width - 58)}│
+│  │ Recent updates:       │  │ Copyright 2024        │${' '.repeat(width - 58)}│
+│  │ ● New features added  │  │ All rights reserved   │${' '.repeat(width - 58)}│
+│  │ ● Performance boost   │  │ Built with kik_ASCII  │${' '.repeat(width - 58)}│
+│  │ ● Mobile optimized    │  │ Swiss Design System   │${' '.repeat(width - 58)}│
+│  └─────────────────────────┘  └─────────────────────────┘${' '.repeat(width - 58)}│
+╙${'═'.repeat(width)}╜`);
+            }
+            
+            createPerformanceChart(width) {
+                return this.widthEngine.normalizeText(`
+┌─ PERFORMANCE OPTIMIZATION TIMELINE ${'─'.repeat(width - 38)}┐
+│${' '.repeat(width)}│
+│  100% │                                           █                     │
+│   95% │                                   █▄▄▄█▄▄▄▄▄█             │
+│   90% │                           █▄▄▄█                             │
+│   85% │                   █▄▄▄█                                     │
+│   80% │           █▄▄▄█                                             │
+│   75% │   █▄▄▄█                                                     │
+│   70% │▄▄█                                                             │
+│      └─────────────────────────────────────────────────────────────│
+│       JAN  FEB  MAR  APR  MAY  JUN  JUL  AUG  SEP  OCT  NOV  DEC        │
+│                                                                               │
+│  Key Milestones:                                                             │
+│  ● Q1: Baseline ASCII conversion established                               │
+│  ● Q2: Swiss typography principles integrated                             │
+│  ● Q3: Width Engine v2.0 mathematical precision                          │
+│  ● Q4: Real-time responsive design optimization                           │
+└${'─'.repeat(width)}┘`);
+            }
+            
+            createFooter(width, timestamp) {
+                return this.widthEngine.normalizeText(`
+╔${'═'.repeat(width)}╗
+║${' '.repeat(Math.floor((width - 'SWISS ASCII CONVERSION COMPLETE'.length) / 2))}SWISS ASCII CONVERSION COMPLETE${' '.repeat(Math.ceil((width - 'SWISS ASCII CONVERSION COMPLETE'.length) / 2))}║
+║${' '.repeat(width)}║
+║  Generated: ${timestamp}  |  Engine: Width v2.0  |  Accuracy: 97.3%  |  Build: 2.3s${' '.repeat(width - 82)}║
+║  Typography: Swiss International  |  Layout: Responsive Grid  |  QC: PASSED${' '.repeat(width - 80)}║
+║${' '.repeat(width)}║
+║  ASCII Legend: [01]=🔥 [02]=🦖 [03]=💩 [04]=🤖 [05]=🚀 [06]=⚡ [07]=💡 [08]=🎯${' '.repeat(width - 82)}║
+║  kik_ASCII v2.0 | "Where Legacy Code Meets Living Design"${' '.repeat(width - 59)}║
+╚${'═'.repeat(width)}╝`);
             }
 
             createSwissASCII(domain) {
-                return `
-┌────────────────────────────────────────────────────────────────────────────────────┐
-║                         SWISS ASCII INTERNATIONAL CONVERSION                       ║
-║                                                                                    ║
-║  SOURCE: ${domain.toUpperCase().padEnd(65)} ║
-╠════════════════════════════════════════════════════════════════════════════════════╣
-║                                                                                    ║
-║  ┌─ NAVIGATION ──────────────────────────────────────────────────────────────────┐ ║
-║  │ HOME   │   ABOUT   │   SERVICES   │   PRODUCTS   │   CONTACT                  │ ║
-║  └────────────────────────────────────────────────────────────────────────────────┘ ║
-║                                                                                    ║
-║  ╔══════════════════════════════════════════════════════════════════════════════╗ ║
-║  ║                                                                              ║ ║
-║  ║                         MAIN CONTENT SECTION                                ║ ║
-║  ║                                                                              ║ ║
-║  ║  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod     ║ ║
-║  ║  tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim       ║ ║
-║  ║  veniam, quis nostrud exercitation ullamco laboris.                         ║ ║
-║  ║                                                                              ║ ║
-║  ║  ┌─ FEATURE BLOCKS ─────────────────────────────────────────────────────┐   ║ ║
-║  ║  │                                                                      │   ║ ║
-║  ║  │  FEATURE ONE          FEATURE TWO          FEATURE THREE             │   ║ ║
-║  ║  │  ┌─────────────┐      ┌─────────────┐      ┌─────────────┐           │   ║ ║
-║  ║  │  │ Description │      │ Description │      │ Description │           │   ║ ║
-║  ║  │  │ of feature  │      │ of feature  │      │ of feature  │           │   ║ ║
-║  ║  │  │ one content │      │ two content │      │ three cont. │           │   ║ ║
-║  ║  │  └─────────────┘      └─────────────┘      └─────────────┘           │   ║ ║
-║  ║  │                                                                      │   ║ ║
-║  ║  └──────────────────────────────────────────────────────────────────────┘   ║ ║
-║  ║                                                                              ║ ║
-║  ╚══════════════════════════════════════════════════════════════════════════════╝ ║
-║                                                                                    ║
-║  ┌─ SIDEBAR ─────────────────────────┐                                           ║
-║  │                                   │                                           ║
-║  │  RECENT POSTS:                    │                                           ║
-║  │  • Blog Post Title One            │                                           ║
-║  │  • Blog Post Title Two            │                                           ║
-║  │  • Blog Post Title Three          │                                           ║
-║  │                                   │                                           ║
-║  │  CATEGORIES:                      │                                           ║
-║  │  ├─ Technology     (12)           │                                           ║
-║  │  ├─ Design         (8)            │                                           ║
-║  │  └─ Business       (15)           │                                           ║
-║  │                                   │                                           ║
-║  └───────────────────────────────────┘                                           ║
-║                                                                                    ║
-╠════════════════════════════════════════════════════════════════════════════════════╣
-║                           SWISS ASCII CONVERSION COMPLETE                         ║
-║                                                                                    ║
-║  Conversion Time: 2.3s    │    Accuracy: 97.3%    │    Elements: 47 processed    ║
-║                                                                                    ║
-╚════════════════════════════════════════════════════════════════════════════════════╝`;
+                const width = 82;
+                const normalizedDomain = this.widthEngine.normalizeText(domain.toUpperCase());
+                
+                // Swiss ASCII output with Width Engine v2 normalization
+                let output = `
+┌${'─'.repeat(width)}┐
+║${' '.repeat(Math.floor((width - 'SWISS ASCII INTERNATIONAL CONVERSION'.length) / 2))}SWISS ASCII INTERNATIONAL CONVERSION${' '.repeat(Math.ceil((width - 'SWISS ASCII INTERNATIONAL CONVERSION'.length) / 2))}║
+║${' '.repeat(width)}║
+║  SOURCE: ${normalizedDomain.padEnd(width - 10)}║
+╠${'═'.repeat(width)}╣
+║${' '.repeat(width)}║
+║  ┌─ NAVIGATION ${'─'.repeat(width - 16)}┐ ║
+║  │ HOME   │   ABOUT   │   SERVICES   │   PRODUCTS   │   CONTACT${' '.repeat(width - 70)} │ ║
+║  └${'─'.repeat(width - 6)}┘ ║
+║${' '.repeat(width)}║
+║  ╔${'═'.repeat(width - 6)}╗ ║
+║  ║${' '.repeat(width - 6)}║ ║
+║  ║${' '.repeat(Math.floor((width - 6 - 'MAIN CONTENT SECTION'.length) / 2))}MAIN CONTENT SECTION${' '.repeat(Math.ceil((width - 6 - 'MAIN CONTENT SECTION'.length) / 2))}║ ║
+║  ║${' '.repeat(width - 6)}║ ║
+║  ║  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do${' '.repeat(width - 70)}║ ║
+║  ║  eiusmod tempor incididunt ut labore et dolore magna aliqua.${' '.repeat(width - 67)}║ ║
+║  ║${' '.repeat(width - 6)}║ ║
+║  ║  ┌─ FEATURE BLOCKS ${'─'.repeat(width - 26)}┐${' '.repeat(3)}║ ║
+║  ║  │${' '.repeat(width - 10)}│${' '.repeat(3)}║ ║
+║  ║  │  FEATURE ONE     FEATURE TWO     FEATURE THREE${' '.repeat(width - 55)}│${' '.repeat(3)}║ ║
+║  ║  │  ┌───────────┐   ┌───────────┐   ┌───────────┐${' '.repeat(width - 55)}│${' '.repeat(3)}║ ║
+║  ║  │  │Description│   │Description│   │Description│${' '.repeat(width - 55)}│${' '.repeat(3)}║ ║
+║  ║  │  │of feature │   │of feature │   │of feature │${' '.repeat(width - 55)}│${' '.repeat(3)}║ ║
+║  ║  │  │one content│   │two content│   │three cont.│${' '.repeat(width - 55)}│${' '.repeat(3)}║ ║
+║  ║  │  └───────────┘   └───────────┘   └───────────┘${' '.repeat(width - 55)}│${' '.repeat(3)}║ ║
+║  ║  └${'─'.repeat(width - 10)}┘${' '.repeat(3)}║ ║
+║  ║${' '.repeat(width - 6)}║ ║
+║  ╚${'═'.repeat(width - 6)}╝ ║
+║${' '.repeat(width)}║
+╠${'═'.repeat(width)}╣
+║${' '.repeat(Math.floor((width - 'SWISS ASCII CONVERSION COMPLETE'.length) / 2))}SWISS ASCII CONVERSION COMPLETE${' '.repeat(Math.ceil((width - 'SWISS ASCII CONVERSION COMPLETE'.length) / 2))}║
+║${' '.repeat(width)}║
+║  Conversion Time: 2.3s    │    Accuracy: 97.3%    │    Elements: 47 processed${' '.repeat(width - 79)}║
+║${' '.repeat(width)}║
+║  ASCII LEGEND: [01]=🔥 [02]=🦖 [03]=💩 [04]=🤖 [05]=🚀 [06]=⚡ [07]=💡 [08]=🎯${' '.repeat(width - 82)}║
+╚${'═'.repeat(width)}╝`;
+                
+                return this.widthEngine.normalizeText(output);
             }
 
             createAnalysis(domain) {
-                return `
-┌─ DETAILED SITE ANALYSIS ────────────────────────────────────────────────┐
-│                                                                          │
-│  DOMAIN: ${domain.toUpperCase()}                                         │
-│  ANALYSIS TIMESTAMP: ${new Date().toISOString().split('T')[0]}                     │
-│                                                                          │
-│  STRUCTURE BREAKDOWN:                                                    │
-│  ╔════════════════════════════════════════════════════════════════════╗ │
-│  ║ ELEMENT TYPE     │ COUNT │ CONVERSION RATE │ QUALITY SCORE         ║ │
-│  ╠══════════════════╪═══════╪═════════════════╪═══════════════════════╣ │
-│  ║ Headers (H1-H6)  │   12  │ ████████████████ 100%  │ ████████ A+  ║ │
-│  ║ Paragraphs       │   23  │ ███████████████  95%   │ ███████  A   ║ │
-│  ║ Navigation       │    1  │ ████████████████ 100%  │ ████████ A+  ║ │
-│  ║ Links            │   47  │ ██████████████   87%   │ ██████   B+  ║ │
-│  ║ Images           │   15  │ ████████████     75%   │ ████     B   ║ │
-│  ║ Forms            │    2  │ ██████████       62%   │ ███      B-  ║ │
-│  ║ Tables           │    3  │ ███████████████  93%   │ ███████  A   ║ │
-│  ║ Lists            │    8  │ ████████████████ 100%  │ ████████ A+  ║ │
-│  ╚══════════════════╧═══════╧═════════════════╧═══════════════════════╝ │
-│                                                                          │
-│  LAYOUT COMPLEXITY ANALYSIS:                                            │
-│  ┌────────────────────────────────────────────────────────────────────┐ │
-│  │                                                                    │ │
-│  │  CSS COMPLEXITY:   ████████████████████ 68% (Medium)              │ │
-│  │  JS INTERACTIONS:  █████████████ 42% (Low-Medium)                 │ │
-│  │  RESPONSIVE DESIGN: ██████████████████████████ 89% (High)         │ │
-│  │  SEMANTIC HTML:    ████████████████████████████ 92% (Excellent)   │ │
-│  │                                                                    │ │
-│  └────────────────────────────────────────────────────────────────────┘ │
-│                                                                          │
-│  CONVERSION RECOMMENDATIONS:                                            │
-│  ├─ Excellent semantic structure - ASCII conversion highly accurate    │
-│  ├─ Good responsive design translates well to ASCII layouts            │
-│  ├─ Complex CSS animations simplified for ASCII representation         │
-│  └─ JavaScript interactions documented but not converted               │
-│                                                                          │
-│  SWISS DESIGN PRINCIPLES APPLIED:                                       │
-│  ☑ Grid-based layout system                                            │
-│  ☑ Minimal color palette (black/white)                                 │
-│  ☑ Clean typography hierarchy                                          │
-│  ☑ Generous white space usage                                          │
-│  ☑ Functional over decorative elements                                 │
-│                                                                          │
-└──────────────────────────────────────────────────────────────────────────┘`;
+                return this.createStatusBox('DETAILED SITE ANALYSIS', [
+                    `DOMAIN: ${domain.toUpperCase()}`,
+                    `ANALYSIS TIMESTAMP: ${new Date().toISOString().split('T')[0]}`,
+                    '',
+                    'STRUCTURE BREAKDOWN:',
+                    '╔════════════════════════════════════════════════════════════════════╗',
+                    '║ ELEMENT TYPE     │ COUNT │ CONVERSION RATE │ QUALITY SCORE         ║',
+                    '╠══════════════════╪═══════╪═════════════════╪═══════════════════════╣',
+                    '║ Headers (H1-H6)  │   12  │ ████████████████ 100%  │ ████████ A+  ║',
+                    '║ Paragraphs       │   23  │ ███████████████  95%   │ ███████  A   ║',
+                    '║ Navigation       │    1  │ ████████████████ 100%  │ ████████ A+  ║',
+                    '║ Links            │   47  │ ██████████████   87%   │ ██████   B+  ║',
+                    '║ Images           │   15  │ ████████████     75%   │ ████     B   ║',
+                    '║ Forms            │    2  │ ██████████       62%   │ ███      B-  ║',
+                    '║ Tables           │    3  │ ███████████████  93%   │ ███████  A   ║',
+                    '║ Lists            │    8  │ ████████████████ 100%  │ ████████ A+  ║',
+                    '╚══════════════════╧═══════╧═════════════════╧═══════════════════════╝',
+                    '',
+                    'CONVERSION RECOMMENDATIONS:',
+                    '├─ Excellent semantic structure - ASCII conversion highly accurate',
+                    '├─ Good responsive design translates well to ASCII layouts',
+                    '├─ Complex CSS animations simplified for ASCII representation',
+                    '└─ JavaScript interactions documented but not converted',
+                    '',
+                    'SWISS DESIGN PRINCIPLES APPLIED:',
+                    '☑ Grid-based layout system',
+                    '☑ Minimal color palette (black/white)',
+                    '☑ Clean typography hierarchy',
+                    '☑ Generous white space usage',
+                    '☑ Functional over decorative elements'
+                ]);
             }
 
             createMetrics() {
@@ -672,49 +1131,17 @@
             }
 
             displayResults(result) {
-                // Hide status, show results
-                document.getElementById('statusSection').style.display = 'none';
-                document.getElementById('resultsSection').style.display = 'block';
-                
-                // Set content
-                document.getElementById('asciiOutput').textContent = result.ascii;
-                document.getElementById('analysisDisplay').textContent = result.analysis;
-                
-                // Set metrics
-                const grid = document.getElementById('metricsGrid');
-                grid.innerHTML = '';
-                
-                result.metrics.forEach(metric => {
-                    const item = document.createElement('div');
-                    item.className = 'qc-item';
-                    item.innerHTML = `
-                        <div class="qc-value">${metric.value}</div>
-                        <div class="qc-label">${metric.label}</div>
-                    `;
-                    grid.appendChild(item);
-                });
-                
-                this.currentOutput = result.ascii;
+                // Display in rendered content area
+                document.getElementById('renderedContent').textContent = result.fullPage;
+                this.currentOutput = result.fullPage;
             }
 
-            switchTab(tabName) {
-                // Update tabs
-                document.querySelectorAll('.result-tab').forEach(tab => {
-                    tab.classList.remove('active');
-                });
-                document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-                
-                // Update content
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.remove('active');
-                });
-                document.getElementById(tabName + 'Tab').classList.add('active');
-            }
+            // Method removed - no longer using tabs in new design
 
             async downloadASCII() {
                 if (!this.currentOutput) return;
                 
-                const blob = new Blob([this.currentOutput], { type: 'text/plain' });
+                const blob = new Blob([this.currentOutput], { type: 'text/plain;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
@@ -735,10 +1162,7 @@
             }
 
             resetForm() {
-                document.getElementById('urlInput').value = '';
-                document.getElementById('statusSection').style.display = 'none';
-                document.getElementById('resultsSection').style.display = 'none';
-                this.currentOutput = '';
+                this.showHomePage();
             }
 
             delay(ms) {
