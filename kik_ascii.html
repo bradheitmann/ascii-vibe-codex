@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>kik_ASCII - Swiss International Style Web Converter</title>
+    <title>kik_ASCII - Swiss ASCII Web Converter</title>
     <style>
-        /* Swiss International Typography Standards + ASCII Specification */
+        /* True Monospace Typography + Responsive Design */
         * {
             margin: 0;
             padding: 0;
@@ -13,46 +13,141 @@
         }
 
         body {
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Code", "Fira Mono", "Droid Sans Mono", "Source Code Pro", "Consolas", "Liberation Mono", "Courier New", monospace;
+            font-weight: 400;
             line-height: 1.2;
             color: #000;
-            background: #fff;
-            font-size: 12px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            font-size: 14px;
+            min-height: 100vh;
         }
 
-        .container {
-            max-width: 94ch; /* ASCII-compliant width */
+        /* Main Container - Search Site Style */
+        .main-container {
+            width: 100%;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        /* Header Section with Logo Positioning */
+        .header-section {
+            padding: 60px 40px 80px 40px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-bottom: 6px solid #000;
+        }
+
+        .header-content {
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0;
-            border: 4px double #000;
-            background: #fff;
+            position: relative;
         }
 
-        /* Header - Full ASCII International Standard */
-        .header-block {
-            border-bottom: 4px double #000;
-            padding: 20px;
-            text-align: center;
-            background: #f8f9fa;
+        /* Logo in Upper Left */
+        .logo-container {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 40px;
         }
 
         .main-logo {
-            font-family: ui-monospace, SFMono-Regular, Monaco, Consolas, monospace;
-            font-size: clamp(8px, 2vw, 12px);
+            font-family: "SF Mono", "Monaco", "Consolas", monospace;
+            font-size: 18px;
             line-height: 1.0;
-            font-weight: 400;
+            font-weight: 700;
             white-space: pre;
-            margin-bottom: 16px;
+            color: #000;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
         }
 
         .tagline {
-            font-size: 11px;
+            font-size: 16px;
+            font-weight: 400;
+            color: #495057;
+            margin-top: 20px;
             letter-spacing: 0.5px;
-            border: 2px solid #000;
-            padding: 8px 16px;
-            display: inline-block;
+        }
+
+        /* Search Interface - Centered */
+        .search-section {
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .search-title {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #000;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.05);
+        }
+
+        .search-subtitle {
+            font-size: 18px;
+            color: #495057;
+            margin-bottom: 40px;
+            font-weight: 400;
+        }
+
+        /* Input Area */
+        .input-container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 24px 28px;
+            font-size: 18px;
+            font-family: inherit;
+            border: 6px solid #000;
+            background: #ffffff;
+            color: #000;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .url-input:focus {
+            border-color: #000;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+            background: #f8f9fa;
+        }
+
+        .convert-button {
+            width: 100%;
+            margin-top: 24px;
+            padding: 24px 32px;
+            font-size: 18px;
+            font-family: inherit;
+            font-weight: 700;
+            background: #000;
+            color: #fff;
+            border: 6px solid #000;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        .convert-button:hover {
             background: #fff;
-            margin-top: 12px;
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+        }
+
+        .convert-button:active {
+            transform: translateY(0);
+        }
+
+        .convert-button:disabled {
+            background: #6c757d;
+            border-color: #6c757d;
+            cursor: not-allowed;
+            transform: none;
         }
 
         /* Input Section - Thick Borders Throughout */
@@ -337,37 +432,42 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header Section -->
-        <header class="header-block">
-            <div class="main-logo" id="logoDisplay">
+    <div class="main-container">
+        <!-- Header with Logo -->
+        <header class="header-section">
+            <div class="header-content">
+                <div class="logo-container">
+                    <div>
+                        <div class="main-logo" id="logoDisplay">
 ██╗  ██╗██╗██╗  ██╗      █████╗ ███████╗ ██████╗██╗██╗
 ██║ ██╔╝██║██║ ██╔╝     ██╔══██╗██╔════╝██╔════╝██║██║
 █████╔╝ ██║█████╔╝█████╗███████║███████╗██║     ██║██║
 ██╔═██╗ ██║██╔═██╗╚════╝██╔══██║╚════██║██║     ██║██║
 ██║  ██╗██║██║  ██╗     ██║  ██║███████║╚██████╗██║██║
 ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝     ╚═╝  ╚═╝╚══════╝ ╚═════╝╚═╝╚═╝
-            </div>
-            <div class="tagline">SWISS INTERNATIONAL STYLE WEB CONVERTER</div>
-        </header>
-
-        <!-- Input Section -->
-        <section class="input-section">
-            <h2 class="section-title">URL Conversion Interface</h2>
-            <form id="conversionForm">
-                <div class="url-input-group">
-                    <label class="url-label" for="targetUrl">Target Website URL</label>
-                    <input type="url" 
-                           id="targetUrl" 
-                           class="url-input"
-                           placeholder="https://example.com"
-                           required>
+                        </div>
+                        <div class="tagline">Swiss ASCII International Style Web Converter</div>
+                    </div>
                 </div>
-                <button type="submit" class="convert-button" id="convertButton">
-                    Convert to ASCII International Style
-                </button>
-            </form>
-        </section>
+
+                <!-- Search Interface -->
+                <div class="search-section">
+                    <h1 class="search-title">Convert Any Website</h1>
+                    <p class="search-subtitle">Transform web pages into Swiss ASCII International Style</p>
+                    
+                    <form id="conversionForm" class="input-container">
+                        <input type="url" 
+                               id="targetUrl" 
+                               class="url-input"
+                               placeholder="Enter website URL (https://example.com)"
+                               required>
+                        <button type="submit" class="convert-button" id="convertButton">
+                            Convert to ASCII Style
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </header>
 
         <!-- Status Section -->
         <section class="status-section" id="statusSection">
