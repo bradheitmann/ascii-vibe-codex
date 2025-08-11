@@ -1,0 +1,96 @@
+# =============================================================================
+# ASCII VIBE CODEX — TIER-3 SUPERSET v12
+# SECTION 7: SWISS INTERNATIONAL STYLE OVERLAY
+# =============================================================================
+section: 7
+title: "Swiss International Style Overlay"
+version: "12.0"
+status: "PRODUCTION-READY"
+purpose: >
+  Apply Swiss International Style principles to ASCII VIBE Codex outputs,
+  ensuring asymmetric layouts, strong grid alignment, active whitespace, and
+  typographic hierarchy, while retaining ASCII fidelity.
+
+# -----------------------------------------------------------------------------
+# 1. TYPOGRAPHIC SCALE (RELATIVE UNITS)
+# -----------------------------------------------------------------------------
+typography:
+  h1: {size: 5, weight: ultra}
+  h2: {size: 4, weight: bold}
+  h3: {size: 3, weight: regular}
+  body: {size: 2, weight: regular}
+  caption: {size: 1, weight: light}
+
+# -----------------------------------------------------------------------------
+# 2. COLOR MAPPING (B/W/RED SCHEME)
+# -----------------------------------------------------------------------------
+color_mapping:
+  black: "█"
+  white: " "
+  red: "░"
+  grey: "▒"
+
+# -----------------------------------------------------------------------------
+# 3. MODULES & LAYOUTS
+# -----------------------------------------------------------------------------
+modules:
+  poster_layout:
+    description: "Large headline, asymmetric image block, minimal footer."
+    ascii_structure:
+      - "████████████████████████████████████████"
+      - "█  HEADLINE                           █"
+      - "████████████████████████████████████████"
+      - "█                                      █"
+      - "█      ███████████                     █"
+      - "█      ███████████                     █"
+      - "█                                      █"
+      - "████████████████████    FOOTER        █"
+      - "████████████████████████████████████████"
+
+  report_cover:
+    description: "Top-aligned title, balanced whitespace, modular grid."
+    ascii_structure:
+      - "TITLE"
+      - "████████████████████████████████████████"
+      - "█   VISUAL                            █"
+      - "████████████████████████████████████████"
+      - "FOOTER INFO"
+
+# -----------------------------------------------------------------------------
+# 4. COMPOSITION RULES
+# -----------------------------------------------------------------------------
+composition_rules:
+  - "Favor asymmetry but keep strong vertical/horizontal anchors"
+  - "White space is active space – use for emphasis"
+  - "All type and graphics align to grid columns"
+  - "Never mix more than 2 weights in one visual field"
+  - "Hierarchies based on size/weight contrast, not ornament"
+
+# -----------------------------------------------------------------------------
+# 5. ASCII SWISS DEMOS
+# -----------------------------------------------------------------------------
+examples:
+  swiss_poster:
+    render: |
+      ████████████████████████████████████████
+      █  GRID SYSTEMS WORKSHOP              █
+      ████████████████████████████████████████
+      █                                      █
+      █      ███████████                     █
+      █      ███████████                     █
+      █                                      █
+      ████████████████████    12 SEPTEMBER  █
+      ████████████████████████████████████████
+
+  swiss_report_cover:
+    render: |
+      REPORT: Q4 METRICS
+      ████████████████████████████████████████
+      █   DATA GRAPHIC                       █
+      ████████████████████████████████████████
+      Prepared by: ASCII LAB
+
+# =============================================================================
+# END SECTION 7
+# =============================================================================
+

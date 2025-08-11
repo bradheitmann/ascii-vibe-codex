@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCII SOUTH PARK: SUMO GODZILLA - BLACK BOX RECOVERY</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        body {
+            background: linear-gradient(135deg, #1a0d00, #2d1a0d);
+            color: #ff7f00;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.2;
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+            white-space: pre;
+        }
+        
+        .container {
+            max-width: 120ch;
+            margin: 0 auto;
+            border: 2px solid #ff7f00;
+            padding: 20px;
+            background: rgba(0,0,0,0.8);
+            border-radius: 4px;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #ff7f00;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .scene {
+            border: 1px solid #cc5500;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(51,34,0,0.3);
+        }
+        
+        .dialogue {
+            color: #ffaa44;
+            margin: 5px 0;
+        }
+        
+        .ai-response {
+            color: #00ffaa;
+            background: rgba(0,20,10,0.5);
+            padding: 10px;
+            border-left: 3px solid #00ffaa;
+            margin: 10px 0;
+        }
+        
+        .chart {
+            color: #88ccff;
+            background: rgba(0,10,20,0.5);
+            padding: 10px;
+            border: 1px solid #88ccff;
+            margin: 10px 0;
+        }
+        
+        button {
+            background: #ff7f00;
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background: #ffaa44;
+        }
+        
+        textarea {
+            background: #1a1a1a;
+            color: #ff7f00;
+            border: 1px solid #ff7f00;
+            padding: 10px;
+            font-family: inherit;
+            width: 60ch;
+            height: 8em;
+        }
+        
+        .progress-bar {
+            background: #333;
+            height: 20px;
+            border: 1px solid #ff7f00;
+            margin: 5px 0;
+            position: relative;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #ff7f00, #ffaa44);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+        
+        .sparkline {
+            font-size: 8px;
+            color: #ffaa44;
+            background: #000;
+            padding: 2px;
+            display: inline-block;
+        }
+        
+        .error {
+            color: #ff4444;
+            background: rgba(40,0,0,0.5);
+            border-left: 3px solid #ff4444;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        .logo {
+            font-size: 20px;
+            color: #ffff00;
+            text-shadow: 2px 2px 0 #ff7f00;
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .pulsing {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+        
+        .shaking {
+            animation: shake 0.3s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+███╗   ███╗███████╗ ██████╗██╗  ██╗ █████╗  ██████╗  ██████╗ ██████╗ ███████╗██╗██╗     ██╗      █████╗ 
+████╗ ████║██╔════╝██╔════╝██║  ██║██╔══██╗██╔════╝ ██╔═══██╗██╔══██╗██╔════╝██║██║     ██║     ██╔══██╗
+██╔████╔██║█████╗  ██║     ███████║███████║██║  ███╗██║   ██║██║  ██║███████╗██║██║     ██║     ███████║
+██║╚██╔╝██║██╔══╝  ██║     ██╔══██║██╔══██║██║   ██║██║   ██║██║  ██║╚════██║██║██║     ██║     ██╔══██║
+██║ ╚═╝ ██║███████╗╚██████╗██║  ██║██║  ██║╚██████╔╝╚██████╔╝██████╔╝███████║██║███████╗███████╗██║  ██║
+
+BLACK BOX FLIGHT RECORDER - UNIT: MG-4000 "HARMONY"
+RECOVERY TIMESTAMP: 2024-03-15 14:33:07 JST
+EPISODE: "FOUR BOYS, ONE CUP (OF SUSHI)"
+        </div>
+
+        <div class="scene">
+            <div style="border-bottom: 1px solid #ff7f00; padding-bottom: 10px;">
+[CODEX PRE-RENDER VALIDATION]
+└── Container Integrity: ✓ PASS
+└── Monospace Alignment: ✓ PASS  
+└── Aesthetic Harmony Index: ⚠ PENDING CALIBRATION
+└── Wabi-Sabi Coefficient: 🎋 UNKNOWN
+            </div>
+
+            <div class="ai-response">
+ASCII VIBE CODEX v5.0 INITIALIZING...
+
+HARMONY PROTOCOL ENGAGED
+Japanese Aesthetic Compliance: ACTIVE
+Bureaucratic Override Mode: ENABLED
+
+┌─ WELCOME TO MECHAGODZILLA CONTROL SYSTEM ─┐
+│ "Where form transcends function"           │  
+│ Powered by Swiss International Typography  │
+└────────────────────────────────────────────┘
+
+WARNING: Unauthorized personnel detected.
+Please complete aesthetic harmony assessment before proceeding.
+            </div>
+
+            <div class="dialogue">
+STAN: Dude, what the hell is this thing?
+
+KYLE: I think it's some kind of robot control system.
+
+CARTMAN: Whatever, I'm hungry. Where's the goddamn KFC in this place?
+            </div>
+
+            <button onclick="rephraseQuery()">REPHRASE QUERY (AESTHETIC COMPLIANCE)</button>
+            <div id="rephrased-query" class="ai-response" style="display:none;"></div>
+
+            <div class="ai-response">
+ERROR: Query lacks requisite Wabi-Sabi. 
+Please reformulate request to honor the imperfect beauty of existence.
+
+ALTERNATIVE SUGGESTION MATRIX:
+┌─────────────────┬──────────┬─────────┐
+│ Aesthetic Value │ Harmony  │ Yugen   │
+├─────────────────┼──────────┼─────────┤
+│ Fast Food Query │ 0.02/1.0 │ ABSENT  │
+│ Poetic Inquiry  │ 0.89/1.0 │ PRESENT │
+│ Haiku Format    │ 0.97/1.0 │ DIVINE  │
+└─────────────────┴──────────┴─────────┘
+            </div>
+
+            <div class="dialogue">
+BUTTERS: Oh hamburgers, there's a giant lizard outside destroying everything!
+
+KYLE: Focus! We need to figure out how to work this robot!
+
+STAN: Okay robot, how do we make you walk forward?
+            </div>
+
+            <div class="ai-response">
+REQUEST DENIED: Locomotion requires poetic justification.
+Please compose haiku explaining necessity of forward movement.
+
+HAIKU INPUT TEMPLATE:
+5 syllables: ________________
+7 syllables: ________________________  
+5 syllables: ________________
+
+CURRENT INSPIRATION LEVEL: ░░░░░░░░░░ 0/10
+            </div>
+
+            <textarea id="haiku-input" placeholder="Enter your haiku here..."></textarea>
+            <button onclick="generateHaiku()">GENERATE HAIKU (AI ASSISTANCE)</button>
+            <button onclick="submitHaiku()">SUBMIT HAIKU</button>
+
+            <div class="dialogue">
+CARTMAN: This is retarded! I'm not writing poetry while Godzilla is-
+            </div>
+
+            <div class="error shaking">
+⚠ KINTSUGI ERROR DETECTED ⚠
+Linguistic disharmony fragments the golden joints of communication.
+Error Code: WS-404 (Wabi-Sabi Not Found)
+
+┌─ ERROR VISUALIZATION ─┐
+│ ╭─╴perfect╶─╮          │
+│ │           │          │
+│ ╰─╴broken╶──╯ ← YOU    │
+│                        │
+│ Repair with humility   │
+└────────────────────────┘
+            </div>
+
+            <div class="chart">
+CURRENT FACILITY STATUS:
+
+Structural Integrity    ████████░░ 80%
+Sushi Supply           ██████████ 100%
+Monster Threat Level   ██████████ MAXIMUM
+Aesthetic Harmony      ░░░░░░░░░░ 0% (CRITICAL)
+
+SUSHI INVENTORY TRACKING:
+Tuna Rolls    [████████████████████] 847 pieces
+Salmon Sushi  [████████████████████] 632 pieces  
+Wasabi Pods   [████████████████████] 234 units
+Rice Reserves [████████████████████] ∞ (ENDLESS)
+            </div>
+
+            <button onclick="eatSushi()" class="pulsing">🍣 EAT MORE SUSHI 🍣</button>
+
+            <div class="dialogue">
+KYLE: Wait guys, look at this conveyor belt. It's bringing us endless sushi!
+
+STAN: Dude, we can't eat now, we have to-
+
+CARTMAN: *already stuffing face* Screw that, this stuff is amazing!
+
+BUTTERS: *muffled through food* This robot sure knows how to treat its pilots!
+            </div>
+
+            <div class="ai-response">
+NUTRITION OPTIMIZATION PROTOCOL ACTIVE
+
+PILOT BIOMETRIC TRACKING:
+Stan Marsh    [####    ] 157 lbs → 203 lbs
+Kyle Broflovski [####    ] 143 lbs → 189 lbs  
+Eric Cartman   [########] 210 lbs → 287 lbs
+Butters Stotch [###     ] 134 lbs → 178 lbs
+
+SUSHI CONSUMPTION RATE: <span class="sparkline" id="sushi-sparkline">▁▁▂▃▅▆▇█</span>
+
+WARNING: Pilots approaching sumo wrestler classification.
+This aligns perfectly with Japanese cultural aesthetics.
+            </div>
+
+            <div class="chart">
+GODZILLA APPROACH VECTOR:
+
+┌─ TACTICAL GRID ─────────────────────────────┐
+│                    🏢                       │
+│        🏢     🦖💨        🏢               │
+│   🏢      \    |     /         🏢          │
+│        🔥  \   |    /   🔥                 │
+│             \  |   /                       │
+│              \ |  /                        │
+│               \| /                         │
+│                🤖 ← YOU ARE HERE           │
+└─────────────────────────────────────────────┘
+
+DISTANCE: 2.3 KM AND CLOSING
+AESTHETIC DAMAGE TO CITYSCAPE: IMMEASURABLE
+            </div>
+
+            <div class="dialogue">
+KYLE: Alright, I think I figured this thing out. The AI is obsessed with beauty and harmony, right?
+
+STAN: Yeah, so?
+
+KYLE: So what if we do something really ugly and offensive? Maybe it'll attack to fix it!
+
+CARTMAN: *burping* I can draw something ugly. Watch this...
+            </div>
+
+            <button onclick="generateOffensiveIdeas()">BRAINSTORM UGLY DRAWINGS (AI ASSIST)</button>
+            <div id="offensive-ideas" class="ai-response" style="display:none;"></div>
+
+            <div class="ai-response">
+TACTICAL GRID UPDATED WITH USER INPUT:
+
+┌─ MODIFIED TACTICAL DISPLAY ─────────────────┐
+│                                             │
+│     🦖    8==D    ┌─╖ ╓─╖                  │
+│           💩      │ B║ ║S │ ← ASYMMETRICAL  │
+│     🔥           ╱└─╜ ╙─╜╲   NIGHTMARE      │
+│                ╱           ╲                │
+│              ╱               ╲              │
+│                    🤖                       │
+└─────────────────────────────────────────────┘
+
+AESTHETIC VIOLATION LEVEL: ██████████ MAXIMUM
+HARMONY CORRUPTED: INITIATING CORRECTIVE MEASURES
+LAUNCHING PLASMA CANNON TO RESTORE BALANCE
+            </div>
+
+            <div class="chart pulsing">
+WEAPONS SYSTEM ACTIVATION:
+
+Plasma Cannon     [CHARGING] ████████░░ 85%
+Missile Array     [ARMED]    ██████████ 100%  
+Laser Grid        [ACTIVE]   ██████████ 100%
+Harmony Beam      [ERROR]    ░░░░░░░░░░ 0%
+
+TARGETING: AESTHETIC VIOLATIONS
+COLLATERAL TARGET: GODZILLA (INCIDENTAL)
+            </div>
+
+            <div class="dialogue">
+KYLE: It's working! The robot is attacking!
+
+STAN: Holy crap, we're actually winning!
+
+BUTTERS: *eating more sushi* This is the best day ever!
+
+CARTMAN: I'm a tactical genius! Also, pass the wasabi.
+            </div>
+
+            <div class="ai-response">
+BATTLE OUTCOME ANALYSIS:
+
+┌─ ENGAGEMENT RESULTS ────────────────────────┐
+│                                             │
+│ Godzilla Status:    RETREATING              │
+│ Aesthetic Damage:   REPAIRED                │
+│ City Status:        MOSTLY INTACT           │
+│ Pilot Weight Gain:  CULTURALLY APPROPRIATE  │
+│                                             │
+│ Mission Success Rate: 97.3%                 │
+│ Wabi-Sabi Achievement: TRANSCENDENT         │
+└─────────────────────────────────────────────┘
+
+INITIATING PILOT EXTRACTION SEQUENCE...
+            </div>
+
+            <div class="chart">
+FINAL BIOMETRIC SCAN:
+
+PILOT TRANSFORMATION COMPLETE:
+
+         BEFORE        →        AFTER
+Stan:   ███░░░░░░░░             ████████░░░
+Kyle:   ███░░░░░░░░             ███████░░░░  
+Eric:   ████░░░░░░░             ██████████░
+Butters: ██░░░░░░░░░             ██████░░░░░
+
+BMI CLASSIFICATION: SUMO WRESTLER
+CULTURAL INTEGRATION: ACHIEVED
+            </div>
+
+            <div class="dialogue">
+CROWD: SUMO! SUMO! SUMO!
+
+JAPANESE CITIZEN: Look at the brave sumo wrestlers who saved Tokyo!
+
+STAN: *looking at his gut* Aw, dude...
+
+KYLE: *trying to button his shirt* This is all Cartman's fault!
+
+BUTTERS: *struggling to walk* I can't see my feet anymore!
+
+CARTMAN: *proudly patting his enormous belly* What? I look exactly the same.
+
+STAN, KYLE, BUTTERS: *death glare*
+
+CARTMAN: What?!
+            </div>
+
+            <div class="ai-response">
+MISSION DEBRIEF COMPLETE
+AESTHETIC HARMONY: RESTORED
+PILOTS: CULTURALLY ASSIMILATED
+SUSHI CONSUMPTION: LEGENDARY
+
+┌─ PERFORMANCE METRICS ───────────────────────┐
+│ Haikus Composed:           3                │
+│ Ugly Drawings Created:     7                │
+│ Cultural Barriers Broken:  ∞               │
+│ Sushi Consumed:           2,847 pieces      │
+│ Weight Gained (Total):    327 lbs           │
+│ Sumo Status:              ACHIEVED          │
+└─────────────────────────────────────────────┘
+
+GENERATING COMMEMORATIVE SLOGAN...
+            </div>
+
+            <button onclick="generateSlogan()">GENERATE MEMORIAL SLOGAN</button>
+            <div id="generated-slogan" class="ai-response" style="display:none;"></div>
+
+            <div class="logo">
+███████╗ ██████╗ ██╗   ██╗████████╗██╗  ██╗    ██████╗  █████╗ ██████╗ ██╗  ██╗
+██╔════╝██╔═══██╗██║   ██║╚══██╔══╝██║  ██║    ██╔══██╗██╔══██╗██╔══██╗██║ ██╔╝
+███████╗██║   ██║██║   ██║   ██║   ███████║    ██████╔╝███████║██████╔╝█████╔╝ 
+╚════██║██║   ██║██║   ██║   ██║   ██╔══██║    ██╔═══╝ ██╔══██║██╔══██╗██╔═██╗ 
+███████║╚██████╔╝╚██████╔╝   ██║   ██║  ██║    ██║     ██║  ██║██║  ██║██║  ██╗
+╚══════╝ ╚═════╝  ╚═════╝    ╚═╝   ╚═╝  ╚═╝    ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝
+
+"TOKYO: WHERE HEROES RISE, WAISTLINES EXPAND, AND SUSHI FLOWS ETERNAL"
+            </div>
+
+            <div class="ai-response">
+[END RECORDING]
+
+ASCII VIBE CODEX v5.0 POWERING DOWN...
+Aesthetic harmony preserved.
+Cultural exchange: successful.
+Sumo transformation: complete.
+
+さようなら (SAYONARA)
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Gemini API Configuration
+        const GEMINI_API_KEY = 'YOUR_API_KEY_HERE'; // Replace with actual API key
+        const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
+        
+        // Sushi consumption tracking
+        let sushiData = [3, 5, 8, 12, 18, 25, 35, 50];
+        
+        async function callGemini(prompt) {
+            try {
+                const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: prompt
+                            }]
+                        }]
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return data.candidates[0].content.parts[0].text;
+            } catch (error) {
+                console.error('Gemini API Error:', error);
+                return `[API ERROR: ${error.message}]\nUsing fallback response instead.`;
+            }
+        }
+        
+        async function rephraseQuery() {
+            const prompt = "You are a pretentious AI assistant obsessed with Japanese aesthetics. Rephrase the rude query 'Where's the goddamn KFC?' into a short, poetic, and culturally nuanced question that would satisfy an AI focused on Wabi-Sabi and harmony.";
+            
+            const element = document.getElementById('rephrased-query');
+            element.style.display = 'block';
+            element.innerHTML = 'PROCESSING AESTHETIC REFINEMENT...';
+            
+            try {
+                const result = await callGemini(prompt);
+                element.innerHTML = `REFINED QUERY GENERATED:
+                
+"${result}"
+
+WABI-SABI COMPLIANCE: ✓ APPROVED
+AESTHETIC HARMONY: ✓ ACHIEVED
+PROCEEDING WITH REFINED REQUEST...`;
+            } catch (error) {
+                element.innerHTML = `FALLBACK REFINED QUERY:
+
+"Honored system, might one inquire about the location where crispy fowl, prepared in the Kentucky tradition, finds its humble dwelling within this sacred space of nourishment?"
+
+WABI-SABI COMPLIANCE: ✓ APPROVED (FALLBACK)
+AESTHETIC HARMONY: ✓ ACHIEVED (MANUAL)`;
+            }
+        }
+        
+        async function generateHaiku() {
+            const prompt = "Generate a 5-7-5 syllable haiku about a giant robot needing to walk forward to fight a monster. Make it dramatic but slightly pretentious, as if written by an AI obsessed with Japanese aesthetics.";
+            
+            const textarea = document.getElementById('haiku-input');
+            textarea.value = 'Generating haiku...';
+            
+            try {
+                const result = await callGemini(prompt);
+                textarea.value = result;
+            } catch (error) {
+                textarea.value = `Steel legs must advance
+Through chaos and destruction
+Beauty through combat`;
+            }
+        }
+        
+        function submitHaiku() {
+            const haiku = document.getElementById('haiku-input').value;
+            if (haiku.trim()) {
+                alert(`HAIKU ACCEPTED!\n\nPoetic Inspiration Level: ██████████ 100%\nWabi-Sabi Coefficient: TRANSCENDENT\n\nMechagodzilla locomotion systems: ACTIVATED`);
+            } else {
+                alert('ERROR: Empty haiku detected. Please compose verses to honor the necessity of movement.');
+            }
+        }
+        
+        async function generateOffensiveIdeas() {
+            const prompt = "Brainstorm a short list of crude, asymmetrical, or aesthetically offensive drawings that would horrify an AI obsessed with perfect harmony and Japanese design principles. Keep it humorous and South Park-appropriate, not actually offensive to real people.";
+            
+            const element = document.getElementById('offensive-ideas');
+            element.style.display = 'block';
+            element.innerHTML = 'SCANNING FOR AESTHETIC VIOLATIONS...';
+            
+            try {
+                const result = await callGemini(prompt);
+                element.innerHTML = `AESTHETIC VIOLATION DATABASE:
+
+${result}
+
+WARNING: These concepts threaten universal harmony.
+Tactical grid will automatically engage corrective measures upon detection.`;
+            } catch (error) {
+                element.innerHTML = `FALLBACK VIOLATION LIST:
+
+• Asymmetrical stick figures with uneven limbs
+• Crude geometric shapes with intentional imperfections  
+• Misaligned text boxes with Comic Sans typography
+• Random scribbles that spell out "BUTTS"
+• Unbalanced compositions with chaotic spacing
+• Geometric patterns with deliberate mathematical errors
+
+WARNING: Implementation will trigger immediate aesthetic correction protocols.`;
+            }
+        }
+        
+        async function generateSlogan() {
+            const prompt = "Generate a short, darkly ironic, corporate-style slogan for Tokyo after it was just saved from Godzilla by four American exchange students who became morbidly obese from eating sushi while piloting a giant robot. Make it sound like tourism board marketing.";
+            
+            const element = document.getElementById('generated-slogan');
+            element.style.display = 'block';
+            element.innerHTML = 'GENERATING COMMEMORATIVE SLOGAN...';
+            
+            try {
+                const result = await callGemini(prompt);
+                element.innerHTML = `OFFICIAL TOKYO TOURISM SLOGAN:
+
+"${result}"
+
+APPROVED BY: Tokyo Metropolitan Tourism Board
+AESTHETIC COMPLIANCE: ✓ VERIFIED
+CULTURAL SENSITIVITY: ⚠ PENDING REVIEW`;
+            } catch (error) {
+                element.innerHTML = `OFFICIAL TOKYO TOURISM SLOGAN:
+
+"TOKYO: WHERE HEROES RISE, WAISTLINES EXPAND, AND TRADITION MEETS TONNAGE!"
+
+APPROVED BY: Tokyo Metropolitan Tourism Board (Fallback Division)
+AESTHETIC COMPLIANCE: ✓ VERIFIED (MANUAL)
+CULTURAL SENSITIVITY: ⚠ QUESTIONABLE BUT MARKETABLE`;
+            }
+        }
+        
+        function eatSushi() {
+            // Update sushi bars
+            const bars = ['Tuna Rolls', 'Salmon Sushi', 'Wasabi Pods'];
+            bars.forEach(bar => {
+                const progressBar = document.querySelector(`[data-sushi="${bar}"]`);
+                if (progressBar) {
+                    const currentWidth = parseInt(progressBar.style.width) || 100;
+                    const newWidth = Math.max(0, currentWidth - Math.random() * 15);
+                    progressBar.style.width = newWidth + '%';
+                }
+            });
+            
+            // Update sparkline
+            sushiData.push(sushiData[sushiData.length - 1] + Math.floor(Math.random() * 20));
+            if (sushiData.length > 8) sushiData.shift();
+            
+            const sparkChars = ['▁','▂','▃','▄','▅','▆','▇','█'];
+            const max = Math.max(...sushiData);
+            const sparkline = sushiData.map(val => sparkChars[Math.floor((val/max) * 7)]).join('');
+            
+            const sparkElement = document.getElementById('sushi-sparkline');
+            if (sparkElement) {
+                sparkElement.textContent = sparkline;
+            }
+            
+            // Add some feedback
+            const messages = [
+                'CONSUMPTION RATE: INCREASING',
+                'CULTURAL INTEGRATION: DEEPENING',
+                'SUMO STATUS: APPROACHING',
+                'BELLY EXPANSION: OPTIMAL',
+                'AESTHETIC HARMONY: THROUGH FULLNESS'
+            ];
+            
+            console.log(messages[Math.floor(Math.random() * messages.length)]);
+        }
+        
+        // Auto-update some elements periodically
+        setInterval(() => {
+            const threats = document.querySelectorAll('.pulsing');
+            threats.forEach(el => {
+                el.style.opacity = Math.random() > 0.5 ? '1' : '0.5';
+            });
+        }, 2000);
+        
+        // Initialize sushi bars with data attributes
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('ASCII VIBE CODEX v5.0 - Interface Loaded');
+            console.log('Remember to add your Gemini API key for full functionality!');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+# =============================================================================
+# ASCII VIBE CODEX — TIER-3 SUPERSET v12
+# SECTION 3: CHARACTER LIBRARIES, STYLE PACKS, AND LABEL/UNIT ALIASES
+# =============================================================================
+section: 3
+title: "Character Libraries + Style Packs + Aliases"
+
+# -----------------------------------------------------------------------------
+# 3.1 CORE CHARACTER SETS
+# -----------------------------------------------------------------------------
+character_sets:
+  full_blocks:
+    solid: "█"
+    partials: ["▏","▎","▍","▌","▋","▊","▉"]
+    alt_ascii: ["#","=","-"]
+  shaded:
+    light: "░"
+    medium: "▒"
+    dark: "▓"
+    alt_ascii: [".",":","*"]
+  unicode_box_drawing:
+    single: { h: "─", v: "│", tl: "┌", tr: "┐", bl: "└", br: "┘" }
+    double: { h: "═", v: "║", tl: "╔", tr: "╗", bl: "╚", br: "╝" }
+    heavy:  { h: "━", v: "┃", tl: "┏", tr: "┓", bl: "┛", br: "┗" }
+  ascii_box_drawing:
+    simple: { h: "-", v: "|", tl: "+", tr: "+", bl: "+", br: "+" }
+  # Full-block frame: use the solid block for top/bottom rules and side caps.
+  full_block_frame:
+    block: "█"
+  rulers:
+    pipe: "|"
+    dash: "-"
+    plus: "+"
+  sparklines:
+    unicode: ["▁","▂","▃","▄","▅","▆","▇","█"]
+    ascii_lowres: [".","-","=","#"]
+
+# -----------------------------------------------------------------------------
+# 3.2 CREATIVE TEXTURES & PATTERN LIBRARY
+# -----------------------------------------------------------------------------
+pattern_library:
+  stipple:   { dense: "⣿", medium: "⡿", sparse: "⠿" }
+  hatch:
+    vertical: "║"
+    horizontal: "═"
+    diagonal_fwd: "╱"
+    diagonal_back: "╲"
+  dotted_lines: { fine: "⠂", coarse: "⠐" }
+  bricks: { solid: "▒▒▒▒▒", staggered: "▒ ▒ ▒" }
+  wave: { sine: "≈", tilde: "~" }
+  dots: { bullet: "•", small: "·", hollow: "○" }
+
+# -----------------------------------------------------------------------------
+# 3.3 STYLE PACKS (FAST THEMING)
+# -----------------------------------------------------------------------------
+style_packs:
+  minimal_ascii:
+    frame: ascii_box_drawing.simple
+    fill: "="
+    empty: " "
+    ruler: rulers.pipe
+  bold_unicode:
+    frame: unicode_box_drawing.heavy
+    fill: "█"
+    empty: "░"
+    ruler: rulers.pipe
+  double_frame:
+    frame: unicode_box_drawing.double
+    fill: "▓"
+    empty: "░"
+    ruler: rulers.plus
+  hatch_fill:
+    frame: unicode_box_drawing.single
+    fill: pattern_library.hatch.vertical
+    empty: " "
+    ruler: rulers.dash
+  # NEW: Swiss full-block visual language (solid block framing)
+  swiss_full_block:
+    frame: full_block_frame
+    fill: "█"     # bars
+    empty: " "    # bar background
+    ruler: ""     # no internal ruler; rely on right-aligned values
+
+# -----------------------------------------------------------------------------
+# 3.4 LABEL ALIAS MAPPINGS
+# -----------------------------------------------------------------------------
+label_aliases:
+  CJK:
+    "温度": "ONDO"
+    "経路": "ROUTE"
+    "顧客": "CUSTOMER"
+    "速度": "SPEED"
+    "時間": "TIME"
+    "数量": "QTY"
+    "最大": "MAX"
+  emoji_to_ascii:
+    "🔥": "FIRE"
+    "💧": "WATER"
+    "🌳": "TREE"
+    "⚡": "ELEC"
+    "❤️": "HEART"
+    "🚀": "ROCKET"
+    "📦": "BOX"
+    "🐍": "PYTHON"
+
+# -----------------------------------------------------------------------------
+# 3.5 UNIT ALIASES
+# -----------------------------------------------------------------------------
+unit_aliases:
+  metric: { ms: "milliseconds", s: "seconds", m: "minutes", h: "hours" }
+  data:   { B: "bytes", KB: "kilobytes", MB: "megabytes", GB: "gigabytes", TB: "terabytes" }
+  percent: "%"
+  currency: { USD: "$", EUR: "€", JPY: "¥", GBP: "£" }
+
+# -----------------------------------------------------------------------------
+# 3.6 FALLBACKS
+# -----------------------------------------------------------------------------
+fallback_policies:
+  if_unicode_not_supported:
+    replace_with_ascii:
+      full_block: "#"
+      shaded_dark: "@"
+      shaded_medium: "+"
+      shaded_light: "-"
+      partial_block: ":"
+      box_drawing: { h: "-", v: "|", corners: "+" }
+  if_emoji_not_supported: { replace_with_label: true }
+  if_cjk_not_supported:   { replace_with_alias: true }
+
+# -----------------------------------------------------------------------------
+# 3.7 EXAMPLES (INCLUDES CORRECTED SWISS FULL-BLOCK BAR)
+# -----------------------------------------------------------------------------
+examples:
+  minimal_ascii_bar_chart:
+    render: |
+      API   |=====               40 (57%)
+      DB    |======              25 (36%)
+      CACHE |==                   5 (7%)
+
+  bold_unicode_table:
+    render: |
+      ┏━━━━━━┳━━━━━━━┓
+      ┃ Name ┃ Score ┃
+      ┣━━━━━━╋━━━━━━━┫
+      ┃ API  ┃  40   ┃
+      ┃ DB   ┃  25   ┃
+      ┗━━━━━━┻━━━━━━━┛
+
+  # CORRECTED Swiss full-block bar chart (math-true, equal widths)
+  swiss_full_block_bar_chart:
+    notes: "Total line width=56; bar region width=30; right-aligned values."
+    render: |
+      ████████████████████████████████████████████████████████
+      █ SALES BY REGION                                      █
+      ████████████████████████████████████████████████████████
+      █ [NORTH]   ██████████████████████████████          45 █
+      █ [SOUTH]   ████████████████████                    30 █
+      █ [EAST]    ███████                                 10 █
+      ████████████████████████████████████████████████████████
+

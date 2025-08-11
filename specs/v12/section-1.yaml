@@ -1,0 +1,102 @@
+# =============================================================================
+# ASCII VIBE CODEX — TIER-3 SUPERSET v12
+# SECTION 1: OVERVIEW + PRINCIPLES
+# =============================================================================
+section: 1
+title: "Overview & Principles"
+version: "12.0"
+status: "PRODUCTION-READY"
+purpose: >
+  Define the high-level intent, philosophy, and governing rules of the ASCII VIBE CODEX.
+  Provide a universal foundation for producing mathematically accurate, monospaced,
+  CLI-safe ASCII/Unicode visualizations with stylistic cohesion, QC guarantees,
+  and cross-model determinism.
+
+# -----------------------------------------------------------------------------
+# 1.1 BACKGROUND
+# -----------------------------------------------------------------------------
+background: |
+  The ASCII VIBE CODEX began as a compact visual language for rendering charts,
+  tables, and creative patterns in monospace environments (terminals, IDE CLIs,
+  Markdown code fences). Over time it evolved into a deterministic system that
+  encodes:
+    - fixed-width proportionality rules
+    - alignment and border integrity
+    - label placement conventions
+    - adaptive fallbacks for environments without Unicode/emoji/CJK support
+    - stylistic presets (“style packs”) for theming
+  Version 12 represents the Tier-3 Superset, meaning:
+    - All prior Tier-1 (core shapes) and Tier-2 (patterns + visual metaphors)
+      are included.
+    - Procedural grammars and adaptive execution layers are standardized.
+    - SDK and CLI tooling are fully integrated.
+
+# -----------------------------------------------------------------------------
+# 1.2 PHILOSOPHY
+# -----------------------------------------------------------------------------
+philosophy:
+  - "CLI environments deserve the same design rigor as high-resolution GUIs."
+  - "All visuals must be mathematically proportionate and alignment-perfect."
+  - "The spec must be executable by humans and LLMs with deterministic results."
+  - "Fallbacks should preserve meaning, not just form."
+  - "Every glyph has weight — choose them with typographic discipline."
+  - "QC is not optional: validators must run after every render."
+
+# -----------------------------------------------------------------------------
+# 1.3 PRIMARY OBJECTIVES
+# -----------------------------------------------------------------------------
+objectives:
+  - "Provide a unified glyph + pattern library for ASCII and Unicode."
+  - "Ship style packs for rapid theming."
+  - "Define procedural rules for proportional charts, tables, creative art."
+  - "Ensure outputs survive copy-paste between shells, markdown, and chat."
+  - "Adapt automatically to model capabilities and CLI constraints."
+  - "Support SDK + CLI for reproducible renders."
+
+# -----------------------------------------------------------------------------
+# 1.4 KEY CONSTRAINTS
+# -----------------------------------------------------------------------------
+constraints:
+  alignment: "All rows must match the max visual width within a block."
+  proportionality: "Widths/heights scale linearly with input values."
+  label_placement: "Labels live above/below visuals, never inline unless table."
+  glyph_consistency: "Do not mix incompatible weight/density glyphs in the same block."
+  box_integrity: "Corners/junctions must meet; no ragged edges."
+  unicode_policy:
+    default_mode: "ascii_safe"
+    advanced_mode: "unicode"  # only if width checks pass
+    emoji_in_visuals: false
+  fallback_rules:
+    unicode: "replace_with_ascii_equivalent"
+    emoji: "replace_with_label"
+    cjk: "replace_with_alias"
+
+# -----------------------------------------------------------------------------
+# 1.5 STRUCTURE OF THE SPEC
+# -----------------------------------------------------------------------------
+structure:
+  sections:
+    1: "Overview + Principles"
+    2: "Core Visual Grammar"
+    3: "Character Libraries + Style Packs + Aliases"
+    4: "Advanced Creative Examples + Procedural Art Generators"
+    5: "Adaptive Execution Layer"
+    6: "Tooling, SDK Stubs & CLI Integrations"
+
+# -----------------------------------------------------------------------------
+# 1.6 CHANGE HISTORY
+# -----------------------------------------------------------------------------
+changelog:
+  - version: "12.0"
+    date: "2025-08-01"
+    notes:
+      - "Integrated Swiss-ready grid alignment rules (for later mashup)."
+      - "Hardened QC governors."
+      - "Expanded style packs with hatch/stipple fills."
+      - "Added procedural grammars for radial, isometric, braided forms."
+      - "Completed SDK + CLI scaffolding."
+
+# =============================================================================
+# END SECTION 1
+# =============================================================================
+

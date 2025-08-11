@@ -1,0 +1,8 @@
+title: "Latency (ms)"
+width: 30
+series:
+  温度: 45
+  DB: 25
+  CACHE: 5
+style_pack: bold_unicode
+show_scale: true

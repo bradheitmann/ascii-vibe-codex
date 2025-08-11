@@ -1,0 +1,78 @@
+/* Swiss International Style Design Tokens */
+:root {
+  /* Colors - High contrast for accessibility */
+  --color-bg: #FFFFFF;
+  --color-text: #000000;
+  --color-accent: #0066CC;
+  --color-muted: #666666;
+  --color-border: #E6E6E6;
+  --color-border-strong: #000000;
+  
+  /* Spacing - 12px baseline grid */
+  --gutter: 16px;
+  --baseline: 12px;
+  --space-xs: calc(var(--baseline) * 0.5);   /* 6px */
+  --space-sm: var(--baseline);               /* 12px */
+  --space-md: calc(var(--baseline) * 1.5);  /* 18px */
+  --space-lg: calc(var(--baseline) * 2);    /* 24px */
+  --space-xl: calc(var(--baseline) * 3);    /* 36px */
+  
+  /* Typography - Swiss scale with responsive adjustments */
+  --font-body: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  --font-data: "SF Mono", "Consolas", "Monaco", "Courier New", monospace;
+  --font-data-tabular: "Helvetica Neue Tabular", var(--font-data);
+  
+  /* Base font sizes - responsive via media queries */
+  --fs-body: 12px;
+  --fs-small: 11px;
+  --fs-h4: 21.33px;  /* 12px * 1.778^1 */
+  --fs-h3: 28.4px;   /* 12px * 1.778^1.5 */
+  --fs-h2: 37.9px;   /* 12px * 1.778^2 */
+  --fs-h1: 50.5px;   /* 12px * 1.778^2.5 */
+  
+  /* Line heights - Swiss precision */
+  --lh-tight: 1.2;
+  --lh-base: 1.5;
+  --lh-loose: 1.8;
+  
+  /* Layout constraints */
+  --content-width: 768px;
+  --content-width-wide: 1024px;
+  
+  /* Animation - Subtle, purposeful */
+  --transition-base: 150ms ease-out;
+  --transition-fast: 100ms ease-out;
+}
+
+/* Responsive typography scaling */
+@media (min-width: 768px) {
+  :root {
+    --fs-body: 13px;
+    --fs-small: 12px;
+    --gutter: 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --fs-body: 14px;
+    --fs-small: 13px;
+    --gutter: 24px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --color-border: #999999;
+    --color-muted: #333333;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-base: none;
+    --transition-fast: none;
+  }
+}

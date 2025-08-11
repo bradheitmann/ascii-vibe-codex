@@ -1,0 +1,597 @@
+name: Swiss ASCII CI
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'packages/**'
+      - 'cli/**'
+      - 'avc.config.yaml'
+      - '.github/workflows/**'
+  push:
+    branches: [ main ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # Job 1: Setup and Basic Validation
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      fixtures-hash: ${{ steps.fixtures.outputs.hash }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          
+      - name: Install dependencies
+        run: |
+          npm ci
+          pip install -r requirements.txt
+          
+      - name: Generate fixtures hash
+        id: fixtures
+        run: |
+          echo "hash=$(sha256sum avc.config.yaml | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+
+  # Job 2: Crawl Test Fixtures
+  crawl:
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Setup Python  
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          
+      - name: Install dependencies
+        run: |
+          npm ci
+          pip install playwright beautifulsoup4 aiohttp aiofiles pyyaml robots-txt-parser
+          npx playwright install chromium
+          
+      - name: Create fixture config
+        run: |
+          cat > avc.fixture.yaml << 'EOF'
+          seeds:
+            - https://example.com
+            - https://httpbin.org/html
+          include: ["/", "/html"]
+          exclude: ["/admin/**"]
+          concurrency: 2
+          delay_ms: 500
+          max_pages: 10
+          timeout_ms: 15000
+          respect_robots: true
+          output_dir: "fixture_dump"
+          ascii:
+            style_pack: "minimal_ascii"
+            width: 72
+            seed: 1337
+          qc:
+            width: true
+            proportions: true
+            borders: true
+            line_length_chars: {min: 45, max: 72}
+            accent_budget: true
+          parity:
+            enabled: true
+            dom_vs_cli_diff_threshold: 0.01
+          EOF
+          
+      - name: Run fixture crawl
+        run: |
+          python -m src.ascii_vibe.crawler.crawler avc.fixture.yaml
+          
+      - name: Validate crawl results
+        run: |
+          if [ ! -d "fixture_dump" ] || [ -z "$(ls -A fixture_dump)" ]; then
+            echo "❌ Crawl failed - no results generated"
+            exit 1
+          fi
+          
+          result_count=$(ls fixture_dump/*.json | wc -l)
+          echo "✅ Crawl successful - $result_count pages crawled"
+          
+          # Basic validation of JSON files
+          for file in fixture_dump/*.json; do
+            if ! python -m json.tool "$file" > /dev/null; then
+              echo "❌ Invalid JSON: $file"
+              exit 1
+            fi
+          done
+          
+      - name: Upload crawl results
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixture-crawl-${{ needs.setup.outputs.fixtures-hash }}
+          path: fixture_dump/
+          retention-days: 7
+
+  # Job 3: Mirror Generation & QC
+  mirror:
+    runs-on: ubuntu-latest
+    needs: [setup, crawl]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          
+      - name: Install dependencies
+        run: |
+          pip install pyyaml beautifulsoup4
+          
+      - name: Download crawl results
+        uses: actions/download-artifact@v4
+        with:
+          name: fixture-crawl-${{ needs.setup.outputs.fixtures-hash }}
+          path: fixture_dump/
+          
+      - name: Generate mirrors
+        run: |
+          python -m src.ascii_vibe.mirror avc.fixture.yaml
+          
+      - name: Validate mirror outputs
+        run: |
+          if [ ! -d "mirror" ] || [ -z "$(ls -A mirror)" ]; then
+            echo "❌ Mirror generation failed"
+            exit 1
+          fi
+          
+          # Check for required files
+          if [ ! -f "mirror/index.json" ] || [ ! -f "mirror/index.html" ]; then
+            echo "❌ Missing index files"
+            exit 1
+          fi
+          
+          # Count successful mirrors
+          success_count=$(python -c "
+          import json
+          with open('mirror/index.json') as f:
+              data = json.load(f)
+              print(data.get('successful_pages', 0))
+          ")
+          
+          total_count=$(python -c "
+          import json
+          with open('mirror/index.json') as f:
+              data = json.load(f)
+              print(data.get('total_pages', 0))
+          ")
+          
+          success_rate=$(python -c "print(f'{int($success_count) / max(int($total_count), 1) * 100:.1f}')")
+          
+          echo "✅ Mirror generation: $success_count/$total_count pages ($success_rate%)"
+          
+          if [ "$success_count" -eq "0" ]; then
+            echo "❌ No successful mirrors generated"
+            exit 1
+          fi
+          
+      - name: Run QC validation
+        run: |
+          python -c "
+          import json
+          import sys
+          from src.ascii_vibe.validators import run_full_validation, validation_summary
+          
+          # Load mirror results
+          with open('mirror/index.json') as f:
+              mirror_data = json.load(f)
+          
+          failed_pages = []
+          qc_issues = []
+          
+          for page in mirror_data['pages']:
+              if page.get('error'):
+                  failed_pages.append(page['url'])
+                  continue
+                  
+              qc_results = page.get('qc_results', {})
+              
+              # Check critical QC failures
+              if not qc_results.get('width_ok', False):
+                  qc_issues.append(f\"{page['url']}: width validation failed\")
+              
+              if not qc_results.get('borders_ok', False):
+                  qc_issues.append(f\"{page['url']}: border validation failed\")
+          
+          print(f'QC Summary:')
+          print(f'  Failed pages: {len(failed_pages)}')
+          print(f'  QC issues: {len(qc_issues)}')
+          
+          if failed_pages:
+              print(f'  Failed URLs: {failed_pages}')
+          
+          if qc_issues:
+              print(f'  QC Issues:')
+              for issue in qc_issues[:5]:  # Show first 5
+                  print(f'    - {issue}')
+          
+          # Hard fail on critical issues
+          if len(qc_issues) > len(mirror_data['pages']) * 0.1:  # More than 10% failure rate
+              print('❌ QC validation failed - too many issues')
+              sys.exit(1)
+          
+          print('✅ QC validation passed')
+          "
+          
+      - name: Upload mirror artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: swiss-mirror-${{ needs.setup.outputs.fixtures-hash }}
+          path: mirror/
+          retention-days: 30
+
+  # Job 4: Accessibility & Performance Testing
+  accessibility:
+    runs-on: ubuntu-latest
+    needs: [setup, mirror]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install testing tools
+        run: |
+          npm install -g @axe-core/cli lighthouse pa11y
+          
+      - name: Download mirror artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: swiss-mirror-${{ needs.setup.outputs.fixtures-hash }}
+          path: mirror/
+          
+      - name: Start local server
+        run: |
+          cd mirror
+          python -m http.server 8080 &
+          SERVER_PID=$!
+          echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
+          sleep 3
+          
+      - name: Run accessibility tests
+        run: |
+          # Test the mirror index page
+          axe http://localhost:8080/index.html --exit
+          
+          # Test a few mirror pages
+          success=0
+          total=0
+          
+          for html_file in mirror/*/index.html; do
+            if [ -f "$html_file" ]; then
+              rel_path=$(echo "$html_file" | sed 's|mirror/||')
+              url="http://localhost:8080/$rel_path"
+              
+              total=$((total + 1))
+              
+              if axe "$url" --exit 2>/dev/null; then
+                success=$((success + 1))
+                echo "✅ Accessibility passed: $url"
+              else
+                echo "⚠️ Accessibility issues: $url"
+              fi
+              
+              # Limit testing to first 5 pages for CI performance
+              if [ $total -ge 5 ]; then
+                break
+              fi
+            fi
+          done
+          
+          success_rate=$(python -c "print(f'{$success / max($total, 1) * 100:.1f}')")
+          echo "Accessibility summary: $success/$total pages passed ($success_rate%)"
+          
+          # Don't fail CI for accessibility issues, just report
+          if [ $success -eq 0 ]; then
+            echo "⚠️ No pages passed accessibility tests"
+          fi
+          
+      - name: Run performance tests
+        run: |
+          # Test mirror index performance
+          lighthouse http://localhost:8080/index.html \
+            --output=json \
+            --output-path=lighthouse-index.json \
+            --chrome-flags="--headless --no-sandbox" \
+            --only-categories=performance,accessibility
+          
+          # Extract key metrics
+          python -c "
+          import json
+          try:
+              with open('lighthouse-index.json') as f:
+                  data = json.load(f)
+              
+              scores = data['categories']
+              perf_score = scores['performance']['score'] * 100
+              a11y_score = scores['accessibility']['score'] * 100
+              
+              audits = data['audits']
+              lcp = audits['largest-contentful-paint']['numericValue']
+              cls = audits['cumulative-layout-shift']['numericValue']
+              
+              print(f'Performance Score: {perf_score:.0f}/100')
+              print(f'Accessibility Score: {a11y_score:.0f}/100')
+              print(f'LCP: {lcp:.0f}ms')
+              print(f'CLS: {cls:.3f}')
+              
+              # Check against budgets
+              if perf_score < 90:
+                  print('⚠️ Performance score below 90')
+              if cls > 0.1:
+                  print('⚠️ CLS above 0.1 (poor)')
+              if lcp > 2500:
+                  print('⚠️ LCP above 2.5s (poor)')
+                  
+              print('✅ Performance testing complete')
+          except Exception as e:
+              print(f'Error processing Lighthouse results: {e}')
+          "
+          
+      - name: Cleanup
+        if: always()
+        run: |
+          if [ -n "$SERVER_PID" ]; then
+            kill $SERVER_PID 2>/dev/null || true
+          fi
+          
+      - name: Upload performance reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-reports-${{ needs.setup.outputs.fixtures-hash }}
+          path: lighthouse-*.json
+          retention-days: 7
+
+  # Job 5: Generate Final Report
+  report:
+    runs-on: ubuntu-latest
+    needs: [setup, crawl, mirror, accessibility]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*-${{ needs.setup.outputs.fixtures-hash }}'
+          merge-multiple: true
+          
+      - name: Install reporting dependencies
+        run: |
+          pip install pyyaml
+          
+      - name: Generate comprehensive reports
+        run: |
+          # Run the reporting module to generate JSON/CSV/HTML reports
+          python -m src.ascii_vibe.reporting avc.fixture.yaml
+          
+      - name: Generate CI summary report
+        run: |
+          python -c "
+          import json
+          import os
+          from datetime import datetime
+          
+          report = {
+              'timestamp': datetime.utcnow().isoformat() + 'Z',
+              'commit_sha': os.getenv('GITHUB_SHA', 'unknown'),
+              'pr_number': os.getenv('GITHUB_PR_NUMBER', 'none'),
+              'jobs': {}
+          }
+          
+          # Crawl results
+          if os.path.exists('fixture_dump'):
+              crawl_files = [f for f in os.listdir('fixture_dump') if f.endswith('.json')]
+              report['jobs']['crawl'] = {
+                  'status': 'success' if crawl_files else 'failed',
+                  'pages_crawled': len(crawl_files)
+              }
+          else:
+              report['jobs']['crawl'] = {'status': 'failed', 'pages_crawled': 0}
+          
+          # Mirror results  
+          if os.path.exists('index.json'):
+              with open('index.json') as f:
+                  mirror_data = json.load(f)
+              report['jobs']['mirror'] = {
+                  'status': 'success' if mirror_data.get('successful_pages', 0) > 0 else 'failed',
+                  'total_pages': mirror_data.get('total_pages', 0),
+                  'successful_pages': mirror_data.get('successful_pages', 0),
+                  'success_rate': mirror_data.get('successful_pages', 0) / max(mirror_data.get('total_pages', 1), 1)
+              }
+          else:
+              report['jobs']['mirror'] = {'status': 'failed'}
+          
+          # Performance results
+          if os.path.exists('lighthouse-index.json'):
+              with open('lighthouse-index.json') as f:
+                  lighthouse = json.load(f)
+              
+              perf_score = lighthouse['categories']['performance']['score'] * 100
+              a11y_score = lighthouse['categories']['accessibility']['score'] * 100
+              lcp = lighthouse['audits']['largest-contentful-paint']['numericValue']
+              cls = lighthouse['audits']['cumulative-layout-shift']['numericValue']
+              
+              report['jobs']['performance'] = {
+                  'status': 'success',
+                  'performance_score': perf_score,
+                  'accessibility_score': a11y_score,
+                  'lcp_ms': lcp,
+                  'cls': cls
+              }
+          else:
+              report['jobs']['performance'] = {'status': 'failed'}
+          
+          # Reporting results
+          if os.path.exists('reports/swiss-ascii-report.json'):
+              report['jobs']['reporting'] = {'status': 'success'}
+              # Load comprehensive report for additional metrics
+              with open('reports/swiss-ascii-report.json') as f:
+                  comp_report = json.load(f)
+                  report['comprehensive_metrics'] = comp_report.get('summary', {})
+          else:
+              report['jobs']['reporting'] = {'status': 'failed'}
+          
+          # Overall status
+          all_jobs = [job.get('status') for job in report['jobs'].values()]
+          report['overall_status'] = 'success' if all(s == 'success' for s in all_jobs) else 'failed'
+          
+          # Write report
+          with open('ci-report.json', 'w') as f:
+              json.dump(report, f, indent=2)
+          
+          print('=== Swiss ASCII CI Report ===')
+          print(f\"Overall Status: {report['overall_status'].upper()}\")
+          print(f\"Timestamp: {report['timestamp']}\")
+          print(f\"Commit: {report['commit_sha'][:8]}\")
+          print()
+          
+          for job, data in report['jobs'].items():
+              print(f\"{job.upper()}: {data['status'].upper()}\")
+              for key, value in data.items():
+                  if key != 'status':
+                      print(f\"  {key}: {value}\")
+          
+          # Show comprehensive metrics if available
+          if 'comprehensive_metrics' in report:
+              metrics = report['comprehensive_metrics']
+              print()
+              print('=== Comprehensive Metrics ===')
+              print(f\"Success Rate: {metrics.get('success_rate', 0):.1%}\")
+              print(f\"QC Pass Rate: {metrics.get('qc_pass_rate', 0):.1%}\")
+              print(f\"Validation Pass Rate: {metrics.get('validation_pass_rate', 0):.1%}\")
+              print(f\"Average Transform Time: {metrics.get('average_transform_time', 0):.0f}ms\")
+          
+          # Exit with error if any critical jobs failed
+          critical_jobs = ['crawl', 'mirror']
+          failed_critical = [j for j in critical_jobs if report['jobs'].get(j, {}).get('status') == 'failed']
+          
+          if failed_critical:
+              print(f'❌ Critical jobs failed: {failed_critical}')
+              exit(1)
+          else:
+              print('✅ All critical jobs passed')
+          "
+          
+      - name: Upload comprehensive reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports-${{ needs.setup.outputs.fixtures-hash }}
+          path: |
+            reports/
+            ci-report.json
+          retention-days: 90
+
+  # Job 6: Publish Preview (on PR)  
+  publish-preview:
+    runs-on: ubuntu-latest
+    needs: [setup, mirror]
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Download mirror artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: swiss-mirror-${{ needs.setup.outputs.fixtures-hash }}
+          path: mirror/
+          
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+        
+      - name: Upload to GitHub Pages
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: mirror/
+          
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v3
+        
+      - name: Comment PR with preview link
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🔍 **Swiss ASCII Mirror Preview**
+              
+              Your changes have been processed and are available for preview:
+              
+              **Mirror Index:** ${{ steps.deployment.outputs.page_url }}
+              
+              This preview includes:
+              - 📄 Text-only Swiss ASCII versions of test pages
+              - 🌐 HTML-wrapped versions for web viewing  
+              - 📊 Quality control reports and metrics
+              
+              The preview will be updated automatically with each commit to this PR.`
+            })
+
+# Additional workflow for dependency updates
+  dependabot:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Auto-merge dependabot PRs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Auto-merge minor/patch dependency updates
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            
+            if (pr.data.title.includes('bump') && 
+                (pr.data.title.includes('patch') || pr.data.title.includes('minor'))) {
+              await github.rest.pulls.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                merge_method: 'squash'
+              });
+            }

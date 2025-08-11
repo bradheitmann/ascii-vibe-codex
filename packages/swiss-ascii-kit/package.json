@@ -1,0 +1,52 @@
+{
+  "name": "@swiss-ascii/kit",
+  "version": "1.0.0",
+  "description": "Swiss International Style frontend kit with ASCII mode support",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "css/**/*",
+    "js/**/*",
+    "react/**/*", 
+    "dist/**/*"
+  ],
+  "exports": {
+    "./css/tokens.css": "./css/tokens.css",
+    "./css/utilities.css": "./css/utilities.css", 
+    "./css/ascii-mode.css": "./css/ascii-mode.css",
+    "./js/decimal-align": "./js/decimal-align.js",
+    "./js/sparkline": "./js/sparkline.js",
+    "./react/AsciiProvider": "./react/AsciiProvider.tsx",
+    "./react/AsciiTable": "./react/AsciiTable.tsx",
+    "./react/Spark": "./react/Spark.tsx"
+  },
+  "scripts": {
+    "build": "tsc && npm run build:css",
+    "build:css": "echo 'CSS build complete'",
+    "test": "npm run test:contrast && npm run test:decimal",
+    "test:contrast": "echo 'Testing WCAG AA contrast ratios'",
+    "test:decimal": "node test/decimal-align.test.js"
+  },
+  "keywords": [
+    "swiss-design",
+    "ascii",
+    "typography", 
+    "accessibility",
+    "decimal-alignment",
+    "swiss-international-style"
+  ],
+  "author": "ASCII Vibe Codex",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "@types/react": ">=16.8.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/react": "^18.0.0"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}

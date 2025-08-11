@@ -1,0 +1,399 @@
+# =============================================================================
+# ASCII VIBE CODEX — TIER-3 SUPERSET v12
+# SECTION 6: TOOLING, SDK STUBS & CLI INTEGRATIONS
+# =============================================================================
+section: 6
+title: "Tooling, SDK Stubs & CLI Integrations"
+version: "12.0"
+status: "PRODUCTION-READY"
+purpose: >
+  Ship a tiny, deterministic implementation layer (Python) + command-line
+  tools so the codex renders consistent ASCII visuals in terminals and IDE CLIs.
+  This section provides a file manifest with ready-to-write source contents:
+  renderers, validators, adapters, and a CLI entrypoint that respects the
+  governors and QC hooks from Section 5.
+
+# -----------------------------------------------------------------------------
+# 6.0 RUNTIME TARGETS
+# -----------------------------------------------------------------------------
+runtimes:
+  language: "Python 3.9+"
+  optional_node_shim: false
+  dependencies:
+    - "none (stdlib only)"
+  dev_optional:
+    - "pytest>=7"        # for tests (optional)
+    - "pyyaml>=6"        # for YAML-driven demos (optional)
+
+# -----------------------------------------------------------------------------
+# 6.1 PROJECT LAYOUT (FILES TO CREATE)
+# -----------------------------------------------------------------------------
+layout:
+  root:
+    - path: "cli/ascii_vibe"
+      mode: "755"
+      type: "file"
+      description: "CLI entrypoint (Python shebang)."
+    - path: "src/ascii_vibe/__init__.py"
+      type: "file"
+      description: "Package marker."
+    - path: "src/ascii_vibe/renderer.py"
+      type: "file"
+      description: "Deterministic ASCII renderers (bar charts, frames)."
+    - path: "src/ascii_vibe/validators.py"
+      type: "file"
+      description: "Row-width, proportion, and border integrity checks."
+    - path: "src/ascii_vibe/qc.py"
+      type: "file"
+      description: "QC pipeline orchestrating validators + repairs."
+    - path: "src/ascii_vibe/adapters/__init__.py"
+      type: "file"
+    - path: "src/ascii_vibe/adapters/terminal.py"
+      type: "file"
+      description: "Common terminal adapter (ASCII fences, width clamp)."
+    - path: "src/ascii_vibe/adapters/warp.py"
+      type: "file"
+      description: "Warp-specific wrappers/hints."
+    - path: "src/ascii_vibe/adapters/claude_code.py"
+      type: "file"
+      description: "Claude Code wrapper for fenced output."
+    - path: "src/ascii_vibe/adapters/gemini_cli.py"
+      type: "file"
+      description: "Gemini CLI wrapper enforcing ASCII safe mode."
+    - path: "examples/demo_bar.yaml"
+      type: "file"
+      description: "Example data for quick demo."
+    - path: "tests/smoke_cli.sh"
+      mode: "755"
+      type: "file"
+      description: "Smoke test invoking the CLI."
+    - path: "tests/test_validators.py"
+      type: "file"
+      description: "Unit tests for width & proportionality."
+
+# -----------------------------------------------------------------------------
+# 6.2 SOURCE CONTENTS
+# -----------------------------------------------------------------------------
+files:
+
+  # --- CLI ENTRYPOINT ---------------------------------------------------------
+  - path: "cli/ascii_vibe"
+    mode: "755"
+    lang: "python"
+    content: |
+      #!/usr/bin/env python3
+      import argparse, json, sys, shutil
+      from pathlib import Path
+
+      sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+      from ascii_vibe.renderer import render_bar_chart_ascii
+      from ascii_vibe.validators import (
+          validate_row_widths, validate_bar_proportions, ValidationError
+      )
+      from ascii_vibe.adapters.terminal import wrap_text_block, clamp_width
+
+      def cmd_render_bar(args):
+          data = json.loads(args.data)
+          width = int(args.width)
+          title = args.title or "Bar Chart"
+          block = render_bar_chart_ascii(title=title, series=data, width=width)
+          if args.validate:
+              lines = block.splitlines()
+              validate_row_widths(lines)
+              validate_bar_proportions(lines, data, width)
+          out = wrap_text_block(block, fence="text")
+          print(out)
+
+      def cmd_validate(args):
+          text = sys.stdin.read()
+          lines = text.splitlines()
+          # Heuristic: width = longest line between bars
+          width = max(len(l) for l in lines) if lines else 0
+          validate_row_widths(lines)
+          # Proportion validation needs raw data; allow optional
+          if args.data and args.width:
+              data = json.loads(args.data)
+              validate_bar_proportions(lines, data, int(args.width))
+          print("OK")
+
+      def cmd_demo(args):
+          demo = {
+              "A": 40, "B": 20, "C": 10
+          }
+          width = 30
+          block = render_bar_chart_ascii(title="Performance", series=demo, width=width)
+          out = wrap_text_block(block, fence="text")
+          print(out)
+
+      def main():
+          parser = argparse.ArgumentParser(prog="ascii_vibe", description="ASCII VIBE CLI")
+          sub = parser.add_subparsers(dest="cmd", required=True)
+
+          p1 = sub.add_parser("render-bar", help="Render an ASCII bar chart")
+          p1.add_argument("--data", required=True, help='JSON object: {"A":40,"B":20}')
+          p1.add_argument("--width", required=True, help="Bar width (chars)")
+          p1.add_argument("--title", default="Bar Chart")
+          p1.add_argument("--validate", action="store_true")
+          p1.set_defaults(func=cmd_render_bar)
+
+          p2 = sub.add_parser("validate", help="Validate an ASCII block from stdin")
+          p2.add_argument("--data", help='JSON object for proportion check')
+          p2.add_argument("--width", help="Width used for bars (int)")
+          p2.set_defaults(func=cmd_validate)
+
+          p3 = sub.add_parser("demo", help="Show a demo bar chart")
+          p3.set_defaults(func=cmd_demo)
+
+          args = parser.parse_args()
+          args.func(args)
+
+      if __name__ == "__main__":
+          main()
+
+  # --- RENDERER ---------------------------------------------------------------
+  - path: "src/ascii_vibe/renderer.py"
+    lang: "python"
+    content: |
+      from typing import Dict, List
+      import math
+
+      def _scale_bar_len(value: float, vmax: float, width: int) -> int:
+          if vmax <= 0: return 0
+          return int(round((value / vmax) * width))
+
+      def render_bar_chart_ascii(title: str, series: Dict[str, float], width: int) -> str:
+          """
+          Deterministic ASCII horizontal bar chart.
+          - Labels ABOVE chart, scale BELOW chart.
+          - Bars use '█' only; empty uses ' ' (space).
+          - Exactly width characters per bar row after label block.
+          """
+          if not series:
+              return f"{title}\n( no data )"
+
+          labels = list(series.keys())
+          values = list(series.values())
+          vmax = max(values) if values else 0
+
+          # Normalize label width: 4 chars inside [] for alignment ([A  ])
+          label_col = max(len(l) for l in labels)
+          label_fmt = "[{:<" + str(label_col) + "}] "
+
+          rows: List[str] = [title]
+          for label in labels:
+              v = series[label]
+              n = _scale_bar_len(v, vmax, width)
+              bar = "█" * n + " " * (width - n)
+              row = label_fmt.format(label) + bar + f" {v}"
+              rows.append(row)
+
+          scale_line = " " * (label_col + 3) + "|" + "-" * (width - 2) + "|"
+          ticks = [0, 0.25, 0.5, 0.75, 1.0]
+          tick_labels = []
+          for t in ticks:
+              val = int(round(t * vmax))
+              tick_labels.append(str(val))
+          tick_row = " " * (label_col + 3)
+          pos_chars = 0
+          for i, t in enumerate(ticks):
+              target = int(round(t * width))
+              label = tick_labels[i]
+              if target < len(label):
+                  target = len(label)
+              pad = max(0, target - pos_chars - len(label))
+              tick_row += " " * pad + label
+              pos_chars += pad + len(label)
+
+          rows.append(scale_line)
+          rows.append(tick_row)
+          return "\n".join(rows)
+
+  # --- VALIDATORS -------------------------------------------------------------
+  - path: "src/ascii_vibe/validators.py"
+    lang: "python"
+    content: |
+      from typing import Dict, List
+      import re, math
+
+      class ValidationError(Exception):
+          pass
+
+      def validate_row_widths(lines: List[str]) -> None:
+          if not lines: return
+          viz_rows = [l for l in lines if re.search(r"^\[", l.strip())]
+          if not viz_rows: return
+          target = max(len(l) for l in viz_rows)
+          for i, l in enumerate(viz_rows):
+              if len(l) != target:
+                  raise ValidationError(f"Row width mismatch at visualization line {i+1}: {len(l)} != {target}")
+
+      def validate_bar_proportions(lines: List[str], data: Dict[str, float], width: int) -> None:
+          if not data: return
+          vmax = max(data.values()) if data else 0.0
+          if vmax <= 0: return
+          for l in lines:
+              if l.strip().startswith("["):
+                  parts = l.split("] ")
+                  if len(parts) < 2: continue
+                  tail = parts[1]
+                  bar_part = tail.rsplit(" ", 1)[0]
+                  filled = bar_part.count("█")
+                  label = l.split("]")[0][1:].strip()
+                  if label in data:
+                      expect = int(round((data[label] / vmax) * width))
+                      if filled != expect:
+                          raise ValidationError(
+                              f"Bar proportion mismatch for '{label}': got {filled}, expected {expect}"
+                          )
+
+  # --- QC PIPELINE ------------------------------------------------------------
+  - path: "src/ascii_vibe/qc.py"
+    lang: "python"
+    content: |
+      from typing import Dict
+      from .validators import validate_row_widths, validate_bar_proportions, ValidationError
+
+      def qc_block(text: str, data: Dict[str, float] = None, width: int = None) -> Dict[str, bool]:
+          lines = text.splitlines()
+          out = {"width_ok": True, "proportions_ok": True}
+          try:
+              validate_row_widths(lines)
+          except ValidationError:
+              out["width_ok"] = False
+          if data is not None and width is not None:
+              try:
+                  validate_bar_proportions(lines, data, width)
+              except ValidationError:
+                  out["proportions_ok"] = False
+          return out
+
+  # --- ADAPTERS: TERMINAL (COMMON) -------------------------------------------
+  - path: "src/ascii_vibe/adapters/terminal.py"
+    lang: "python"
+    content: |
+      import shutil
+
+      def term_cols(default: int = 80) -> int:
+          try:
+              cols = shutil.get_terminal_size().columns
+              return cols if cols > 0 else default
+          except Exception:
+              return default
+
+      def clamp_width(text: str, max_cols: int = None) -> str:
+          cols = max_cols or term_cols()
+          out_lines = []
+          for l in text.splitlines():
+              if len(l) <= cols:
+                  out_lines.append(l)
+              else:
+                  out_lines.append(l[:cols])
+          return "\n".join(out_lines)
+
+      def wrap_text_block(text: str, fence: str = "text") -> str:
+          return f"```{fence}\n{text}\n```"
+
+  # --- ADAPTERS: WARP --------------------------------------------------------
+  - path: "src/ascii_vibe/adapters/warp.py"
+    lang: "python"
+    content: |
+      from .terminal import wrap_text_block, clamp_width, term_cols
+
+      def warp_wrap(text: str) -> str:
+          return wrap_text_block(clamp_width(text), fence="text")
+
+  # --- ADAPTERS: CLAUDE CODE -------------------------------------------------
+  - path: "src/ascii_vibe/adapters/claude_code.py"
+    lang: "python"
+    content: |
+      from .terminal import wrap_text_block, clamp_width
+
+      def claude_code_wrap(text: str) -> str:
+          return wrap_text_block(clamp_width(text), fence="text")
+
+  # --- ADAPTERS: GEMINI CLI --------------------------------------------------
+  - path: "src/ascii_vibe/adapters/gemini_cli.py"
+    lang: "python"
+    content: |
+      from .terminal import wrap_text_block, clamp_width
+
+      def gemini_cli_wrap(text: str) -> str:
+          return wrap_text_block(clamp_width(text), fence="text")
+
+  # --- EXAMPLES ---------------------------------------------------------------
+  - path: "examples/demo_bar.yaml"
+    lang: "yaml"
+    content: |
+      title: "Performance (ms, lower=better)"
+      width: 30
+      series:
+        API: 45
+        DB: 25
+        CACHE: 5
+
+  # --- SMOKE TEST SHELL ------------------------------------------------------
+  - path: "tests/smoke_cli.sh"
+    mode: "755"
+    lang: "bash"
+    content: |
+      #!/usr/bin/env bash
+      set -euo pipefail
+      ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+      CLI="$ROOT/cli/ascii_vibe"
+      echo "Running demo..."
+      "$CLI" demo | tee /tmp/ascii_vibe_demo.txt
+      echo "Validating demo block..."
+      cat /tmp/ascii_vibe_demo.txt | "$CLI" validate
+      echo "Rendering explicit data..."
+      "$CLI" render-bar --data '{"A":40,"B":20,"C":10}' --width 30 --validate
+      echo "OK (smoke_cli)"
+
+  # --- PYTESTS ---------------------------------------------------------------
+  - path: "tests/test_validators.py"
+    lang: "python"
+    content: |
+      import subprocess, sys, json, os
+      from pathlib import Path
+      ROOT = Path(__file__).resolve().parents[1]
+      CLI = ROOT / "cli" / "ascii_vibe"
+      def run(args, text=None):
+          p = subprocess.run([str(CLI), *args], input=text, text=True, capture_output=True)
+          return p.returncode, p.stdout, p.stderr
+      def test_render_and_validate():
+          code, out, err = run(["render-bar", "--data", '{"A":40,"B":20,"C":10}', "--width", "30", "--validate"])
+          assert code == 0
+          assert "```" in out
+      def test_demo_validate():
+          code, out, err = run(["demo"])
+          assert code == 0
+          code2, out2, err2 = run(["validate"], text=out)
+          assert code2 == 0
+          assert "OK" in out2
+
+# -----------------------------------------------------------------------------
+# 6.3 MAKE IT LIVE (SETUP NOTES)
+# -----------------------------------------------------------------------------
+setup_notes:
+  - "Create files from this manifest under your repo root."
+  - "Ensure cli/ascii_vibe is executable (chmod +x cli/ascii_vibe)."
+  - "Run smoke test: tests/smoke_cli.sh"
+  - "Use: ./cli/ascii_vibe render-bar --data '{\"A\":40,\"B\":20}' --width 30 --validate"
+  - "In CLIs (Claude Code / Warp / Gemini), paste the output block as-is."
+
+# -----------------------------------------------------------------------------
+# 6.4 INTEGRATION HINTS
+# -----------------------------------------------------------------------------
+integration:
+  claude_code:
+    tip: "Bind a custom command in Claude Code that shells out to cli/ascii_vibe."
+  warp:
+    tip: "Make an alias in Warp: av='~/path/to/cli/ascii_vibe'"
+  cursor:
+    tip: "Use tasks to call the CLI and paste fenced output into the editor."
+  gemini_cli:
+    tip: "Pipe CLI output directly: ascii_vibe render-bar ... | gemini stream"
+
+# =============================================================================
+# END SECTION 6
+# =============================================================================
+

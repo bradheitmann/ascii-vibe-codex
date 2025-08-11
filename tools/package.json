@@ -1,0 +1,16 @@
+{
+  "name": "ascii-vibe-codex-tools",
+  "version": "1.0.0",
+  "description": "DOM extraction tools for ASCII Vibe Codex",
+  "type": "module",
+  "scripts": {
+    "install-playwright": "npx playwright install chromium",
+    "test-dom": "node dom_dump.js https://example.com"
+  },
+  "dependencies": {
+    "playwright": "^1.40.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

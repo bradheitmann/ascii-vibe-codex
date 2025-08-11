@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CMD="${1:-help}"
+shift || true
+
+case "$CMD" in
+  render-bar)
+    DATA="${1:-'{\"API\":40,\"DB\":25,\"CACHE\":5}'}"
+    WIDTH="${2:-30}"
+    TITLE="${3:-Bar Chart}"
+    STYLE="${4:-bold_unicode}"
+    MODE="${5:-reasoning}"
+    ASCII_ONLY="${6:-false}"
+    python -c "
+import json, sys
+sys.path.insert(0, '.')
+from src.ascii_vibe.renderer import render_bar_chart_ascii
+from src.ascii_vibe.qc import qc_block, qc_footer
+data = json.loads('$DATA')
+ascii_only = '$ASCII_ONLY' == 'true' or '$MODE' == 'execution'
+block = render_bar_chart_ascii('$TITLE', data, int('$WIDTH'), style_pack='$STYLE', ascii_only=ascii_only)
+lines = block.splitlines()
+viz_rows = [l for l in lines if l.strip().startswith('[')]
+expected = max(len(l) for l in viz_rows) if viz_rows else 0
+widths = [len(l) for l in viz_rows]
+qc = qc_block(block, data, int('$WIDTH'))
+block += '\n' + qc_footer(qc, expected, widths, 'auto')
+print(block)
+"
+    ;;
+  transform)
+    WIDTH="${1:-60}"
+    ASCII_ONLY="${2:-false}"
+    CURRENCY="${3:-USD}"
+    THOUSANDS="${4:-thin_space}"
+    NEGATIVES="${5:-parentheses}"
+    python -c "
+import sys
+sys.path.insert(0, '.')
+from src.ascii_vibe.transformers.html2ascii import html_to_swiss_ascii
+from src.ascii_vibe.qc import qc_footer
+raw = sys.stdin.read()
+ascii_only = '$ASCII_ONLY' == 'true'
+block = html_to_swiss_ascii(raw, width=int('$WIDTH'), ascii_only=ascii_only, currency='$CURRENCY', thousands_sep='$THOUSANDS', negatives='$NEGATIVES')
+lines = block.splitlines()
+expected = max((len(l) for l in lines), default=0)
+widths = [len(l) for l in lines if l]
+qc = {'width_ok': all(len(l)<=expected for l in lines if l), 'proportions_ok': True, 'borders_ok': True}
+block += '\n' + qc_footer(qc, expected, widths, 'auto')
+print(block)
+"
+    ;;
+  test|smoke)
+    python tests/smoke_test.py
+    ;;
+  help|*)
+    echo "ASCII Vibe Codex CLI"
+    echo "  avc render-bar [data] [width] [title] [style] [mode] [ascii_only]  # render bar chart"
+    echo "      data:      JSON like '{\"A\":40,\"B\":20}'    (default: API/DB/CACHE)"
+    echo "      width:     bar width in chars                 (default: 30)"
+    echo "      title:     chart title                        (default: 'Bar Chart')"
+    echo "      style:     minimal_ascii|bold_unicode|...     (default: bold_unicode)"
+    echo "      mode:      reasoning|execution                (default: reasoning)"
+    echo "      ascii_only: true|false                        (default: false)"
+    echo "  avc transform [width] [ascii_only] [currency] [thousands] [negatives]  # HTML to Swiss ASCII"
+    echo "      width:     text width in chars                (default: 60)"
+    echo "      ascii_only: true|false                        (default: false)"
+    echo "      currency:  USD|EUR|GBP|JPY|CHF                (default: USD)"
+    echo "      thousands: thin_space|comma                   (default: thin_space)"
+    echo "      negatives: parentheses|minus                  (default: parentheses)"
+    echo "  avc smoke                                                    # run smoke test"
+    ;;
+esac

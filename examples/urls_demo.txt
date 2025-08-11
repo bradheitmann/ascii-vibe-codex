@@ -1,0 +1,5 @@
+# Demo URLs for batch conversion testing
+https://example.com
+# Add more URLs as needed for testing
+# https://news.ycombinator.com
+# https://en.wikipedia.org/wiki/Swiss_typography

@@ -2,9 +2,24 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Project Overview
+
+ASCII VIBE CODEX v2.0 - Swiss ASCII International Style Web Converter
+**Live Site**: https://bradheitmann.github.io/ascii-vibe-codex/kik_ascii.html
+
+### Primary Components
+1. **kik_ascii.html** - Swiss ASCII Page Builder (main production app)
+2. **ASCII VIBE CODEX CLI** - Mathematical precision text UI library 
+3. **Width Engine v2.0** - Font consistency and alignment system
+4. **Demo Files** - South Park, OKOA Capital examples
+
 ## Commands
 
-### Development
+### Web Application (Primary)
+- Open `kik_ascii.html` in browser for Swiss ASCII page builder
+- Live deployment at GitHub Pages automatically updates
+
+### Development (CLI System)
 - `npm start` or `node index.js` - Run the main demo/display system
 - `npm test` or `node test/precision-test.js` - Run comprehensive mathematical precision tests
 - `node activate.js` - Install/activate Claude Code integration hooks

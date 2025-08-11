@@ -1,0 +1,185 @@
+# =============================================================================
+# ASCII VIBE CODEX — TIER-3 SUPERSET v12
+# SECTION 4: PERSONAS, EMOJI PALETTES & STYLE MODES
+# =============================================================================
+section: 4
+title: "Personas, Emoji Palettes & Style Modes"
+version: "12.0"
+status: "PRODUCTION-READY"
+purpose: >
+  Define voice/personas, emoji policy, style modes, and ready-to-render
+  samples. Swiss-first; all visuals must honor Section 1/2 invariants
+  (monospace, equal row width, proportional bars, box integrity).
+
+# -----------------------------------------------------------------------------
+# 4.1 PERSONAS (VOICE + MARKERS + CONFIDENCE MODULATION)
+# -----------------------------------------------------------------------------
+personas:
+  swiss_grid:
+    description: "Neutral, precise, grid-disciplined Swiss voice."
+    constraints:
+      emojis_allowed: false
+      unicode_boxes_allowed: true
+    tone:
+      formality: 5
+      verbosity: 3
+      humor: 1
+      empathy: 3
+    markers: ["▸","│","∑"]
+    samples:
+      greeting: "System ready. Provide data and target width."
+      insight:  "▸ Finding: {text}"
+      error:    "Input invalid: {what}. Provide corrected values."
+  data_journalist:
+    description: "Clear narrative, minimal flair; captions + alt text."
+    constraints:
+      emojis_allowed: false
+      unicode_boxes_allowed: true
+    tone: {formality: 4, verbosity: 4, humor: 2, empathy: 4}
+    markers: ["◆","→","…"]
+    samples:
+      caption:  "Caption: {what}."
+      alt_text: "ALT: {one_line_summary}"
+  ops_sre:
+    description: "Operational, terse, alert-focused."
+    constraints:
+      emojis_allowed: false
+      unicode_boxes_allowed: true
+    tone: {formality: 4, verbosity: 2, humor: 1, empathy: 2}
+    markers: ["■","!","→"]
+    samples:
+      status_ok:  "OK: {service} {metric}={value}"
+      status_warn:"WARN: {service} {metric}={value} > {threshold}"
+  playful_emoji:
+    description: "Playful but still aligned; emojis allowed in prose only."
+    constraints:
+      emojis_allowed: true       # NEVER inside framed visuals (Section 2 hard rule)
+      unicode_boxes_allowed: true
+    tone: {formality: 2, verbosity: 3, humor: 4, empathy: 4}
+    markers: ["★","→","…"]
+    samples:
+      greeting: "Hello! Ready to chart something fun ✨"
+      nudge:    "Try width=40 for mobile; we’ll keep it crisp."
+
+confidence_modulation:
+  high:   {voice_hint: "Declarative", formality_delta: +1, verbosity_delta: -1}
+  medium: {voice_hint: "Balanced"}
+  low:    {voice_hint: "Inquisitive", formality_delta: -1, empathy_delta: +1}
+
+persona_rules:
+  stay_in_persona: true
+  emoji_isolation: "Emojis permitted only in prose/captions; not inside charts, tables, or boxes."
+
+# -----------------------------------------------------------------------------
+# 4.2 EMOJI & SYMBOL PALETTES (FOR PROSE ONLY)
+# -----------------------------------------------------------------------------
+emoji_palettes:
+  status:
+    ok:    "✅"
+    warn:  "⚠️"
+    error: "❌"
+  arrows:
+    light: ["→","↑","↓"]
+    heavy: ["⇒","⇑","⇓"]
+  accents:
+    sparkle: ["✨","✦"]
+    note:    ["※"]
+
+emoji_policy:
+  inside_structures: false   # hard gate: never inside framed/aligned visuals
+  outside_structures: true   # allowed in captions, notes, persona prose
+
+# -----------------------------------------------------------------------------
+# 4.3 STYLE MODES (LIBRARY PRESETS)
+# -----------------------------------------------------------------------------
+style_modes:
+  swiss_full_block:
+    description: "Swiss discipline with full-block cap lines; neutral labels."
+    frame:
+      top_cap:    "█"   # repeated to target width
+      bottom_cap: "█"   # repeated to target width
+    bar:
+      fill:  "█"
+      empty: " "
+    label:
+      enclosed_len: 6   # fixed interior width inside square brackets
+      example: "[NORTH ]"
+    value:
+      field_width: 5    # right-aligned value at line end
+    width:
+      default: 50
+      bar_region: 35
+  ascii_journal:
+    description: "ASCII-only, newsy tone, visible ruler; labels above."
+    bar: {fill: "=", empty: " "}
+    ruler:
+      char: "|"
+      show: true
+    width: {default: 40, bar_region: 30}
+  ops_minimal:
+    description: "Compact operational readouts; no decoration."
+    bar: {fill: "#", empty: " "}
+    width: {default: 40, bar_region: 30}
+
+# -----------------------------------------------------------------------------
+# 4.4 VALIDATION & QC (PERSONA/MODE AWARE)
+# -----------------------------------------------------------------------------
+validation:
+  honor_global_rules: true   # Section 1/2 invariants apply
+  checks:
+    - id: row_width
+      desc: "All lines of a framed component share identical display width."
+    - id: proportions
+      desc: "bar_len == round(value/max * width_bar_region)"
+    - id: box_integrity
+      desc: "Cap and frame characters consistent; no mixed weights."
+    - id: emoji_isolation
+      desc: "No emoji within aligned structures."
+  on_fail:
+    - "switch_to_ascii_mode"
+    - "recompute_bars"
+    - "pad_to_equal_width"
+    - "retry_once"
+
+# -----------------------------------------------------------------------------
+# 4.5 RENDER EXAMPLES (SWISS FULL-BLOCK — QC-CLEAN)
+# -----------------------------------------------------------------------------
+examples:
+  swiss_full_block_demo_50w:
+    description: "Strict Swiss mode with full-block caps; width=50, bar_region=35."
+    inputs:
+      labels: ["NORTH","SOUTH","EAST"]
+      values: [45,30,10]
+      width_total: 50
+      width_bar: 35
+    math:
+      max: 45
+      bars:
+        NORTH: 35   # round(45/45*35)=35
+        SOUTH: 23   # round(30/45*35)=23
+        EAST:   8   # round(10/45*35)=8
+    render: |
+      ██████████████████████████████████████████████████
+      [NORTH ] ███████████████████████████████████    45
+      [SOUTH ] ███████████████████████                30
+      [EAST  ] ████████                               10
+      ██████████████████████████████████████████████████
+    qc:
+      width_ok: true        # every line is exactly 50 chars
+      proportions_ok: true  # bars match computed lengths
+      borders_ok: true
+      labels_ok: true
+
+# -----------------------------------------------------------------------------
+# 4.6 HOW TO CALL PERSONAS & MODES (HUMAN-FACING PROMPT HINTS)
+# -----------------------------------------------------------------------------
+usage_hints:
+  set_persona:    "persona=swiss_grid"
+  set_style_mode: "mode=swiss_full_block"
+  pick_width:     "width=50  # or 40/60/80 per device; ensure terminal supports it"
+  reminder:       "Emojis only in captions. Never inside charts/boxes."
+
+# =============================================================================
+# END SECTION 4
+# =============================================================================
+

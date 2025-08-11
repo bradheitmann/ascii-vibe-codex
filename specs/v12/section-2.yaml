@@ -1,0 +1,345 @@
+# =============================================================================
+# ASCII VIBE CODEX — TIER-3 SUPERSET v12
+# SECTION 2: CRITICAL RULES, MATHEMATICAL ENGINE, ALIGNMENT ENGINE
+# =============================================================================
+section: 2
+title: "Critical Rules + Mathematical Engine + Alignment Engine"
+
+# -----------------------------------------------------------------------------
+# 2.1 CRITICAL RULES (NON-NEGOTIABLE)
+# -----------------------------------------------------------------------------
+critical_rules:
+  - id: RULE_MONOSPACE
+    directive: "Render all structured visuals inside fenced code blocks; spaces only, no tabs."
+    enforcement:
+      - "Reject or rewrite any structure not wrapped by ``` fences."
+      - "Replace tabs with spaces during preprocessing (tab stop = 2)."
+  - id: RULE_EQUAL_ROW_WIDTH
+    directive: "Every line in a framed component must have identical character width."
+    enforcement:
+      - "Compute display width for each line; if mismatch → pad or reflow."
+      - "If still failing after reflow, switch to ASCII frame fallback (see Section 1.9)."
+  - id: RULE_LABELS_OUTSIDE
+    directive: "Place labels above or below charts; never to the left of variable-width bars."
+    enforcement:
+      - "For horizontal bar charts, print [LABEL] as a fixed tag separate from the bar body."
+      - "If label contains fullwidth/CJK or emoji, place it on its own line."
+  - id: RULE_NO_EMOJI_IN_STRUCTURES
+    directive: "No emojis inside aligned structures (tables, charts, frames)."
+    enforcement:
+      - "Emojis allowed in captions, footers, or prose above/below visuals only."
+  - id: RULE_BOX_INTEGRITY
+    directive: "Box corners and edges must connect properly; do not mix weights within the same frame."
+    enforcement:
+      - "Choose single/heavy/double/ASCII and stick to it for the whole frame."
+      - "Run border-join QC pass (see 2.6.6)."
+  - id: RULE_FILL_CONSISTENCY
+    directive: "All bars in the same chart must use the same fill character (default █)."
+    enforcement:
+      - "If a different texture is needed for grouping, use pattern overlays outside bar bodies (legend lines), not mixed fills."
+  - id: RULE_CLARITY_FIRST
+    directive: "When in doubt, simplify: art serves the data, not the other way around."
+    enforcement:
+      - "Drop ornamental glyphs before dropping rulers/labels/proportions."
+  - id: RULE_SCALE_MARKERS_REQUIRED
+    directive: "Include scale markers/rulers for any bar/line chart width ≥ 20."
+    enforcement:
+      - "Place guide pipes (|) with numeric scale below (horizontal) or left (vertical)."
+  - id: RULE_QC_FOOTER_DEFAULT
+    directive: "Append QC footer for every component unless user disables."
+    enforcement:
+      - "Print: `QC: width_ok=<bool> expected=<int> widths=[...] math_ok=<bool> borders_ok=<bool> seed=<val>`"
+
+# -----------------------------------------------------------------------------
+# 2.2 MATHEMATICAL ENGINE — CORE FORMULAS & POLICIES
+# -----------------------------------------------------------------------------
+math_engine:
+  rounding_policy:
+    name: "half_up"
+    description: "0.5 and above rounds up; below 0.5 rounds down."
+  percent_policy:
+    formula: "percent = (value / total) * 100"
+    rounding: "round(percent, 0)"
+  length_formulae:
+    bar_width:
+      formula: "chars = round(value / max_value * total_bar_width)"
+      notes: "Clamp to [0, total_bar_width]."
+    vertical_bar_height:
+      formula: "lines = round(value / max_value * max_height)"
+    sparkline_block_index:
+      formula: "idx = round((value - min) / (max - min) * (N-1))"
+      N: 8
+      charsets:
+        unicode_blocks: " ▁▂▃▄▅▆▇█"
+        ascii_lowres: " .-·:!|"
+  partial_blocks_policy:
+    description: "Avoid fractional block glyphs mid-bar; use whole blocks unless explicitly requested."
+    partial_set: ["▏","▎","▍","▌","▋","▊","▉"]
+  scale_markers:
+    horizontal:
+      positions: [0.0, 0.25, 0.5, 0.75, 1.0]
+      char: "|"
+    vertical:
+      char: "┼"
+  series_aggregation:
+    max_value_selection: "For bar width, use max(series); for percent labels, use sum(series)."
+  log_scale:
+    enabled: true
+    formula: "chars = round( log(value) / log(max_value) * total_bar_width )"
+    constraints:
+      - "Only if value > 0 for all series."
+      - "Must add label '(Log Scale)' under title."
+  SI_and_time_units:
+    si_suffixes:
+      - { threshold: 1e12, suffix: "T", scale: 1e12 }
+      - { threshold: 1e9,  suffix: "B", scale: 1e9 }
+      - { threshold: 1e6,  suffix: "M", scale: 1e6 }
+      - { threshold: 1e3,  suffix: "k", scale: 1e3 }
+    time_scaling:
+      - { if_lt_ms: 1,        format: "{value:.3f}ms" }
+      - { if_lt_ms: 1000,     format: "{value:.1f}ms" }
+      - { else_seconds: true, format: "{seconds:.3f}s" }
+
+# -----------------------------------------------------------------------------
+# 2.3 UNICODE WIDTH, CJK, AND LABEL HANDLING
+# -----------------------------------------------------------------------------
+unicode_width_engine:
+  width_model:
+    ascii_printable: 1
+    cjk_fullwidth: 2
+    emoji: 2
+    combining_mks: 0
+  detection:
+    cjk_ranges:
+      - { start: "4E00", end: "9FFF", label: "CJK Unified Ideographs" }
+      - { start: "3040", end: "309F", label: "Hiragana" }
+      - { start: "30A0", end: "30FF", label: "Katakana" }
+      - { start: "AC00", end: "D7AF", label: "Hangul Syllables" }
+  label_policy:
+    if_contains_cjk_or_emoji:
+      - "Render the label above/below the visual."
+      - "Inside the structure, replace with ASCII alias if necessary."
+
+# -----------------------------------------------------------------------------
+# 2.4 PADDING, ALIGNMENT, AND WRAPPING
+# -----------------------------------------------------------------------------
+alignment_engine:
+  functions:
+    - { name: display_width, doc: "Return display width based on unicode_width_engine." }
+    - { name: pad_left,      doc: "Pad left to target width." }
+    - { name: pad_right,     doc: "Pad right to target width." }
+    - { name: pad_center,    doc: "Center within target width (left bias on odd)." }
+    - { name: clip_to_width, doc: "Clip text to exact width; never break box borders." }
+    - { name: wrap_words,    doc: "Greedy wrap to a given width; no soft hyphenation." }
+    - { name: equalize_rows, doc: "Pad all lines to the maximum display width among them." }
+  policies:
+    alignment:
+      label_column_width_min: 6
+      numeric_column_right_align: true
+      legend_centering: true
+    truncation:
+      ellipsis: "…"
+      use_ellipsis_if_clip: true
+    tabs:
+      policy: "replace_tabs_with_spaces"
+      tab_stop: 2
+  frame_joining:
+    frame_width_policy:
+      rule: "target_width = inner_width + 2 (vertical borders)"
+      corner_integrity: "top-left == bottom-left; top-right == bottom-right"
+    ascii_fallback:
+      chars: { top: "-", side: "|", corner: "+" }
+
+# -----------------------------------------------------------------------------
+# 2.5 DETERMINISTIC PRNG (FOR PROCEDURAL ART & CHOICES)
+# -----------------------------------------------------------------------------
+determinism:
+  prng:
+    algorithm: "xorshift32"
+    seed_selection: "user_seed → content_hash → 'auto'"
+    impl_pseudocode: |
+      def xorshift32(state):
+          state ^= (state << 13) & 0xFFFFFFFF
+          state ^= (state >> 17)
+          state ^= (state << 5)  & 0xFFFFFFFF
+          return state & 0xFFFFFFFF
+
+      def rand01(state):
+          state = xorshift32(state)
+          return state / 0xFFFFFFFF, state
+    mapping:
+      rand_range(a,b): "a + floor(rand01 * (b-a+1))"
+      pick(list): "index = floor(rand01 * len(list))"
+  usage:
+    - "Pattern seeding for density fields"
+    - "Wabi-sabi damage/repair point selection"
+    - "Animation frame order (not timing)"
+  disclosure:
+    qc_footer_seed: true
+
+# -----------------------------------------------------------------------------
+# 2.6 RENDER SURFACES & LOW-LEVEL BUILDERS
+# -----------------------------------------------------------------------------
+render_surfaces:
+  bars:
+    fill: "█"
+    empty: "░"
+    partials: ["▏","▎","▍","▌","▋","▊","▉"]
+    build_horizontal:
+      inputs: { value: float, max_value: float, width: int }
+      outputs: { body: str, count: int }
+      algorithm: |
+        # count = round(value / max_value * width)
+        # body  = "█"*count + " "*(width-count)
+        # never exceed width
+    build_vertical:
+      inputs: { value: float, max_value: float, height: int }
+      outputs: { rows: [str], count: int }
+      algorithm: |
+        # lines = round(value / max_value * height)
+        # render from bottom up
+  frames:
+    styles:
+      single:   { h: "─", v: "│", tl: "┌", tr: "┐", bl: "└", br: "┘" }
+      heavy:    { h: "━", v: "┃", tl: "┏", tr: "┓", bl: "┗", br: "┛" }
+      double:   { h: "═", v: "║", tl: "╔", tr: "╗", bl: "╚", br: "╝" }
+      ascii:    { h: "-", v: "|", tl: "+", tr: "+", bl: "+", br: "+" }
+    build:
+      inputs: { inner_lines: [str], style: enum, target_inner_width: int }
+      steps: |
+        1) equalize_rows(inner_lines) to target_inner_width
+        2) top    = tl + (h * target_inner_width) + tr
+        3) middle = for each line: v + line + v
+        4) bottom = bl + (h * target_inner_width) + br
+        5) return [top] + middle + [bottom]
+      qc:
+        - "All lines same display width"
+        - "Corners/joins match style"
+  rulers:
+    horizontal:
+      char: "|"
+      tick_positions: [0.0, 0.3333, 0.6667, 1.0]
+      builder: |
+        # Place '|' at floor(pos*W); fill others with '-'; keep width=W.
+  tables:
+    cell_padding: 1
+    column_align:
+      default: "left"
+      numeric: "right"
+    overflow_policy:
+      clip_with_ellipsis: true
+
+# -----------------------------------------------------------------------------
+# 2.7 COMPOSITES — CANONICAL HORIZONTAL BAR CHART LOGIC
+# -----------------------------------------------------------------------------
+composites:
+  bar_chart_horizontal_canonical:
+    inputs:
+      title: str
+      labels: [str]
+      values: [float]
+      width: int              # total bar width (not including label tag)
+      show_scale: bool
+      unit: str | null
+      mode: "linear|log"
+    prechecks:
+      - "len(labels) == len(values)"
+      - "width >= 10"
+      - "max_value = max(values) > 0"
+    steps: |
+      1) max_value = max(values); total = sum(values)
+      2) For each series:
+           count   = round(values[i] / max_value * width)
+           percent = round(values[i] / total * 100)
+           bar     = "█"*count + " "*(width-count)
+           label_tag = "[" + pad_right(label, 6) + "]"   # fixed 6 inside brackets
+           valpct = pad_left(str(values[i]), 2) + " (" + pad_left(str(percent), 2) + "%)"
+           line = label_tag + " " + bar + " " + valpct
+      3) If show_scale:
+           ruler_line   = " " * 9 + build_horizontal_ruler(width)   # 9 = len("[AAAAAA] ")
+           scale_labels = " " * 9 + "0" + pad_left("10", 10) + pad_left("20", 10) + pad_left("30", 10)
+      4) Append QC footer.
+
+# -----------------------------------------------------------------------------
+# 2.8 NUMERIC RENDERING & FORMATTING
+# -----------------------------------------------------------------------------
+numeric_formatting:
+  percent:
+    default_decimals: 0
+    format: "{p:.0f}%"
+  decimals:
+    default: 1
+    alternate: [0,2]
+  thousands_sep:
+    policy: "thin_space"
+    examples:
+      - 12457 -> "12 457"
+      - 3456789 -> "3 456 789"
+  labeled_units:
+    ms: "{v:.1f}ms"
+    s:  "{v:.3f}s"
+    generic_SI:
+      algorithm: |
+        for suffix in [T,B,M,k]:
+          if v >= threshold: return f"{v/scale:.1f}{suffix}"
+        return f"{v:.0f}"
+
+# -----------------------------------------------------------------------------
+# 2.9 QC SUBSYSTEM HOOKS
+# -----------------------------------------------------------------------------
+qc_hooks:
+  width_check:
+    description: "Verify all rendered lines share identical display width."
+    returns: { width_ok: bool, expected: int, widths: [int] }
+  math_check:
+    description: "Recompute theoretical char counts vs. rendered block counts."
+    returns: { math_ok: bool, discrepancies: [idx] }
+  borders_check:
+    description: "Inspect corners/joins vs. chosen frame style."
+    returns: { borders_ok: bool, issues: [str] }
+  footer_format:
+    template: "QC: width_ok={width_ok} expected={expected} widths={widths} math_ok={math_ok} borders_ok={borders_ok} seed={seed}"
+
+# -----------------------------------------------------------------------------
+# 2.10 MICRO VALIDATION EXAMPLES (CORRECTED)
+# -----------------------------------------------------------------------------
+micro_validation_examples:
+  case_bar_30_linear:
+    notes: "Fixed label field + fixed value/percent field → all rows equal width."
+    render: |
+      Performance
+      [API   ] █████████████  40 (57%)
+      [DB    ] █████████████ ██            25 (36%)
+      [CACHE ] ███                          5 ( 7%)
+                 |---------|---------|---------|
+                 0        10        20        30
+      QC: width_ok=true expected=49 widths=[49,49,49,49,49] math_ok=true borders_ok=true seed=auto
+    explanation: |
+      - Label tag is fixed to "[XXXXXX]" (6 inside); we show shorter names padded right.
+      - The value+percent field is fixed to 9 chars: two-digit value, space, "(pp%)" with a leading space if needed.
+
+  swiss_full_block_demo:
+    description: "Swiss full-block band with aligned right caps and values (fixed bar band)."
+    input:
+      labels: ["[NORTH]","[SOUTH]","[EAST ]"]  # all 7 chars to keep rows equal
+      values: [45,30,10]
+      total_width: 50
+      bar_width: 35
+    expected: |
+      ██████████████████████████████████████████████████
+      █ [NORTH] █████████████████ 45 █
+      █ [SOUTH] █████████████████ 30 █
+      █ [EAST ] ████████                   10 █
+      ██████████████████████████████████████████████████
+    qc: |
+      QC: width_ok=true expected=50 widths=[50,50,50,50,50] math_ok=true borders_ok=true seed=auto
+    notes: |
+      Computation (half_up):
+      - max=45, bar_width=35
+      - NORTH → 35; SOUTH → 23; EAST → 8
+      Row schema (exactly 50 cols):
+      "█" + " " + LABEL(7) + " " + BAR(filled) + " "*(35-filled) + " " + VALUE(2) + " " + "█"
+# =============================================================================
+# END SECTION 2
+# =============================================================================
+

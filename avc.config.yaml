@@ -1,0 +1,91 @@
+# ASCII Vibe Codex - Site Mirroring Configuration
+# Default configuration for batch site conversion
+
+seeds:
+  - https://example.com
+  - https://httpbin.org/html
+  
+include: 
+  - "/"
+  - "/html"
+  - "/docs/**"
+  
+exclude:
+  - "/admin/**"
+  - "/logout"
+  - "/login"
+  - "/**/edit"
+  - "/**/*.pdf"
+  - "/**/*.zip"
+
+# Crawl settings
+concurrency: 4
+delay_ms: 300
+max_pages: 500
+timeout_ms: 30000
+user_agent: "Swiss ASCII Converter/1.0 (compatible; Swiss International Style)"
+
+# Authentication (optional)
+auth:
+  cookies: []
+  headers: {}
+
+# Politeness
+respect_robots: true
+sitemap: auto  # auto-discover sitemap.xml
+follow_redirects: true
+max_redirects: 3
+
+# Output configuration  
+output_dir: "dump"
+formats: ["txt", "prehtml", "both"]
+
+# ASCII transformation settings
+ascii:
+  style_pack: "minimal_ascii"
+  seed: 1337
+  width: 72
+  cjk_index_legend: true
+  thousands_sep: "thin_space"
+  negatives: "parentheses" 
+  currency: "USD"
+
+# Quality control
+qc:
+  width: true
+  proportions: true  
+  borders: true
+  line_length_chars:
+    min: 45
+    max: 72
+  accent_budget: true
+  wcag_snapshot: true
+
+# Parity checking (DOM extraction vs CLI transform)
+parity:
+  enabled: true
+  dom_vs_cli_diff_threshold: 0.01  # 1% Levenshtein distance
+  fail_on_breach: true
+
+# Mirror output settings
+mirror:
+  output_dir: "mirror"
+  index_format: "json"
+  preserve_structure: true
+  add_qc_footer: true
+
+# Reporting
+reports:
+  output_dir: "reports"
+  formats: ["json", "csv", "html"]
+  include_screenshots: true
+  wcag_level: "AA"
+
+# Development/testing
+dev:
+  fixture_mode: false
+  fixture_urls:
+    - https://example.com
+    - https://httpbin.org/html
+  dry_run: false
+  verbose: true

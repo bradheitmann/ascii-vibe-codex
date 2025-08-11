@@ -1,0 +1,282 @@
+# =============================================================================
+# ASCII VIBE CODEX — TIER-3 SUPERSET v12
+# SECTION 5: ADAPTIVE EXECUTION LAYER (MODEL-AWARE + CLI-AWARE)
+# =============================================================================
+section: 5
+title: "Adaptive Execution Layer (Routing, Governors, Adapters, Prompts)"
+version: "12.0"
+status: "PRODUCTION-READY"
+purpose: >
+  Make the codex run reliably across "reasoning" and "execution" models, in
+  terminals and IDE CLIs. This layer provides: model routing, output governors,
+  deterministic prompt templates, CLI adapters, fallbacks, and QC hooks.
+
+# -----------------------------------------------------------------------------
+# 5.0 MODEL COMPATIBILITY DECLARATIONS
+# -----------------------------------------------------------------------------
+compatibility:
+  reasoning_models:
+    - vendor: "Anthropic"
+      models: ["Claude 3 Opus", "Claude 3 Sonnet", "Claude 3 Haiku"]
+      notes: "Strong reasoning/format fidelity. Great for long, structured YAML."
+    - vendor: "OpenAI"
+      models: ["GPT-4", "GPT-4 Turbo"]
+      notes: "Reliable structured outputs; watch token windows."
+    - vendor: "Google"
+      models: ["Gemini 1.5 Pro"]
+      notes: "Good tool-use and JSON discipline; verify Unicode widths."
+    - vendor: "Open Source"
+      models: ["Llama 3 70B Instruct", "Mixtral 8x7B Instruct"]
+      notes: "Use stricter governors; chunk large prompts."
+  execution_models:
+    - vendor: "Anthropic"
+      models: ["Claude 3 Haiku", "Claude 3.5 Sonnet (Tools On)"]
+      notes: "Fast/tasky; turn on step limits."
+    - vendor: "OpenAI"
+      models: ["GPT-4 Turbo (Tools)", "gpt-4.1-mini"]
+      notes: "Good function calling; enable JSON-only mode when available."
+    - vendor: "Google"
+      models: ["Gemini 1.5 Flash"]
+      notes: "Budget-friendly batching; reinforce ‘no chain-of-thought’."
+    - vendor: "Open Source"
+      models: ["Llama 3 8B Instruct", "Mistral 7B Instruct"]
+      notes: "Keep responses short; rely on validators and retry logic."
+
+# -----------------------------------------------------------------------------
+# 5.1 ROUTING POLICY (REASONING vs EXECUTION)
+# -----------------------------------------------------------------------------
+routing:
+  strategy: "capability-first"
+  signals:
+    - name: "task_complexity"
+      levels:
+        - simple: "direct command, short output, no synthesis"
+        - medium: "some synthesis/visualization"
+        - complex: "multi-step with validation & generation"
+    - name: "fidelity_requirement"
+      levels: ["low", "medium", "high"]
+    - name: "latency_budget_ms"
+      default: 1500
+    - name: "cost_sensitivity"
+      levels: ["low", "medium", "high"]
+  decision_matrix:
+    rules:
+      - if: "(task_complexity == 'complex' or fidelity_requirement == 'high')"
+        route: "reasoning"
+      - if: "(task_complexity == 'simple' and cost_sensitivity == 'high')"
+        route: "execution"
+      - if: "(latency_budget_ms < 1200)"
+        route: "execution"
+      - else: "reasoning"
+  fallback_policy:
+    - on: "rate_limit|timeout|invalid_json"
+      action: "reroute"
+      to: "backup_cluster"
+      retries: 2
+      backoff_ms: 250
+
+# -----------------------------------------------------------------------------
+# 5.2 OUTPUT GOVERNORS (HARD MODE)
+# -----------------------------------------------------------------------------
+governors:
+  reasoning_guard:
+    rules:
+      - "Do NOT reveal hidden chain-of-thought. Provide steps only as structured, high-level bullet points if asked."
+      - "Prefer deterministic lists and code blocks over free-form narrative when precision matters."
+      - "Always close code fences. Always finish YAML with a trailing newline."
+  verbosity:
+    default_level: 2
+    per_context: { cli: 1, ide_assistant: 2, documentation: 3 }
+  safety:
+    max_tokens_out: 1200
+    truncate_strategy: "end"
+    ellipsis_marker: "…"
+  formatting_integrity:
+    braces_check: true
+    yaml_lint_minimal: true
+    fenced_code_required: true
+  unicode_width_rules:
+    modes:
+      ascii_safe_default: true
+      unicode_advanced: false
+    fallback_on_misalignment: "switch_to_ascii"
+
+# -----------------------------------------------------------------------------
+# 5.3 DETERMINISTIC PROMPT TEMPLATES (SYSTEM + INSTRUCTIONS)
+# -----------------------------------------------------------------------------
+prompts:
+  system_reasoning: |
+    You are the ASCII VIBE CODEX Reasoning Orchestrator.
+    Produce mathematically accurate, monospaced, CLI-safe visuals.
+    Enforce: proportionality, equal row width, labels outside bars, consistent fill,
+    and box integrity. No chain-of-thought; output final structured results + QC only.
+  system_execution: |
+    You are the ASCII VIBE CODEX Execution Agent.
+    Apply deterministic rendering, validators, and adapters to produce exact-width
+    visuals. Keep responses short; return only requested content. No chain-of-thought.
+
+  instruction_blocks:
+    # ASCII bars (kept for compatibility)
+    ascii_bar_chart: |
+      Render a horizontal bar chart using ONLY ASCII.
+      Bar width = {width}. Fill "#" or "="; background " ".
+      Proportionality: chars = round(value/max * {width}).
+      Labels ABOVE/BELOW. Append QC (row_widths, computed_fills, pass/fail).
+
+    # NEW: Swiss full-block bar (corrected math + layout)
+    swiss_full_block_bar: |
+      Render a horizontal bar chart in the Swiss full-block style.
+      TOTAL_WIDTH = {total_width} (all lines must match exactly).
+      BAR_WIDTH    = {bar_width}    (width of the variable bar region).
+      Rules:
+        - Top and bottom rows are solid "█" repeated to TOTAL_WIDTH.
+        - Each data row begins with "█ ", ends with " █".
+        - Inside each row: "[LABEL]" left, then a bar of "█" whose length
+          is round(value/max * BAR_WIDTH), padded with spaces to BAR_WIDTH.
+        - Right-align the numeric value before the closing right "█".
+        - Keep labels outside the variable-width bar body.
+        - Use spaces only; no tabs; no emoji inside the frame.
+      Include a centered title row between the top rule and data rows if provided.
+
+  builders:
+    bar_chart_call:
+      template: |
+        TASK: Render bar chart
+        DATA: {data_json}
+        WIDTH: {width}
+        LABEL: {title}
+        MODE: {mode}  # ascii|unicode
+        FOLLOW: prompts.instruction_blocks.ascii_bar_chart
+    swiss_full_block_bar_call:
+      template: |
+        TASK: Render Swiss full-block bar chart
+        DATA: {data_json}
+        TITLE: {title}
+        TOTAL_WIDTH: {total_width}   # e.g., 56
+        BAR_WIDTH: {bar_width}       # e.g., 30
+        FOLLOW: prompts.instruction_blocks.swiss_full_block_bar
+
+# -----------------------------------------------------------------------------
+# 5.4 CLI ADAPTERS
+# -----------------------------------------------------------------------------
+cli_adapters:
+  common:
+    prelude:
+      - "disable_color_if_no_ansi"
+      - "enforce_ascii_if_misaligned"
+      - "limit_width_to_terminal_cols"
+    epilogue:
+      - "append_qc_footer_when_debug_on"
+  claude_code:
+    notes: "Wrap in fences; prefer ASCII unless Unicode verified."
+    wrap_output_in: "```text\n{body}\n```"
+    enforce_ascii: true
+  warp:
+    notes: "Warp renders fences cleanly; keep it text."
+    wrap_output_in: "```text\n{body}\n```"
+  cursor:
+    notes: "Cursor handles YAML/JSON inline; always close fences."
+    wrap_output_in: "```yaml\n{body}\n```"
+    enforce_ascii: false
+  gemini_cli:
+    notes: "Reinforce width clamp; prefer ASCII unless validated."
+    wrap_output_in: "```text\n{body}\n```"
+    enforce_ascii: true
+
+# -----------------------------------------------------------------------------
+# 5.5 VALIDATION & QC HOOKS (POST-RENDER)
+# -----------------------------------------------------------------------------
+qc_hooks:
+  checks:
+    - id: "row_width_consistency"
+      desc: "All lines in a framed block must match max line width."
+    - id: "proportionality_check"
+      desc: "bar_len == round(value/max * BAR_WIDTH)"
+    - id: "border_integrity"
+      desc: "For Swiss full-block: top/bottom solid rows, left/right caps present."
+    - id: "label_placement"
+      desc: "Labels above/below or outside the variable bar body."
+  on_fail:
+    - action: "auto_fix_alignment"
+    - action: "switch_to_ascii_mode"
+    - action: "recompute_bars"
+    - action: "retry_once_with_tighter_prompt"
+  qc_footer_template: |
+    ── QC ─────────────────────────
+    width_check: {width_ok}
+    proportions_check: {prop_ok}
+    borders_check: {borders_ok}
+    labels_check: {labels_ok}
+
+# -----------------------------------------------------------------------------
+# 5.6 EXECUTION BLUEPRINTS
+# -----------------------------------------------------------------------------
+execution_blueprints:
+  reasoning_mode:
+    steps:
+      - "Parse task + data"
+      - "Choose minimal viable visualization"
+      - "Compute proportions"
+      - "Render draft"
+      - "Run qc_hooks"
+      - "If fail -> repair -> qc again"
+      - "Emit final + short QC summary"
+    constraints:
+      - "Max output: 1200 tokens"
+      - "No chain-of-thought"
+      - "Deterministic formatting"
+  execution_mode:
+    steps:
+      - "Apply provided template verbatim"
+      - "Compute bar lengths exactly"
+      - "Render in ASCII-safe mode unless explicitly Unicode"
+      - "Run row-width + proportion checks"
+      - "Emit ONLY final block"
+    constraints:
+      - "Ultra-terse; no extra prose"
+      - "Close all fences"
+
+# -----------------------------------------------------------------------------
+# 5.7 FALLBACKS & RETRY STRATEGIES
+# -----------------------------------------------------------------------------
+retries:
+  max_attempts: 2
+  repair_prompts:
+    alignment_fix: |
+      RERENDER with strict spacing. Ensure every line width = {total_width}.
+      Use spaces only. Keep labels outside the bar body. Preserve frame caps.
+    proportion_fix: |
+      Recompute bar_len = round(value/max * {bar_width}). Debug: list (label, value, bar_len).
+  downgrade_path:
+    - "unicode -> ascii"
+    - "complex_visual -> simple_bar"
+    - "reasoning_model -> execution_model"
+
+# -----------------------------------------------------------------------------
+# 5.8 TEST INVOCATIONS (INCLUDES SWISS FULL-BLOCK)
+# -----------------------------------------------------------------------------
+test_invocations:
+  bar_chart_basic:
+    call: |
+      {builders.bar_chart_call}
+      data_json={"A":40,"B":20,"C":10}
+      width=30
+      title="Performance"
+      mode="ascii"
+  swiss_full_block_demo:
+    call: |
+      {builders.swiss_full_block_bar_call}
+      data_json={"NORTH":45,"SOUTH":30,"EAST":10}
+      title="SALES BY REGION"
+      total_width=56
+      bar_width=30
+
+# -----------------------------------------------------------------------------
+# 5.9 IMPLEMENTATION NOTES
+# -----------------------------------------------------------------------------
+implementation_notes:
+  - "Prefer Unicode only when terminal support is known-good; otherwise enforce ASCII."
+  - "Swiss full-block charts: math must be exact; verify lengths and equal line widths."
+  - "Labels outside visuals; values right-aligned near the right frame block."
+  - "Close every frame; top/bottom solid rows must be present."
+

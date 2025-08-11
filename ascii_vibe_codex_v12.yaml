@@ -1,0 +1,1550 @@
+# =============================================================================
+# ASCII VIBE CODEX — TIER-3 SUPERSET v12
+# SECTION 1: OVERVIEW + PRINCIPLES
+# =============================================================================
+section: 1
+title: "Overview & Principles"
+version: "12.0"
+status: "PRODUCTION-READY"
+purpose: >
+  Define the high-level intent, philosophy, and governing rules of the ASCII VIBE CODEX.
+  Provide a universal foundation for producing mathematically accurate, monospaced,
+  CLI-safe ASCII/Unicode visualizations with stylistic cohesion, QC guarantees,
+  and cross-model determinism.
+
+# -----------------------------------------------------------------------------
+# 1.1 BACKGROUND
+# -----------------------------------------------------------------------------
+background: |
+  The ASCII VIBE CODEX began as a compact visual language for rendering charts,
+  tables, and creative patterns in monospace environments (terminals, IDE CLIs,
+  Markdown code fences). Over time it evolved into a deterministic system that
+  encodes:
+    - fixed-width proportionality rules
+    - alignment and border integrity
+    - label placement conventions
+    - adaptive fallbacks for environments without Unicode/emoji/CJK support
+    - stylistic presets (“style packs”) for theming
+  Version 12 represents the Tier-3 Superset, meaning:
+    - All prior Tier-1 (core shapes) and Tier-2 (patterns + visual metaphors)
+      are included.
+    - Procedural grammars and adaptive execution layers are standardized.
+    - SDK and CLI tooling are fully integrated.
+
+# -----------------------------------------------------------------------------
+# 1.2 PHILOSOPHY
+# -----------------------------------------------------------------------------
+philosophy:
+  - "CLI environments deserve the same design rigor as high-resolution GUIs."
+  - "All visuals must be mathematically proportionate and alignment-perfect."
+  - "The spec must be executable by humans and LLMs with deterministic results."
+  - "Fallbacks should preserve meaning, not just form."
+  - "Every glyph has weight — choose them with typographic discipline."
+  - "QC is not optional: validators must run after every render."
+
+# -----------------------------------------------------------------------------
+# 1.3 PRIMARY OBJECTIVES
+# -----------------------------------------------------------------------------
+objectives:
+  - "Provide a unified glyph + pattern library for ASCII and Unicode."
+  - "Ship style packs for rapid theming."
+  - "Define procedural rules for proportional charts, tables, creative art."
+  - "Ensure outputs survive copy-paste between shells, markdown, and chat."
+  - "Adapt automatically to model capabilities and CLI constraints."
+  - "Support SDK + CLI for reproducible renders."
+
+# -----------------------------------------------------------------------------
+# 1.4 KEY CONSTRAINTS
+# -----------------------------------------------------------------------------
+constraints:
+  alignment: "All rows must match the max visual width within a block."
+  proportionality: "Widths/heights scale linearly with input values."
+  label_placement: "Labels live above/below visuals, never inline unless table."
+  glyph_consistency: "Do not mix incompatible weight/density glyphs in the same block."
+  box_integrity: "Corners/junctions must meet; no ragged edges."
+  unicode_policy:
+    default_mode: "ascii_safe"
+    advanced_mode: "unicode"  # only if width checks pass
+    emoji_in_visuals: false
+  fallback_rules:
+    unicode: "replace_with_ascii_equivalent"
+    emoji: "replace_with_label"
+    cjk: "replace_with_alias"
+
+# -----------------------------------------------------------------------------
+# 1.5 STRUCTURE OF THE SPEC
+# -----------------------------------------------------------------------------
+structure:
+  sections:
+    1: "Overview + Principles"
+    2: "Core Visual Grammar"
+    3: "Character Libraries + Style Packs + Aliases"
+    4: "Advanced Creative Examples + Procedural Art Generators"
+    5: "Adaptive Execution Layer"
+    6: "Tooling, SDK Stubs & CLI Integrations"
+
+# -----------------------------------------------------------------------------
+# 1.6 CHANGE HISTORY
+# -----------------------------------------------------------------------------
+changelog:
+  - version: "12.0"
+    date: "2025-08-01"
+    notes:
+      - "Integrated Swiss-ready grid alignment rules (for later mashup)."
+      - "Hardened QC governors."
+      - "Expanded style packs with hatch/stipple fills."
+      - "Added procedural grammars for radial, isometric, braided forms."
+      - "Completed SDK + CLI scaffolding."
+
+# =============================================================================
+# END SECTION 1
+# =============================================================================
+# =============================================================================
+# ASCII VIBE CODEX — TIER-3 SUPERSET v12
+# SECTION 2: CRITICAL RULES, MATHEMATICAL ENGINE, ALIGNMENT ENGINE
+# =============================================================================
+# This section defines: hard constraints, math/rounding/scales, Unicode width,
+# padding/wrapping, and the low-level rendering surfaces all components rely on.
+# NOTHING in this section is optional for structured visuals.
+# =============================================================================
+
+section: 2
+title: "Critical Rules + Mathematical Engine + Alignment Engine"
+
+# -----------------------------------------------------------------------------
+# 2.1 CRITICAL RULES (NON-NEGOTIABLE)
+# -----------------------------------------------------------------------------
+critical_rules:
+  - id: RULE_MONOSPACE
+    directive: "Render all structured visuals inside fenced code blocks; spaces only, no tabs."
+    enforcement:
+      - "Reject or rewrite any structure not wrapped by ``` fences."
+      - "Replace tabs with spaces during preprocessing (tab stop = 2)."
+  - id: RULE_EQUAL_ROW_WIDTH
+    directive: "Every line in a framed component must have identical character width."
+    enforcement:
+      - "Compute display width for each line; if mismatch → pad or reflow."
+      - "If still failing after reflow, switch to ASCII frame fallback (see Section 1.9)."
+  - id: RULE_LABELS_OUTSIDE
+    directive: "Place labels above or below charts; never to the left of variable-width bars."
+    enforcement:
+      - "For horizontal bar charts, print [LABEL] as a fixed tag separate from the bar body."
+      - "If label contains fullwidth/CJK or emoji, place it on its own line."
+  - id: RULE_NO_EMOJI_IN_STRUCTURES
+    directive: "No emojis inside aligned structures (tables, charts, frames)."
+    enforcement:
+      - "Emojis allowed in captions, footers, or prose above/below visuals only."
+  - id: RULE_BOX_INTEGRITY
+    directive: "Box corners and edges must connect properly; do not mix weights within the same frame."
+    enforcement:
+      - "Choose single/heavy/double/ASCII and stick to it for the whole frame."
+      - "Run border-join QC pass (see 2.6.6)."
+  - id: RULE_FILL_CONSISTENCY
+    directive: "All bars in the same chart must use the same fill character (default █)."
+    enforcement:
+      - "If a different texture is needed for grouping, use pattern overlays outside bar bodies (legend lines), not mixed fills."
+  - id: RULE_CLARITY_FIRST
+    directive: "When in doubt, simplify: art serves the data, not the other way around."
+    enforcement:
+      - "Drop ornamental glyphs before dropping rulers/labels/proportions."
+  - id: RULE_SCALE_MARKERS_REQUIRED
+    directive: "Include scale markers/rulers for any bar/line chart width ≥ 20."
+    enforcement:
+      - "Place guide pipes (|) with numeric scale below (horizontal) or left (vertical)."
+  - id: RULE_QC_FOOTER_DEFAULT
+    directive: "Append QC footer for every component unless user disables."
+    enforcement:
+      - "Print: `QC: width_ok=<bool> expected=<int> widths=[...] math_ok=<bool> borders_ok=<bool> seed=<val>`"
+
+# -----------------------------------------------------------------------------
+# 2.2 MATHEMATICAL ENGINE — CORE FORMULAS & POLICIES
+# -----------------------------------------------------------------------------
+math_engine:
+  rounding_policy:
+    name: "half_up"
+    description: "0.5 and above rounds up; below 0.5 rounds down."
+    # We prefer half_up to avoid bias against small bars and to be visually fair.
+  percent_policy:
+    formula: "percent = (value / total) * 100"
+    rounding: "round(percent, 0) unless user requests more precision"
+  length_formulae:
+    bar_width:
+      formula: "chars = round(value / max_value * total_bar_width)"
+      notes: "Never exceed total_bar_width; clamp to [0, total_bar_width]."
+    vertical_bar_height:
+      formula: "lines = round(value / max_value * max_height)"
+      notes: "Height includes only the column, not axes/caption rows."
+    sparkline_block_index:
+      formula: "idx = round((value - min) / (max - min) * (N-1))"
+      N: 8
+      charsets:
+        unicode_blocks: " ▁▂▃▄▅▆▇█"
+        ascii_lowres: " .-·:!|"
+  partial_blocks_policy:
+    description: "Avoid fractional block glyphs mid-bar; use whole block widths for clarity."
+    when_to_use_partials: "Only if user explicitly requests sub-character resolution; otherwise full-blocks."
+    partial_set: ["▏","▎","▍","▌","▋","▊","▉"]
+    mapping_strategy: "Compute remainder fraction r in [0,1) and map to closest partial."
+  scale_markers:
+    horizontal:
+      positions: [0.0, 0.25, 0.5, 0.75, 1.0]
+      label_policy: "Label baseline units under the pipe ruler; match data units (%, ms, k, etc.)."
+      char: "|"
+    vertical:
+      rows: "Evenly spaced steps along Y axis based on max_height (e.g., every 2 lines)"
+      left_labels: "Right-aligned to a fixed label column width"
+  series_aggregation:
+    max_value_selection: "For bar width, use max(series); for percent labels, use sum(series)."
+  log_scale:
+    enabled: true
+    formula: "chars = round( log(value) / log(max_value) * total_bar_width )"
+    constraints:
+      - "Only if value > 0 for all series."
+      - "Must add label '(Log Scale)' under title."
+  SI_and_time_units:
+    si_suffixes:
+      - { threshold: 1e12, suffix: "T", scale: 1e12 }
+      - { threshold: 1e9,  suffix: "B", scale: 1e9 }
+      - { threshold: 1e6,  suffix: "M", scale: 1e6 }
+      - { threshold: 1e3,  suffix: "k", scale: 1e3 }
+    time_scaling:
+      # Display milliseconds/seconds intelligently
+      - { if_lt_ms: 1,        format: "{value:.3f}ms" }
+      - { if_lt_ms: 1000,     format: "{value:.1f}ms" }
+      - { else_seconds: true, format: "{seconds:.3f}s" }
+
+# -----------------------------------------------------------------------------
+# 2.3 UNICODE WIDTH, CJK, AND LABEL HANDLING
+# -----------------------------------------------------------------------------
+unicode_width_engine:
+  width_model:
+    ascii_printable: 1
+    cjk_fullwidth: 2
+    emoji: 2   # treat as 2; but emojis are disallowed inside structures anyway
+    combining_mks: 0 # combining marks add zero width (rare in our scopes)
+  detection:
+    cjk_ranges:
+      - { start: "4E00", end: "9FFF", label: "CJK Unified Ideographs" }
+      - { start: "3040", end: "309F", label: "Hiragana" }
+      - { start: "30A0", end: "30FF", label: "Katakana" }
+      - { start: "AC00", end: "D7AF", label: "Hangul Syllables" }
+    emoji_hint: "General_Category=So with Emoji_Presentation=true (heuristic)"
+  label_policy:
+    if_contains_cjk_or_emoji:
+      - "Render the label above/below the visual."
+      - "Inside the structure, replace with ASCII alias if necessary."
+    ascii_aliases:
+      # Example mapping; extend in Section 3
+      "温度": "ONDO"
+      "経路": "ROUTE"
+      "顧客": "CUSTOMER"
+  examples:
+    - case: "Fullwidth label in table"
+      solution: "Move label to caption line above; keep table pure ASCII/Unicode boxes."
+
+# -----------------------------------------------------------------------------
+# 2.4 PADDING, ALIGNMENT, AND WRAPPING
+# -----------------------------------------------------------------------------
+alignment_engine:
+  functions:
+    - name: display_width
+      doc: "Return display width based on unicode_width_engine.width_model."
+      signature: "display_width(text) -> int"
+    - name: pad_left
+      doc: "Pad with spaces on the left to reach target width."
+      signature: "pad_left(text, target_width) -> str"
+    - name: pad_right
+      doc: "Pad with spaces on the right to reach target width."
+      signature: "pad_right(text, target_width) -> str"
+    - name: pad_center
+      doc: "Center text within target width (left bias on odd)."
+      signature: "pad_center(text, target_width) -> str"
+    - name: clip_to_width
+      doc: "Clip text to exact display width; never break box borders."
+      signature: "clip_to_width(text, target_width) -> str"
+    - name: wrap_words
+      doc: "Greedy word-wrapping to a given width; soft hyphenation disabled."
+      signature: "wrap_words(text, line_width) -> [str]"
+    - name: equalize_rows
+      doc: "Make all lines equal width by padding to the max display width among them."
+      signature: "equalize_rows(lines:[str]) -> [str]"
+  policies:
+    alignment:
+      label_column_width_min: 6
+      numeric_column_right_align: true
+      legend_centering: true
+    truncation:
+      ellipsis: "…"
+      use_ellipsis_if_clip: true
+    tabs:
+      policy: "replace_tabs_with_spaces"
+      tab_stop: 2
+  frame_joining:
+    # Guarantee that inner content matches frame width
+    frame_width_policy:
+      rule: "target_width = inner_width + 2 (for vertical borders)"
+      corner_integrity: "top-left matches bottom-left; top-right matches bottom-right"
+    ascii_fallback:
+      chars: { top: "-", side: "|", corner: "+" }
+
+# -----------------------------------------------------------------------------
+# 2.5 DETERMINISTIC PRNG (FOR PROCEDURAL ART & CHOICES)
+# -----------------------------------------------------------------------------
+determinism:
+  prng:
+    algorithm: "xorshift32"
+    seed_selection: "user_seed → content_hash → 'auto'"
+    impl_pseudocode: |
+      # state is a 32-bit unsigned integer
+      def xorshift32(state):
+          state ^= (state << 13) & 0xFFFFFFFF
+          state ^= (state >> 17)
+          state ^= (state << 5)  & 0xFFFFFFFF
+          return state & 0xFFFFFFFF
+
+      def rand01(state):
+          state = xorshift32(state)
+          return state / 0xFFFFFFFF, state
+    mapping:
+      rand_range(a,b): "a + floor(rand01 * (b-a+1))"
+      pick(list): "index = floor(rand01 * len(list))"
+  usage:
+    - "Pattern seeding for density fields"
+    - "Wabi-sabi damage/repair point selection"
+    - "Animation frame order (not timing)"
+  disclosure:
+    qc_footer_seed: true
+
+# -----------------------------------------------------------------------------
+# 2.6 RENDER SURFACES & LOW-LEVEL BUILDERS
+# -----------------------------------------------------------------------------
+render_surfaces:
+  bars:
+    fill: "█"
+    empty: "░"
+    partials: ["▏","▎","▍","▌","▋","▊","▉"]
+    build_horizontal:
+      inputs: { value: float, max_value: float, width: int }
+      outputs: { body: str, count: int }
+      algorithm: |
+        # 1) Compute count = round(value / max_value * width)
+        # 2) body = "█" * count + " " * (width - count)
+        # 3) Never exceed width
+    build_vertical:
+      inputs: { value: float, max_value: float, height: int }
+      outputs: { rows: [str], count: int }
+      algorithm: |
+        # 1) lines = round(value / max_value * height)
+        # 2) Render from bottom up: lines of '█' then blanks above
+  frames:
+    styles:
+      single:   { h: "─", v: "│", tl: "┌", tr: "┐", bl: "└", br: "┘" }
+      heavy:    { h: "━", v: "┃", tl: "┏", tr: "┓", bl: "┗", br: "┛" }
+      double:   { h: "═", v: "║", tl: "╔", tr: "╗", bl: "╚", br: "╝" }
+      ascii:    { h: "-", v: "|", tl: "+", tr: "+", bl: "+", br: "+" }
+    build:
+      inputs: { inner_lines: [str], style: enum, target_inner_width: int }
+      steps: |
+        1) equalize_rows(inner_lines) to target_inner_width
+        2) top = tl + (h * target_inner_width) + tr
+        3) middle = for each line: v + line + v
+        4) bottom = bl + (h * target_inner_width) + br
+        5) return [top] + middle + [bottom]
+      qc:
+        - "All lines same display width"
+        - "Corners/joins match style"
+  rulers:
+    horizontal:
+      char: "|"
+      tick_positions: [0.0, 0.25, 0.5, 0.75, 1.0]
+      builder: |
+        # Given width W, place '|' at floor(pos * W) for each pos.
+        # Fill other columns with '-'. Keep total width exactly W.
+    vertical:
+      char: "┼"
+      builder: "Precompute row indices based on height; place tick rows with '┼' or '─' segments."
+  tables:
+    cell_padding: 1
+    column_align:
+      default: "left"
+      numeric: "right"
+    overflow_policy:
+      clip_with_ellipsis: true
+
+# -----------------------------------------------------------------------------
+# 2.7 COMPOSITES — CANONICAL HORIZONTAL BAR CHART LOGIC
+# -----------------------------------------------------------------------------
+composites:
+  bar_chart_horizontal_canonical:
+    inputs:
+      title: str
+      labels: [str]
+      values: [float]
+      width: int              # total bar width (not including label tag)
+      show_scale: bool
+      unit: str | null        # e.g., "ms", "%", "k"
+      mode: "linear|log"
+    prechecks:
+      - "len(labels) == len(values)"
+      - "width >= 10"
+      - "max_value = max(values) > 0"
+    steps: |
+      1) Compute max_value, total = sum(values)
+      2) For i in series:
+           count = round(values[i] / max_value * width)
+           percent = round(values[i] / total * 100)
+           bar = "█" * count + " " * (width - count)
+           label_tag = right-pad label to 6 chars in brackets, e.g., "[API  ]"
+           line = label_tag + " " + bar + " " + format_value(values[i], unit) + " (" + percent + "%)"
+      3) If show_scale:
+           ruler_line = " " * 7 + build_horizontal_ruler(width)
+           scale_labels = " " * 7 + scaled_numbers_line(width, unit)
+      4) QC footer appended
+    output_layout:
+      - title
+      - series_lines...
+      - optional ruler_line
+      - optional scale_labels
+      - qc_footer
+    width_verification:
+      - "Every series line must be identical width to the max line width among them."
+      - "If label contains CJK/emoji → move label to preceding line."
+    examples:
+      - title: "Latency (ms)"
+        labels: ["API","DB","CACHE"]
+        values: [45,25,5]
+        width: 40
+        show_scale: true
+        unit: "ms"
+
+# -----------------------------------------------------------------------------
+# 2.8 NUMERIC RENDERING & FORMATTING
+# -----------------------------------------------------------------------------
+numeric_formatting:
+  percent:
+    default_decimals: 0
+    format: "{p:.0f}%"
+  decimals:
+    default: 1
+    alternate: [0,2]
+  thousands_sep:
+    policy: "thin_space"   # render as normal space in monospace to avoid width issues
+    examples:
+      - 12457 -> "12 457"
+      - 3456789 -> "3 456 789"
+  labeled_units:
+    ms: "{v:.1f}ms"
+    s:  "{v:.3f}s"
+    generic_SI:
+      algorithm: |
+        for suffix in [T,B,M,k]:
+          if v >= threshold: return f"{v/scale:.1f}{suffix}"
+        return f"{v:.0f}"
+
+# -----------------------------------------------------------------------------
+# 2.9 QC SUBSYSTEM HOOKS (REFERENCED BY SECTION 9)
+# -----------------------------------------------------------------------------
+qc_hooks:
+  width_check:
+    description: "Verify all rendered lines share identical display width."
+    returns: { width_ok: bool, expected: int, widths: [int] }
+  math_check:
+    description: "Recompute theoretical char counts vs. rendered block counts."
+    returns: { math_ok: bool, discrepancies: [idx] }
+  borders_check:
+    description: "Inspect top/bottom lines and side characters for consistency with chosen frame style."
+    returns: { borders_ok: bool, issues: [str] }
+  footer_format:
+    template: "QC: width_ok={width_ok} expected={expected} widths={widths} math_ok={math_ok} borders_ok={borders_ok} seed={seed}"
+
+# -----------------------------------------------------------------------------
+# 2.10 MICRO VALIDATION EXAMPLES (CAN RUN MANUALLY)
+# -----------------------------------------------------------------------------
+micro_validation_examples:
+  case_bar_30_linear:
+    render: |
+      Performance
+      [API  ] ██████████████████████████      40 (57%)
+      [DB   ] ███████████████               25 (36%)
+      [CACHE] ███                             5 (7%)
+               |---------|---------|---------|
+               0        10        20        30
+      QC: width_ok=true expected=46 widths=[46,46,46,46,46] math_ok=true borders_ok=true seed=auto
+
+# =============================================================================
+# END SECTION 2
+# =============================================================================
+# =============================================================================
+# ASCII VIBE CODEX — TIER-3 SUPERSET v12
+# SECTION 3: STYLE DICTIONARIES & SWISS INTERNATIONAL GRID MAPPING
+# =============================================================================
+section: 3
+title: "Style Dictionaries + Swiss International Grid Mapping"
+version: "12.0"
+status: "PRODUCTION-READY"
+purpose: >
+  Establish the master style dictionaries for ASCII VIBE CODEX when applied in
+  a Swiss International Typographic Style context. This ensures grid fidelity,
+  visual hierarchy, typographic discipline, and precision alignment while
+  preserving the ASCII VIBE's unique constraints and visual language.
+
+# -----------------------------------------------------------------------------
+# 3.1 CORE VISUAL PRINCIPLES (SWISS + ASCII VIBE FUSION)
+# -----------------------------------------------------------------------------
+principles:
+  - "Absolute alignment to grid — both horizontal and vertical; measured in monospaced character cells."
+  - "Strict typographic hierarchy using weight (█ vs ░), scale (bar length), and spacing (fixed padding) instead of font size."
+  - "Consistent visual rhythm: equal margins above/below structures; avoid uneven whitespace."
+  - "High-contrast data representation; avoid texture noise unless encoding a secondary variable."
+  - "Labels are clear, concise, and positioned predictably (above or below visuals, never inline)."
+  - "Color is replaced with pattern and density to maintain ASCII purity."
+  - "Negative space is an intentional design element — not filler."
+  - "Grid units are indivisible; every character cell must align to the baseline grid."
+  - "Legibility over ornamentation — but visual identity is preserved via consistent fill and framing language."
+
+# -----------------------------------------------------------------------------
+# 3.2 GRID SPECIFICATION
+# -----------------------------------------------------------------------------
+grid_system:
+  unit_size: "1 monospace character cell"
+  baseline: "1 row = 1 vertical unit"
+  column_width: 2
+  gutters:
+    horizontal: 2
+    vertical: 1
+  max_columns: 80   # default terminal width baseline
+  breakpoints:
+    small: 40
+    medium: 60
+    large: 80
+  scaling_policy:
+    - "Never compress below small breakpoint; instead, switch to condensed layout."
+    - "At large breakpoint, preserve generous margins and scale bars proportionally."
+
+# -----------------------------------------------------------------------------
+# 3.3 TYPOGRAPHIC SCALES (ASCII EQUIVALENT)
+# -----------------------------------------------------------------------------
+type_scale:
+  levels:
+    h1:
+      weight: "heavy fill █"
+      spacing_above: 1
+      spacing_below: 1
+      all_caps: true
+      underline: "═"  # full width
+    h2:
+      weight: "heavy fill █"
+      spacing_above: 1
+      spacing_below: 1
+      all_caps: false
+      underline: "─"
+    body:
+      weight: "░ light fill or space"
+      spacing_above: 0
+      spacing_below: 0
+      all_caps: false
+    caption:
+      weight: "░ light fill or space"
+      spacing_above: 0
+      spacing_below: 1
+      all_caps: false
+      letter_spacing: 1
+  alignment_policy:
+    - "Center headings within frame width."
+    - "Left-align captions and legends."
+
+# -----------------------------------------------------------------------------
+# 3.4 SWISS / ASCII STYLE TOKENS
+# -----------------------------------------------------------------------------
+tokens:
+  fills:
+    primary: "█"
+    secondary: "░"
+    empty: " "
+  borders:
+    single:   { h: "─", v: "│", tl: "┌", tr: "┐", bl: "└", br: "┘" }
+    heavy:    { h: "━", v: "┃", tl: "┏", tr: "┓", bl: "┗", br: "┛" }
+    double:   { h: "═", v: "║", tl: "╔", tr: "╗", bl: "╚", br: "╝" }
+    ascii:    { h: "-", v: "|", tl: "+", tr: "+", bl: "+", br: "+" }
+  rulers:
+    pipe: "|"
+    dash: "-"
+  legends:
+    bullet: "•"
+    separator: "—"
+  whitespace:
+    margin_char: " "
+    gutter_char: " "
+
+# -----------------------------------------------------------------------------
+# 3.5 SWISS-STYLE COMPOSITIONS WITH ASCII STRUCTURES
+# -----------------------------------------------------------------------------
+layout_patterns:
+  single_chart_block:
+    description: "Centered chart with title above, legend/caption below."
+    steps:
+      - "Center title using pad_center to match visual width."
+      - "Add 1 row margin."
+      - "Render chart exactly to spec width."
+      - "Add 1 row margin."
+      - "Place legend left-aligned."
+  multi_chart_grid:
+    description: "Two or more charts aligned to the same vertical baseline."
+    steps:
+      - "Equalize chart heights via pad_bottom."
+      - "Maintain gutter columns as per grid_system.gutters.horizontal."
+      - "Align titles across top row."
+      - "Align legends across bottom row."
+  table_panel:
+    description: "Framed table with Swiss-aligned headings."
+    steps:
+      - "Frame with single or heavy border."
+      - "Align all column starts to grid columns."
+      - "Use consistent padding for cells."
+      - "Cap headings with underline matching frame width."
+
+# -----------------------------------------------------------------------------
+# 3.6 SWISS TREATMENTS FOR ASCII VIBE QC FOOTERS
+# -----------------------------------------------------------------------------
+qc_footer_style:
+  prefix: "QC:"
+  separator: " | "
+  fields_order: ["width_ok","expected","widths","math_ok","borders_ok","seed"]
+  alignment:
+    left_pad: 1
+    field_spacing: 1
+  rendering:
+    - "Prefix always starts at left margin."
+    - "Separate fields with separator token."
+    - "Use monospace-safe characters only."
+
+# -----------------------------------------------------------------------------
+# 3.7 ROLE & PERSONA MAPPING (FOR PROMPTS)
+# -----------------------------------------------------------------------------
+roles:
+  designer:
+    mindset: "Swiss-trained typographer with an obsession for precision grids."
+    tone: "Exacting, minimal, factual."
+    output_style: "Balanced whitespace, no unnecessary glyphs."
+  renderer:
+    mindset: "Meticulous ASCII engineer."
+    tone: "Technical, disciplined."
+    output_style: "Exact character counts, deterministic layout."
+  qc_agent:
+    mindset: "Skeptical verifier."
+    tone: "Blunt, concise."
+    output_style: "Binary pass/fail with context."
+
+# -----------------------------------------------------------------------------
+# 3.8 IMPLEMENTATION NOTES
+# -----------------------------------------------------------------------------
+implementation_notes:
+  - "This dictionary overrides Section 1 style tokens when Swiss grid fusion mode is on."
+  - "All measurements and alignments snap to monospace grid units."
+  - "QC footers retain functional role but adopt Swiss alignment rules."
+  - "Titles/headings always align with grid columns; never offset arbitrarily."
+  - "Avoid ASCII art flourishes that break grid discipline."
+  - "Legends, captions, and scales must align to structural edges."
+
+# =============================================================================
+# END SECTION 3
+# =============================================================================
+# =============================================================================
+# ASCII VIBE CODEX — TIER-3 SUPERSET v12
+# SECTION 4: ADVANCED CREATIVE EXAMPLES + PROCEDURAL ART GENERATORS
+# =============================================================================
+section: 4
+title: "Advanced Creative Examples + Procedural Art Generators"
+version: "12.0"
+status: "PRODUCTION-READY"
+purpose: >
+  Extend ASCII VIBE CODEX capabilities with high-complexity visual compositions
+  and procedural generation patterns, now adapted to Swiss International grid rules.
+  Focus on reproducibility, grid discipline, and alignment integrity across
+  all generated works.
+
+# -----------------------------------------------------------------------------
+# 4.1 ADVANCED CHARTING
+# -----------------------------------------------------------------------------
+advanced_charts:
+  radial_meter:
+    description: "Circular/semi-circular meter using ASCII-safe arcs."
+    rules:
+      - "All arcs must be symmetric along grid axes."
+      - "Tick marks at 0°, 90°, 180°, 270° align to monospace positions."
+      - "Use density variation for fill levels (█ full, ▒ mid, · low)."
+    example: |
+      +----+
+     /████ \
+    |██████|
+     \████ /
+      +----+
+  isometric_bar:
+    description: "Pseudo-3D bar chart in isometric projection."
+    rules:
+      - "Left and right faces use different density for depth."
+      - "Top faces always use lighter density."
+      - "Baseline aligns to grid; all bars share same horizon line."
+    example: |
+      ███
+     ███▒
+    ███▒▒
+
+# -----------------------------------------------------------------------------
+# 4.2 GRID-ALIGNED PATTERNS
+# -----------------------------------------------------------------------------
+patterns:
+  hatch_fill:
+    description: "Diagonal hatch patterns for texture encoding."
+    ascii: ["/", "\\"]
+    density_map:
+      low: "/   "
+      medium: "/ / "
+      high: "////"
+  stipple_fill:
+    description: "Dot patterns for subtle shading."
+    ascii: "."
+    density_map:
+      low: ".   "
+      medium: "..  "
+      high: "...."
+
+# -----------------------------------------------------------------------------
+# 4.3 PROCEDURAL GENERATORS
+# -----------------------------------------------------------------------------
+generators:
+  braid_pattern:
+    description: "Interlacing strands, perfect symmetry on grid."
+    parameters:
+      strands: 3
+      repeat_units: 4
+    rules:
+      - "Each strand width = 1 char."
+      - "Spacing between strands = 1 char."
+      - "Repeat seamlessly when tiled."
+    example: |
+      /\/\
+      \/\/
+  wave_pattern:
+    description: "ASCII sine-like wave."
+    parameters:
+      amplitude: 2
+      wavelength: 8
+    rules:
+      - "Peaks and troughs align to same columns across repetitions."
+      - "Supports phase shift param."
+    example: |
+      ~~~~    ~~~~
+         ~~~~    
+
+# -----------------------------------------------------------------------------
+# 4.4 SWISS COMPOSITIONAL RULES FOR CREATIVE WORKS
+# -----------------------------------------------------------------------------
+composition_rules:
+  - "All creative works must still align to Swiss grid units."
+  - "Whitespace between patterns is intentional and measured."
+  - "Legends/captions follow same placement rules as charts."
+  - "Complex compositions may be divided into panels with consistent gutters."
+
+# -----------------------------------------------------------------------------
+# 4.5 QC FOR CREATIVE OUTPUTS
+# -----------------------------------------------------------------------------
+qc_checks:
+  - id: "grid_alignment"
+    desc: "Verify every glyph sits on defined grid columns/rows."
+  - id: "pattern_repeat"
+    desc: "Ensure procedural patterns tile without artifacts."
+  - id: "density_consistency"
+    desc: "Verify density maps match defined fill levels."
+  - id: "symmetry_check"
+    desc: "For symmetric patterns, left and right halves must match."
+
+# -----------------------------------------------------------------------------
+# 4.6 IMPLEMENTATION NOTES
+# -----------------------------------------------------------------------------
+implementation_notes:
+  - "Procedural patterns can be generated by LLMs using deterministic formulas."
+  - "QC hooks from Section 5 apply here with additional creative rules."
+  - "All examples should be reproducible with CLI tools from Section 6."
+  - "Where Unicode is allowed, use block elements for higher fidelity, else ASCII."
+  - "Preserve Swiss visual hierarchy even in artistic compositions."
+
+# =============================================================================
+# END SECTION 4
+# =============================================================================
+# =============================================================================
+# ASCII VIBE CODEX — TIER-3 SUPERSET v12
+# SECTION 5: ADAPTIVE EXECUTION LAYER (MODEL-AWARE + CLI-AWARE)
+# =============================================================================
+section: 5
+title: "Adaptive Execution Layer (Routing, Governors, Adapters, Prompts)"
+version: "12.0"
+status: "PRODUCTION-READY"
+purpose: >
+  Make the codex run reliably across reasoning and execution models,
+  in terminals and IDE CLIs, while enforcing Swiss International style
+  discipline on all ASCII outputs. This layer provides model routing,
+  output governors, deterministic prompt templates, CLI adapters,
+  fallbacks, and QC hooks.
+
+# -----------------------------------------------------------------------------
+# 5.0 MODEL COMPATIBILITY DECLARATIONS
+# -----------------------------------------------------------------------------
+compatibility:
+  reasoning_models:
+    - vendor: "Anthropic"
+      models: ["Claude 3 Opus", "Claude 3 Sonnet", "Claude 3 Haiku"]
+      notes: "Strong reasoning and format fidelity; suited for grid-based Swiss layouts."
+    - vendor: "OpenAI"
+      models: ["GPT-4", "GPT-4 Turbo"]
+      notes: "Structured outputs, high consistency in proportional layouts."
+    - vendor: "Google"
+      models: ["Gemini 1.5 Pro"]
+      notes: "Good tool-use, verify Unicode widths with Swiss grid alignment."
+    - vendor: "Open Source"
+      models: ["Llama 3 70B Instruct", "Mixtral 8x7B Instruct"]
+      notes: "Use strict governors; Swiss style requires rigid spacing."
+
+  execution_models:
+    - vendor: "Anthropic"
+      models: ["Claude 3 Haiku", "Claude 3.5 Sonnet (Tools On)"]
+      notes: "Fast execution; preserve column/row precision."
+    - vendor: "OpenAI"
+      models: ["GPT-4 Turbo (Tools)", "gpt-4.1-mini"]
+      notes: "Function calling ready; ideal for Swiss-style bar charts."
+    - vendor: "Google"
+      models: ["Gemini 1.5 Flash"]
+      notes: "Lightweight execution; enforce proportionality."
+    - vendor: "Open Source"
+      models: ["Llama 3 8B Instruct", "Mistral 7B Instruct"]
+      notes: "Short outputs; validate grid adherence."
+
+# -----------------------------------------------------------------------------
+# 5.1 ROUTING POLICY
+# -----------------------------------------------------------------------------
+routing:
+  strategy: "capability-first"
+  signals:
+    - name: "task_complexity"
+      levels:
+        - simple: "direct, single output, no synthesis"
+        - medium: "some synthesis/visualization"
+        - complex: "multi-step with validation & generation"
+    - name: "fidelity_requirement"
+      levels: ["low", "medium", "high"]
+    - name: "latency_budget_ms"
+      default: 1500
+    - name: "cost_sensitivity"
+      levels: ["low", "medium", "high"]
+  decision_matrix:
+    rules:
+      - if: "(task_complexity == 'complex' or fidelity_requirement == 'high')"
+        route: "reasoning"
+      - if: "(task_complexity == 'simple' and cost_sensitivity == 'high')"
+        route: "execution"
+      - if: "(latency_budget_ms < 1200)"
+        route: "execution"
+      - else: "reasoning"
+  fallback_policy:
+    - on: "rate_limit|timeout|invalid_json"
+      action: "reroute"
+      to: "backup_cluster"
+      retries: 2
+      backoff_ms: 250
+
+# -----------------------------------------------------------------------------
+# 5.2 OUTPUT GOVERNORS
+# -----------------------------------------------------------------------------
+governors:
+  reasoning_guard:
+    rules:
+      - "Do not reveal chain-of-thought."
+      - "Final output only, Swiss-aligned grid."
+      - "Use code blocks for all visualizations."
+      - "Close all fences."
+  verbosity:
+    default_level: 2
+    per_context:
+      cli: 1
+      ide_assistant: 2
+      documentation: 3
+  safety:
+    max_tokens_out: 1200
+    truncate_strategy: "end"
+    ellipsis_marker: "…"
+  formatting_integrity:
+    braces_check: true
+    yaml_lint_minimal: true
+    fenced_code_required: true
+  unicode_width_rules:
+    modes:
+      ascii_safe_default: true
+      unicode_advanced: false
+    fallback_on_misalignment: "switch_to_ascii"
+
+# -----------------------------------------------------------------------------
+# 5.3 DETERMINISTIC PROMPT TEMPLATES
+# -----------------------------------------------------------------------------
+prompts:
+  system_reasoning: |
+    You are the ASCII VIBE CODEX Reasoning Orchestrator.
+    Produce mathematically accurate, monospaced, Swiss International style visuals.
+    Follow proportionality, alignment, grid spacing, and box integrity rules.
+    No chain-of-thought: output final structured results and QC notes only.
+  system_execution: |
+    You are the ASCII VIBE CODEX Execution Agent.
+    Apply deterministic rendering, validators, and Swiss grid adapters.
+    Keep responses short; return only requested content.
+  instruction_blocks:
+    ascii_bar_chart: |
+      Render a horizontal bar chart using ONLY ASCII.
+      Width={width}. Use '█' for filled, ' ' for empty.
+      Labels ABOVE or BELOW bars. Swiss grid alignment mandatory.
+      After render, include a QC block listing:
+      - row_widths
+      - computed_fills
+      - pass/fail for alignment, width, proportions
+    table_with_microspark: |
+      Build a 2-col table with right-aligned microsparkline column.
+      Use Unicode blocks only if unicode_advanced=true, else ASCII ".-#".
+      Ensure all borders connect. Add a one-line legend BELOW the table.
+  builders:
+    bar_chart_call:
+      template: |
+        TASK: Render bar chart
+        DATA: {data_json}
+        WIDTH: {width}
+        LABEL: {title}
+        MODE: {mode}
+        FOLLOW: prompts.instruction_blocks.ascii_bar_chart
+    microspark_table_call:
+      template: |
+        TASK: Render table+spark
+        ROWS: {rows_json}
+        MODE: {mode}
+        FOLLOW: prompts.instruction_blocks.table_with_microspark
+
+# -----------------------------------------------------------------------------
+# 5.4 CLI ADAPTERS
+# -----------------------------------------------------------------------------
+cli_adapters:
+  common:
+    prelude:
+      - "disable_color_if_no_ansi"
+      - "enforce_ascii_if_misaligned"
+      - "limit_width_to_terminal_cols"
+    epilogue:
+      - "append_qc_footer_when_debug_on"
+  claude_code:
+    wrap_output_in: "```text\n{body}\n```"
+    enforce_ascii: true
+  warp:
+    wrap_output_in: "```text\n{body}\n```"
+  cursor:
+    wrap_output_in: "```yaml\n{body}\n```"
+    enforce_ascii: false
+  gemini_cli:
+    wrap_output_in: "```text\n{body}\n```"
+    enforce_ascii: true
+
+# -----------------------------------------------------------------------------
+# 5.5 VALIDATION & QC HOOKS
+# -----------------------------------------------------------------------------
+qc_hooks:
+  checks:
+    - id: "row_width_consistency"
+      desc: "All lines in a block match Swiss grid column width."
+    - id: "proportionality_check"
+      desc: "bar_len == round(value/max * width)"
+    - id: "border_integrity"
+      desc: "Junctions/corners connect; no ragged edges."
+    - id: "label_placement"
+      desc: "Labels above/below visual, never inline."
+  on_fail:
+    - action: "auto_fix_alignment"
+    - action: "switch_to_ascii_mode"
+    - action: "recompute_bars"
+    - action: "retry_once_with_tighter_prompt"
+
+# -----------------------------------------------------------------------------
+# 5.6 EXECUTION BLUEPRINTS
+# -----------------------------------------------------------------------------
+execution_blueprints:
+  reasoning_mode:
+    steps:
+      - "Parse task + data"
+      - "Choose minimal viable visualization"
+      - "Compute proportions"
+      - "Render draft"
+      - "Run qc_hooks"
+      - "Repair and re-check if fail"
+      - "Emit final + QC summary"
+  execution_mode:
+    steps:
+      - "Apply provided template verbatim"
+      - "Compute bar lengths exactly"
+      - "Render in ASCII safe mode"
+      - "Run row_width + proportion checks"
+      - "Emit ONLY final block"
+
+# -----------------------------------------------------------------------------
+# 5.7 FALLBACKS & RETRY STRATEGIES
+# -----------------------------------------------------------------------------
+retries:
+  max_attempts: 2
+  repair_prompts:
+    alignment_fix: |
+      RERENDER in strict ASCII. All row widths must equal {width}.
+      Replace ambiguous characters. Keep labels outside.
+    proportion_fix: |
+      Recompute bar_len = round(value/max * {width}).
+      Debug: list (label, value, bar_len).
+  downgrade_path:
+    - "unicode -> ascii"
+    - "complex_visual -> simple_bar"
+    - "reasoning_model -> execution_model"
+
+# -----------------------------------------------------------------------------
+# 5.8 TEST INVOCATIONS
+# -----------------------------------------------------------------------------
+test_invocations:
+  bar_chart_basic:
+    call: |
+      {builders.bar_chart_call}
+      data_json={"A":40,"B":20,"C":10}
+      width=30
+      title="Performance"
+      mode="ascii"
+  microspark_table:
+    call: |
+      {builders.microspark_table_call}
+      rows_json=[["API",[1,4,6,9,8,6,4,1]],["DB",[1,3,9,3,1]]]
+      mode="ascii"
+
+# -----------------------------------------------------------------------------
+# 5.9 IMPLEMENTATION NOTES
+# -----------------------------------------------------------------------------
+implementation_notes:
+  - "This layer is glue: keep it strict."
+  - "Always wrap outputs in code fences in CLIs."
+  - "Prefer ASCII unless widths verified."
+  - "When in doubt: simpler visualization, stronger QC."
+  - "Do not mix emojis inside aligned visuals."
+  - "Labels above/below, never inline."
+  - "Close every box; corners must meet."
+
+# =============================================================================
+# END SECTION 5
+# =============================================================================
+# =============================================================================
+# ASCII VIBE CODEX — TIER-3 SUPERSET v12
+# SECTION 6: TOOLING, SDK STUBS & CLI INTEGRATIONS
+# =============================================================================
+section: 6
+title: "Tooling, SDK Stubs & CLI Integrations"
+version: "12.0"
+status: "PRODUCTION-READY"
+purpose: >
+  Ship a tiny, deterministic implementation layer (Python) + command-line
+  tools so the codex renders consistent ASCII visuals in terminals and IDE CLIs.
+  This section provides a file manifest with ready-to-write source contents:
+  renderers, validators, adapters, and a CLI entrypoint that respects the
+  governors and QC hooks from Section 5.
+
+# -----------------------------------------------------------------------------
+# 6.0 RUNTIME TARGETS
+# -----------------------------------------------------------------------------
+runtimes:
+  language: "Python 3.9+"
+  optional_node_shim: false
+  dependencies:
+    - "none (stdlib only)"
+  dev_optional:
+    - "pytest>=7"        # for tests (optional)
+    - "pyyaml>=6"        # for YAML-driven demos (optional)
+
+# -----------------------------------------------------------------------------
+# 6.1 PROJECT LAYOUT (FILES TO CREATE)
+# -----------------------------------------------------------------------------
+layout:
+  root:
+    - path: "cli/ascii_vibe"
+      mode: "755"
+      type: "file"
+      description: "CLI entrypoint (Python shebang)."
+    - path: "src/ascii_vibe/__init__.py"
+      type: "file"
+      description: "Package marker."
+    - path: "src/ascii_vibe/renderer.py"
+      type: "file"
+      description: "Deterministic ASCII renderers (bar charts, frames)."
+    - path: "src/ascii_vibe/validators.py"
+      type: "file"
+      description: "Row-width, proportion, and border integrity checks."
+    - path: "src/ascii_vibe/qc.py"
+      type: "file"
+      description: "QC pipeline orchestrating validators + repairs."
+    - path: "src/ascii_vibe/adapters/__init__.py"
+      type: "file"
+    - path: "src/ascii_vibe/adapters/terminal.py"
+      type: "file"
+      description: "Common terminal adapter (ASCII fences, width clamp)."
+    - path: "src/ascii_vibe/adapters/warp.py"
+      type: "file"
+      description: "Warp-specific wrappers/hints."
+    - path: "src/ascii_vibe/adapters/claude_code.py"
+      type: "file"
+      description: "Claude Code wrapper for fenced output."
+    - path: "src/ascii_vibe/adapters/gemini_cli.py"
+      type: "file"
+      description: "Gemini CLI wrapper enforcing ASCII safe mode."
+    - path: "examples/demo_bar.yaml"
+      type: "file"
+      description: "Example data for quick demo."
+    - path: "tests/smoke_cli.sh"
+      mode: "755"
+      type: "file"
+      description: "Smoke test invoking the CLI."
+    - path: "tests/test_validators.py"
+      type: "file"
+      description: "Unit tests for width & proportionality."
+
+# -----------------------------------------------------------------------------
+# 6.2 SOURCE CONTENTS
+# -----------------------------------------------------------------------------
+files:
+
+  # --- CLI ENTRYPOINT ---------------------------------------------------------
+  - path: "cli/ascii_vibe"
+    mode: "755"
+    lang: "python"
+    content: |
+      #!/usr/bin/env python3
+      import argparse, json, sys, shutil
+      from pathlib import Path
+
+      sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+      from ascii_vibe.renderer import render_bar_chart_ascii
+      from ascii_vibe.validators import (
+          validate_row_widths, validate_bar_proportions, ValidationError
+      )
+      from ascii_vibe.adapters.terminal import wrap_text_block, clamp_width
+
+      def cmd_render_bar(args):
+          data = json.loads(args.data)
+          width = int(args.width)
+          title = args.title or "Bar Chart"
+          block = render_bar_chart_ascii(title=title, series=data, width=width)
+          if args.validate:
+              lines = block.splitlines()
+              validate_row_widths(lines)
+              validate_bar_proportions(lines, data, width)
+          out = wrap_text_block(block, fence="text")
+          print(out)
+
+      def cmd_validate(args):
+          text = sys.stdin.read()
+          lines = text.splitlines()
+          # Heuristic: width = longest line between bars
+          width = max(len(l) for l in lines) if lines else 0
+          validate_row_widths(lines)
+          # Proportion validation needs raw data; allow optional
+          if args.data and args.width:
+              data = json.loads(args.data)
+              validate_bar_proportions(lines, data, int(args.width))
+          print("OK")
+
+      def cmd_demo(args):
+          demo = {
+              "A": 40, "B": 20, "C": 10
+          }
+          width = 30
+          block = render_bar_chart_ascii(title="Performance", series=demo, width=width)
+          out = wrap_text_block(block, fence="text")
+          print(out)
+
+      def main():
+          parser = argparse.ArgumentParser(prog="ascii_vibe", description="ASCII VIBE CLI")
+          sub = parser.add_subparsers(dest="cmd", required=True)
+
+          p1 = sub.add_parser("render-bar", help="Render an ASCII bar chart")
+          p1.add_argument("--data", required=True, help='JSON object: {"A":40,"B":20}')
+          p1.add_argument("--width", required=True, help="Bar width (chars)")
+          p1.add_argument("--title", default="Bar Chart")
+          p1.add_argument("--validate", action="store_true")
+          p1.set_defaults(func=cmd_render_bar)
+
+          p2 = sub.add_parser("validate", help="Validate an ASCII block from stdin")
+          p2.add_argument("--data", help='JSON object for proportion check')
+          p2.add_argument("--width", help="Width used for bars (int)")
+          p2.set_defaults(func=cmd_validate)
+
+          p3 = sub.add_parser("demo", help="Show a demo bar chart")
+          p3.set_defaults(func=cmd_demo)
+
+          args = parser.parse_args()
+          args.func(args)
+
+      if __name__ == "__main__":
+          main()
+
+  # --- RENDERER ---------------------------------------------------------------
+  - path: "src/ascii_vibe/renderer.py"
+    lang: "python"
+    content: |
+      from typing import Dict, List
+      import math
+
+      def _scale_bar_len(value: float, vmax: float, width: int) -> int:
+          if vmax <= 0: return 0
+          return int(round((value / vmax) * width))
+
+      def render_bar_chart_ascii(title: str, series: Dict[str, float], width: int) -> str:
+          """
+          Deterministic ASCII horizontal bar chart.
+          - Labels ABOVE chart, scale BELOW chart.
+          - Bars use '█' only; empty uses ' ' (space).
+          - Exactly width characters per bar row after label block.
+          """
+          if not series:
+              return f"{title}\n( no data )"
+
+          labels = list(series.keys())
+          values = list(series.values())
+          vmax = max(values) if values else 0
+
+          # Normalize label width: 4 chars inside [] for alignment ([A  ])
+          label_col = max(len(l) for l in labels)
+          label_fmt = "[{:<" + str(label_col) + "}] "
+
+          rows: List[str] = [title]
+          for label in labels:
+              v = series[label]
+              n = _scale_bar_len(v, vmax, width)
+              bar = "█" * n + " " * (width - n)
+              row = label_fmt.format(label) + bar + f" {v}"
+              rows.append(row)
+
+          scale_line = " " * (label_col + 3) + "|" + "-" * (width - 2) + "|"
+          ticks = [0, 0.25, 0.5, 0.75, 1.0]
+          tick_labels = []
+          for t in ticks:
+              val = int(round(t * vmax))
+              tick_labels.append(str(val))
+          tick_row = " " * (label_col + 3)
+          pos_chars = 0
+          for i, t in enumerate(ticks):
+              target = int(round(t * width))
+              label = tick_labels[i]
+              if target < len(label):
+                  target = len(label)
+              pad = max(0, target - pos_chars - len(label))
+              tick_row += " " * pad + label
+              pos_chars += pad + len(label)
+
+          rows.append(scale_line)
+          rows.append(tick_row)
+          return "\n".join(rows)
+
+  # --- VALIDATORS -------------------------------------------------------------
+  - path: "src/ascii_vibe/validators.py"
+    lang: "python"
+    content: |
+      from typing import Dict, List
+      import re, math
+
+      class ValidationError(Exception):
+          pass
+
+      def validate_row_widths(lines: List[str]) -> None:
+          if not lines: return
+          viz_rows = [l for l in lines if re.search(r"^\[", l.strip())]
+          if not viz_rows: return
+          target = max(len(l) for l in viz_rows)
+          for i, l in enumerate(viz_rows):
+              if len(l) != target:
+                  raise ValidationError(f"Row width mismatch at visualization line {i+1}: {len(l)} != {target}")
+
+      def validate_bar_proportions(lines: List[str], data: Dict[str, float], width: int) -> None:
+          if not data: return
+          vmax = max(data.values()) if data else 0.0
+          if vmax <= 0: return
+          for l in lines:
+              if l.strip().startswith("["):
+                  parts = l.split("] ")
+                  if len(parts) < 2: continue
+                  tail = parts[1]
+                  bar_part = tail.rsplit(" ", 1)[0]
+                  filled = bar_part.count("█")
+                  label = l.split("]")[0][1:].strip()
+                  if label in data:
+                      expect = int(round((data[label] / vmax) * width))
+                      if filled != expect:
+                          raise ValidationError(
+                              f"Bar proportion mismatch for '{label}': got {filled}, expected {expect}"
+                          )
+
+  # --- QC PIPELINE ------------------------------------------------------------
+  - path: "src/ascii_vibe/qc.py"
+    lang: "python"
+    content: |
+      from typing import Dict
+      from .validators import validate_row_widths, validate_bar_proportions, ValidationError
+
+      def qc_block(text: str, data: Dict[str, float] = None, width: int = None) -> Dict[str, bool]:
+          lines = text.splitlines()
+          out = {"width_ok": True, "proportions_ok": True}
+          try:
+              validate_row_widths(lines)
+          except ValidationError:
+              out["width_ok"] = False
+          if data is not None and width is not None:
+              try:
+                  validate_bar_proportions(lines, data, width)
+              except ValidationError:
+                  out["proportions_ok"] = False
+          return out
+
+  # --- ADAPTERS: TERMINAL (COMMON) -------------------------------------------
+  - path: "src/ascii_vibe/adapters/terminal.py"
+    lang: "python"
+    content: |
+      import shutil
+
+      def term_cols(default: int = 80) -> int:
+          try:
+              cols = shutil.get_terminal_size().columns
+              return cols if cols > 0 else default
+          except Exception:
+              return default
+
+      def clamp_width(text: str, max_cols: int = None) -> str:
+          cols = max_cols or term_cols()
+          out_lines = []
+          for l in text.splitlines():
+              if len(l) <= cols:
+                  out_lines.append(l)
+              else:
+                  out_lines.append(l[:cols])
+          return "\n".join(out_lines)
+
+      def wrap_text_block(text: str, fence: str = "text") -> str:
+          return f"```{fence}\n{text}\n```"
+
+  # --- ADAPTERS: WARP --------------------------------------------------------
+  - path: "src/ascii_vibe/adapters/warp.py"
+    lang: "python"
+    content: |
+      from .terminal import wrap_text_block, clamp_width, term_cols
+
+      def warp_wrap(text: str) -> str:
+          return wrap_text_block(clamp_width(text), fence="text")
+
+  # --- ADAPTERS: CLAUDE CODE -------------------------------------------------
+  - path: "src/ascii_vibe/adapters/claude_code.py"
+    lang: "python"
+    content: |
+      from .terminal import wrap_text_block, clamp_width
+
+      def claude_code_wrap(text: str) -> str:
+          return wrap_text_block(clamp_width(text), fence="text")
+
+  # --- ADAPTERS: GEMINI CLI --------------------------------------------------
+  - path: "src/ascii_vibe/adapters/gemini_cli.py"
+    lang: "python"
+    content: |
+      from .terminal import wrap_text_block, clamp_width
+
+      def gemini_cli_wrap(text: str) -> str:
+          return wrap_text_block(clamp_width(text), fence="text")
+
+  # --- EXAMPLES ---------------------------------------------------------------
+  - path: "examples/demo_bar.yaml"
+    lang: "yaml"
+    content: |
+      title: "Performance (ms, lower=better)"
+      width: 30
+      series:
+        API: 45
+        DB: 25
+        CACHE: 5
+
+  # --- SMOKE TEST SHELL ------------------------------------------------------
+  - path: "tests/smoke_cli.sh"
+    mode: "755"
+    lang: "bash"
+    content: |
+      #!/usr/bin/env bash
+      set -euo pipefail
+      ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+      CLI="$ROOT/cli/ascii_vibe"
+      echo "Running demo..."
+      "$CLI" demo | tee /tmp/ascii_vibe_demo.txt
+      echo "Validating demo block..."
+      cat /tmp/ascii_vibe_demo.txt | "$CLI" validate
+      echo "Rendering explicit data..."
+      "$CLI" render-bar --data '{"A":40,"B":20,"C":10}' --width 30 --validate
+      echo "OK (smoke_cli)"
+
+  # --- PYTESTS ---------------------------------------------------------------
+  - path: "tests/test_validators.py"
+    lang: "python"
+    content: |
+      import subprocess, sys, json, os
+      from pathlib import Path
+      ROOT = Path(__file__).resolve().parents[1]
+      CLI = ROOT / "cli" / "ascii_vibe"
+      def run(args, text=None):
+          p = subprocess.run([str(CLI), *args], input=text, text=True, capture_output=True)
+          return p.returncode, p.stdout, p.stderr
+      def test_render_and_validate():
+          code, out, err = run(["render-bar", "--data", '{"A":40,"B":20,"C":10}', "--width", "30", "--validate"])
+          assert code == 0
+          assert "```" in out
+      def test_demo_validate():
+          code, out, err = run(["demo"])
+          assert code == 0
+          code2, out2, err2 = run(["validate"], text=out)
+          assert code2 == 0
+          assert "OK" in out2
+
+# -----------------------------------------------------------------------------
+# 6.3 MAKE IT LIVE (SETUP NOTES)
+# -----------------------------------------------------------------------------
+setup_notes:
+  - "Create files from this manifest under your repo root."
+  - "Ensure cli/ascii_vibe is executable (chmod +x cli/ascii_vibe)."
+  - "Run smoke test: tests/smoke_cli.sh"
+  - "Use: ./cli/ascii_vibe render-bar --data '{\"A\":40,\"B\":20}' --width 30 --validate"
+  - "In CLIs (Claude Code / Warp / Gemini), paste the output block as-is."
+
+# -----------------------------------------------------------------------------
+# 6.4 INTEGRATION HINTS
+# -----------------------------------------------------------------------------
+integration:
+  claude_code:
+    tip: "Bind a custom command in Claude Code that shells out to cli/ascii_vibe."
+  warp:
+    tip: "Make an alias in Warp: av='~/path/to/cli/ascii_vibe'"
+  cursor:
+    tip: "Use tasks to call the CLI and paste fenced output into the editor."
+  gemini_cli:
+    tip: "Pipe CLI output directly: ascii_vibe render-bar ... | gemini stream"
+
+# =============================================================================
+# END SECTION 6
+# =============================================================================
+# =============================================================================
+# ASCII VIBE CODEX — SWISS INTERNATIONAL STYLE OVERLAY v1.0
+# =============================================================================
+section: "swiss_overlay"
+title: "Swiss International Style × ASCII VIBE"
+version: "1.0"
+status: "COMPANION-LIBRARY"
+purpose: >
+  Merge Swiss International Style's precision, typographic discipline,
+  and grid logic with the ASCII VIBE CODEX visual language — enabling
+  ultra-precise, minimal, grid-based ASCII compositions for web/print parity.
+
+# -----------------------------------------------------------------------------
+# 1. GRID SYSTEMS
+# -----------------------------------------------------------------------------
+grid_systems:
+  base_unit: 8        # 8px in print/web → 1 char in ASCII
+  columns: [4, 6, 8, 12]
+  gutter: 1           # always 1 char gutter in ASCII mode
+  scale_ratios:
+    - 1.000  # base
+    - 1.414  # sqrt(2) — ISO paper ratios
+    - 1.618  # golden ratio
+  alignment_rules:
+    - "Flush-left text alignment"
+    - "Consistent vertical rhythm using base_unit multiples"
+    - "No visual element breaks grid unless intentional contrast"
+
+# -----------------------------------------------------------------------------
+# 2. TYPOGRAPHY (ASCII SAFE)
+# -----------------------------------------------------------------------------
+typography:
+  primary: "ASCII_HELVETICA"   # Helvetica analogue using uniform stroke ASCII
+  secondary: "ASCII_UNIVERS"   # Univers analogue for numeric/tabular
+  weights:
+    light: "."
+    regular: "-"
+    bold: "#"
+    ultra: "█"
+  scaling:
+    h1: {size: 5, weight: ultra}
+    h2: {size: 4, weight: bold}
+    h3: {size: 3, weight: regular}
+    body: {size: 2, weight: regular}
+    caption: {size: 1, weight: light}
+
+# -----------------------------------------------------------------------------
+# 3. COLOR MAPPING (B/W/RED SCHEME)
+# -----------------------------------------------------------------------------
+color_mapping:
+  black: "█"
+  white: " "
+  red: "▓"
+  grey: "▒"
+
+# -----------------------------------------------------------------------------
+# 4. MODULES & LAYOUTS
+# -----------------------------------------------------------------------------
+modules:
+  poster_layout:
+    description: "Large headline, asymmetric image block, minimal footer."
+    ascii_structure:
+      - "██████ HEADLINE ██████"
+      - "█                    █"
+      - "█   IMG ███████      █"
+      - "█       ███████      █"
+      - "█                    █"
+      - "████ FOOTER ██████████"
+  report_cover:
+    description: "Top-aligned title, balanced whitespace, modular grid."
+    ascii_structure:
+      - "TITLE"
+      - " "
+      - "██████ VISUAL ██████"
+      - " "
+      - "FOOTER INFO"
+
+# -----------------------------------------------------------------------------
+# 5. COMPOSITION RULES
+# -----------------------------------------------------------------------------
+composition_rules:
+  - "Favor asymmetry but keep strong vertical/horizontal anchors"
+  - "White space is active space — use for emphasis"
+  - "All type and graphics align to grid columns"
+  - "Never mix more than 2 weights in one visual field"
+  - "Hierarchies based on size/weight contrast, not ornament"
+
+# -----------------------------------------------------------------------------
+# 6. ASCII SWISS DEMOS
+# -----------------------------------------------------------------------------
+examples:
+  swiss_poster:
+    render: |
+      ██████████████████████████████
+      █  GRID SYSTEMS WORKSHOP     █
+      ██████████████████████████████
+      █                            █
+      █  ██████████                █
+      █  ██████████                █
+      █                            █
+      ██████████  12 SEPTEMBER  ████
+      ██████████████████████████████
+  swiss_report_cover:
+    render: |
+      REPORT: Q4 METRICS
+      ████████████████████
+      █   DATA GRAPHIC   █
+      ████████████████████
+      Prepared by: ASCII LAB
+
+# =============================================================================
+# END SWISS OVERLAY
+# =============================================================================
+

@@ -1,0 +1,237 @@
+/* Swiss ASCII Mode - Complete text-only transformation */
+
+/* ASCII Mode Global Override */
+html[data-mode="ascii"] {
+  /* Force monospace and high contrast */
+  --color-text: #000000;
+  --color-accent: #000000;
+  --color-bg: #FFFFFF;
+  
+  font-family: var(--font-data);
+  font-size: 12px;
+  line-height: 1.3;
+  letter-spacing: 0;
+  
+  /* Disable image rendering artifacts */
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* Reset all styling in ASCII mode */
+html[data-mode="ascii"] * {
+  all: unset;
+  display: block;
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+/* Preserve essential structural elements */
+html[data-mode="ascii"] html,
+html[data-mode="ascii"] body {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 8px;
+}
+
+/* ASCII Headings - Underlined Swiss style */
+html[data-mode="ascii"] h1,
+html[data-mode="ascii"] h2,
+html[data-mode="ascii"] h3,
+html[data-mode="ascii"] h4 {
+  font-weight: bold;
+  margin: 0 0 2px 0;
+  padding: 0;
+}
+
+html[data-mode="ascii"] h1::after,
+html[data-mode="ascii"] h2::after,
+html[data-mode="ascii"] h3::after,
+html[data-mode="ascii"] h4::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  margin: 2px 0 8px 0;
+}
+
+html[data-mode="ascii"] h1 { font-size: 14px; }
+html[data-mode="ascii"] h2 { font-size: 13px; }
+html[data-mode="ascii"] h3 { font-size: 12px; }
+html[data-mode="ascii"] h4 { font-size: 12px; }
+
+/* ASCII Paragraphs */
+html[data-mode="ascii"] p {
+  margin: 0 0 8px 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* ASCII Lists - En dash bullets */
+html[data-mode="ascii"] ul {
+  margin: 0 0 8px 0;
+  padding: 0;
+  list-style: none;
+}
+
+html[data-mode="ascii"] ul li {
+  margin: 0 0 2px 0;
+  position: relative;
+}
+
+html[data-mode="ascii"] ul li::before {
+  content: "– ";
+  position: static;
+  display: inline;
+}
+
+html[data-mode="ascii"] ol {
+  margin: 0 0 8px 0;
+  padding: 0;
+  counter-reset: ascii-counter;
+}
+
+html[data-mode="ascii"] ol li {
+  margin: 0 0 2px 0;
+  counter-increment: ascii-counter;
+}
+
+html[data-mode="ascii"] ol li::before {
+  content: counter(ascii-counter) ". ";
+  display: inline;
+}
+
+/* ASCII Tables - Box drawing characters */
+html[data-mode="ascii"] table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  margin: 0 0 8px 0;
+  font-family: var(--font-data);
+}
+
+html[data-mode="ascii"] th,
+html[data-mode="ascii"] td {
+  border: 1px solid currentColor;
+  padding: 0 4px;
+  vertical-align: top;
+  text-align: left;
+  min-width: 1ch;
+}
+
+html[data-mode="ascii"] th {
+  font-weight: bold;
+  background: transparent;
+}
+
+html[data-mode="ascii"] .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ASCII Sparklines */
+html[data-mode="ascii"] .spark {
+  font-family: var(--font-data);
+  letter-spacing: 0;
+}
+
+html[data-mode="ascii"] .spark::before {
+  content: attr(data-ascii);
+  display: inline;
+}
+
+html[data-mode="ascii"] .spark > * {
+  display: none;
+}
+
+/* ASCII Links - No decoration, just text */
+html[data-mode="ascii"] a {
+  color: inherit;
+  text-decoration: none;
+  display: inline;
+}
+
+html[data-mode="ascii"] a::after {
+  content: " [" attr(href) "]";
+  font-size: smaller;
+  opacity: 0.7;
+}
+
+/* Hide visual-only elements in ASCII mode */
+html[data-mode="ascii"] .visual-only,
+html[data-mode="ascii"] img:not([alt]),
+html[data-mode="ascii"] svg:not([aria-label]),
+html[data-mode="ascii"] canvas {
+  display: none;
+}
+
+/* ASCII-only content visibility */
+html[data-mode="ascii"] .ascii-only {
+  display: block;
+}
+
+html:not([data-mode="ascii"]) .ascii-only {
+  display: none;
+}
+
+/* Preserve code blocks */
+html[data-mode="ascii"] pre,
+html[data-mode="ascii"] code {
+  font-family: var(--font-data);
+  white-space: pre;
+  display: block;
+  margin: 8px 0;
+  padding: 4px;
+  border: 1px solid currentColor;
+}
+
+html[data-mode="ascii"] code {
+  display: inline;
+  margin: 0;
+  padding: 0 2px;
+  border: none;
+}
+
+/* Form elements in ASCII mode */
+html[data-mode="ascii"] input,
+html[data-mode="ascii"] textarea,
+html[data-mode="ascii"] select,
+html[data-mode="ascii"] button {
+  all: unset;
+  border: 1px solid currentColor;
+  padding: 2px 4px;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+}
+
+html[data-mode="ascii"] button {
+  cursor: pointer;
+}
+
+html[data-mode="ascii"] button:hover {
+  background: currentColor;
+  color: var(--color-bg);
+}
+
+/* Maintain layout stability - prevent CLS */
+html[data-mode="ascii"] .grid {
+  display: block;
+}
+
+html[data-mode="ascii"] [class*="col-"] {
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* Force text selection to be monospace-friendly */
+html[data-mode="ascii"] *::selection {
+  background: rgba(0, 0, 0, 0.2);
+  color: inherit;
+}
